@@ -61,7 +61,7 @@ class ImageFieldState extends State<ImageField> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        Container(height: widget.imgHeight,child:tmpImg != null ? tmpImg : (image == null ? Image.asset(widget.noImagePath, fit:BoxFit.scaleDown) : Image.file(image, fit:BoxFit.scaleDown))),
+        Container(height: widget.imgHeight,child:tmpImg != null ? tmpImg : (image == null ? Image.asset(AssetImage(widget.noImagePath).assetName, package: "sentora_base", fit:BoxFit.scaleDown) : Image.file(image, fit:BoxFit.scaleDown))),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
