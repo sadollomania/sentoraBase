@@ -37,7 +37,7 @@ flutter:
     pluginClass: SentoraBasePlugin
 
   assets:
-    - assets/imagesBase/no_image.png
+    - assets_sentora_base/images/no_image.png
 
   # To add assets to your plugin package, add an assets section, like this:
 

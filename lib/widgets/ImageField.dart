@@ -13,7 +13,7 @@ class ImageField extends StatefulWidget{
     @required this.onSaved,
     @required this.initialValue,
     this.imgHeight = 200,
-    this.noImagePath = "assets/imagesBase/no_image.png",
+    this.noImagePath = "assets_sentora_base/images/no_image.png",
   });
 
   @override
