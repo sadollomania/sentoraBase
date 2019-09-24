@@ -36,11 +36,8 @@ flutter:
     androidPackage: com.sentora.sentora_base
     pluginClass: SentoraBasePlugin
 
-  assets:
-    - assets_sentora_base/images/no_image.png
-
   # To add assets to your plugin package, add an assets section, like this:
-
+  # assets:
   #  - images/a_dot_ham.jpeg
   #
   # For details regarding assets in packages, see

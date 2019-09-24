@@ -12,8 +12,8 @@ class ImageField extends StatefulWidget{
   ImageField({
     @required this.onSaved,
     @required this.initialValue,
+    @required this.noImagePath,
     this.imgHeight = 200,
-    this.noImagePath = "assets_sentora_base/images/no_image.png",
   });
 
   @override
@@ -61,7 +61,7 @@ class ImageFieldState extends State<ImageField> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        Container(height: widget.imgHeight,child:tmpImg != null ? tmpImg : (image == null ? Image.asset(AssetImage(widget.noImagePath).assetName, package: "sentora_base", fit:BoxFit.scaleDown) : Image.file(image, fit:BoxFit.scaleDown))),
+        Container(height: widget.imgHeight,child:tmpImg != null ? tmpImg : (image == null ? Image.asset(widget.noImagePath, fit:BoxFit.scaleDown) : Image.file(image, fit:BoxFit.scaleDown))),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
