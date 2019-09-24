@@ -7,13 +7,13 @@ class AppAds {
   static String _rewardUnitId;
 
   static bool _bannerInitialized = false;
-  static bool _screenInitialized = false;
   static bool _rewardInitialized = false;
 
   static BannerAd myBanner;
   static InterstitialAd myInterstitial;
 
   static MobileAdTargetingInfo targetingInfo;
+  static bool interstitialShown = false;
 
   /*
   Example MobileTargetingInfo
@@ -51,15 +51,6 @@ class AppAds {
       _bannerInitialized = true;
     }
 
-    if(_screenUnitId != null) {
-      myInterstitial = InterstitialAd(
-        //adUnitId: InterstitialAd.testAdUnitId,
-        adUnitId: _screenUnitId,
-        targetingInfo: targetingInfo,
-      );
-      _screenInitialized = true;
-    }
-
     if(_rewardUnitId != null) {
       RewardedVideoAd.instance.listener =
           (RewardedVideoAdEvent event, {String rewardType, int rewardAmount}) {
@@ -73,6 +64,13 @@ class AppAds {
 
   static void showBanner() {
     if(_bannerInitialized) {
+      myBanner = BannerAd(
+        //adUnitId: BannerAd.testAdUnitId,
+        adUnitId: _bannerUnitId,
+        size: AdSize.smartBanner,
+        targetingInfo: targetingInfo,
+      );
+
       myBanner..load()..show(
         // Positions the banner ad 60 pixels from the bottom of the screen
         anchorOffset: 60.0,
@@ -87,12 +85,31 @@ class AppAds {
   }
 
   static void showScreen() {
-    if(_screenInitialized) {
-      myInterstitial..load()..show(
-        anchorType: AnchorType.bottom,
-        anchorOffset: 0.0,
-        horizontalCenterOffset: 0.0,
-      );
+    if(_screenUnitId != null && interstitialShown == false) {
+      myInterstitial = new InterstitialAd(
+        adUnitId: _screenUnitId,
+        listener: (MobileAdEvent e) {
+          if(e == MobileAdEvent.failedToLoad){
+            myInterstitial.dispose();
+            myInterstitial = null;
+            interstitialShown = false;
+            showScreen();
+          } else if(e == MobileAdEvent.loaded){
+            myInterstitial.show().then((_){
+              interstitialShown = true;
+            });
+          } else if(e == MobileAdEvent.closed){
+            myInterstitial.dispose();
+            myInterstitial = null;
+            showScreen();
+            interstitialShown = false;
+          } else if(e == MobileAdEvent.leftApplication){
+            myInterstitial.dispose();
+            myInterstitial = null;
+            interstitialShown = false;
+          }
+        });
+      myInterstitial.load();
     } else {
       print("Interstatial Ads not initialized. Construct AppAds with screenUnitId");
     }
@@ -111,7 +128,7 @@ class AppAds {
     if(_bannerInitialized) {
       myBanner.dispose();
     }
-    if(_screenInitialized) {
+    if(_screenUnitId != null && myInterstitial != null) {
       myInterstitial.dispose();
     }
   }
