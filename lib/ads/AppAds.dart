@@ -1,6 +1,7 @@
 import 'package:firebase_admob/firebase_admob.dart';
 
 class AppAds {
+  static bool _appsDisabled = false;
   static String _appId;
   static String _bannerUnitId;
   static String _screenUnitId;
@@ -26,7 +27,15 @@ class AppAds {
   );
   */
 
+  static void setAppsDisabled() {
+    _appsDisabled = true;
+  }
+
   static void init(String appId, {String bannerUnitId, String screenUnitId, String rewardUnitId, List<String> keywords }){
+    if(_appsDisabled) {
+      return;
+    }
+
     _appId = appId;
     _bannerUnitId = bannerUnitId;
     _screenUnitId = screenUnitId;
@@ -79,7 +88,7 @@ class AppAds {
         // Banner Position
         anchorType: AnchorType.bottom,
       );
-    } else {
+    } else if(!_appsDisabled){
       print("Banner Ads not initialized. Construct AppAds with bannerUnitId");
     }
   }
@@ -110,7 +119,7 @@ class AppAds {
           }
         });
       myInterstitial.load();
-    } else {
+    } else if(!_appsDisabled){
       print("Interstatial Ads not initialized. Construct AppAds with screenUnitId");
     }
   }
@@ -118,7 +127,7 @@ class AppAds {
   static void showVideo() {
     if(_rewardInitialized) {
       RewardedVideoAd.instance.load(adUnitId: _rewardUnitId, targetingInfo: targetingInfo);
-    } else {
+    } else if(!_appsDisabled) {
       print("Reward Ads not initialized. Construct AppAds with rewardUnitId");
     }
   }
