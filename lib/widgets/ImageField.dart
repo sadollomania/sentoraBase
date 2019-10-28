@@ -42,7 +42,7 @@ class ImageFieldState extends State<ImageField> {
       setState(() {
         image = img;
       });
-      widget.onSaved(image);
+      widget.onSaved(img);
     }
   }
 
@@ -52,7 +52,7 @@ class ImageFieldState extends State<ImageField> {
       setState(() {
         image = img;
       });
-      widget.onSaved(image);
+      widget.onSaved(img);
     }
   }
 
