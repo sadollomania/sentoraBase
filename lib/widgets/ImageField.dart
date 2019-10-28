@@ -41,8 +41,9 @@ class ImageFieldState extends State<ImageField> {
     if(img != null) {
       setState(() {
         image = img;
+        tmpImg = Image.file(image, fit:BoxFit.scaleDown);
       });
-      widget.onSaved(img);
+      widget.onSaved(image);
     }
   }
 
@@ -51,8 +52,9 @@ class ImageFieldState extends State<ImageField> {
     if(img != null) {
       setState(() {
         image = img;
+        tmpImg = Image.file(image, fit:BoxFit.scaleDown);
       });
-      widget.onSaved(img);
+      widget.onSaved(image);
     }
   }
 

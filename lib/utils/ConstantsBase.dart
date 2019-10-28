@@ -12,7 +12,7 @@ class ConstantsBase {
   static final _uuid = Uuid();
   static SharedPreferences _prefs;
 
-  static Map<String, String> PREF_DEFAULT_VALS;
+  static Map<String, String> prefDefaultVals;
 
   static String getRandomUUID() {
     return _uuid.v1();
@@ -34,7 +34,7 @@ class ConstantsBase {
     if(_prefs == null) {
       throw new Exception("Prefs not loaded. Consider calling ConstantsBase.loadPrefs with await");
     }
-    return _prefs.getString(key) ?? PREF_DEFAULT_VALS ? PREF_DEFAULT_VALS[key] : throw new Exception("ConstantsBase PREF_DEFAULT_VALS not initialized for $key");
+    return _prefs.getString(key) ?? prefDefaultVals ? prefDefaultVals[key] : throw new Exception("ConstantsBase PREF_DEFAULT_VALS not initialized for $key");
   }
 
   static Future<void> setKeyValue(String key, String value) async{
