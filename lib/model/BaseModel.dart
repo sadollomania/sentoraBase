@@ -88,9 +88,9 @@ class BaseModel {
   List<BaseFieldType> _constructFields() {
     List<BaseFieldType> allFieldTypes = List<BaseFieldType>();
     allFieldTypes.add(StringField(fieldLabel:"ID", fieldHint:"ID", name:"ID", nullable: false));
-    allFieldTypes.add(StringField(fieldLabel:"INSDATE", fieldHint:"INSDATE", name:"INSDATE", nullable: false));
+    allFieldTypes.add(DateField(fieldLabel:"INSDATE", fieldHint:"INSDATE", name:"INSDATE", nullable: false));
     allFieldTypes.add(StringField(fieldLabel:"INSBY", fieldHint:"INSBY", name:"INSBY", nullable: false));
-    allFieldTypes.add(StringField(fieldLabel:"UPDDATE", fieldHint:"UPDDATE", name:"UPDDATE", nullable: false));
+    allFieldTypes.add(DateField(fieldLabel:"UPDDATE", fieldHint:"UPDDATE", name:"UPDDATE", nullable: false));
     allFieldTypes.add(StringField(fieldLabel:"UPDBY", fieldHint:"UPDBY", name:"UPDBY", nullable: false));
     allFieldTypes.addAll(fieldTypes);
     return allFieldTypes;
