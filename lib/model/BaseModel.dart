@@ -85,14 +85,14 @@ class BaseModel {
   }
 
   List<BaseFieldType> _constructFields() {
-    List<BaseFieldType> fieldTypes = List<BaseFieldType>();
-    fieldTypes.add(StringField(fieldLabel:"ID", fieldHint:"ID", name:"ID", nullable: false));
-    fieldTypes.add(StringField(fieldLabel:"INSDATE", fieldHint:"INSDATE", name:"INSDATE", nullable: false));
-    fieldTypes.add(StringField(fieldLabel:"INSBY", fieldHint:"INSBY", name:"INSBY", nullable: false));
-    fieldTypes.add(StringField(fieldLabel:"UPDDATE", fieldHint:"UPDDATE", name:"UPDDATE", nullable: false));
-    fieldTypes.add(StringField(fieldLabel:"UPDBY", fieldHint:"UPDBY", name:"UPDBY", nullable: false));
-    fieldTypes.addAll(fieldTypes);
-    return fieldTypes;
+    List<BaseFieldType> allFieldTypes = List<BaseFieldType>();
+    allFieldTypes.add(StringField(fieldLabel:"ID", fieldHint:"ID", name:"ID", nullable: false));
+    allFieldTypes.add(StringField(fieldLabel:"INSDATE", fieldHint:"INSDATE", name:"INSDATE", nullable: false));
+    allFieldTypes.add(StringField(fieldLabel:"INSBY", fieldHint:"INSBY", name:"INSBY", nullable: false));
+    allFieldTypes.add(StringField(fieldLabel:"UPDDATE", fieldHint:"UPDDATE", name:"UPDDATE", nullable: false));
+    allFieldTypes.add(StringField(fieldLabel:"UPDBY", fieldHint:"UPDBY", name:"UPDBY", nullable: false));
+    allFieldTypes.addAll(fieldTypes);
+    return allFieldTypes;
   }
 
   Map<String, dynamic> _toMap() {
