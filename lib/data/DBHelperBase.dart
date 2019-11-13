@@ -7,23 +7,20 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:io';
 
 class DBHelperBase {
-  static DBHelperBase _instance;
-  static DBHelperBase get instance => _instance;
-  static void init(databaseFileName, databaseVersion, versionFunctions) => _instance ??= DBHelperBase._init(databaseFileName, databaseVersion, versionFunctions);
+  static final DBHelperBase instance = DBHelperBase._private();
+  DBHelperBase._private();
+  factory DBHelperBase() => instance;
 
-  final String databaseFileName;
-  final int databaseVersion;
-  final List<Function> versionFunctions;
-  DBHelperBase._init(this.databaseFileName, this.databaseVersion, this.versionFunctions);
-
-  factory DBHelperBase() => _instance;
+  String getDatabaseFileName() {}
+  int getDatabaseVersion() {}
+  List<Function> getVersionFunctions() {}
 
   Database _database;
   bool _didInit = false;
 
   Future<String> _getDBPath() async {
     String dbFolder = await getDatabasesPath();
-    return join(dbFolder, databaseFileName);
+    return join(dbFolder, getDatabaseFileName());
   }
 
   Future _init() async {
@@ -31,19 +28,19 @@ class DBHelperBase {
       await _getDBPath(),
       onCreate: (db, version) async {
         for(int i = 0; i < version; ++i) {
-          await versionFunctions[i](db);
+          await getVersionFunctions()[i](db);
           debugPrint("Upgraded to Version " + ( i + 1 ).toString());
         }
         return true;
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         for(int i = oldVersion; i < newVersion; ++i) {
-          await versionFunctions[i](db);
+          await getVersionFunctions()[i](db);
           debugPrint("Upgraded to Version " + ( i + 1 ).toString());
         }
         return true;
       },
-      version: databaseVersion,
+      version: getDatabaseVersion(),
     );
     _didInit = true;
   }
@@ -66,7 +63,7 @@ class DBHelperBase {
   Future<void> backupDB() async {
     bool dbOpen = await close();
     String dbPath = await _getDBPath();
-    String backupPath = await ConstantsBase.getVisiblePath() + "/" + databaseFileName + ".backup";
+    String backupPath = await ConstantsBase.getVisiblePath() + "/" + getDatabaseFileName() + ".backup";
     File f = File(dbPath);
     f.copySync(backupPath);
     if(dbOpen) {
