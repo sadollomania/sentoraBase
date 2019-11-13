@@ -160,6 +160,10 @@ class BaseModel {
 
   Future<int> _insertToDb() async {
     final Database db = await DBHelperBase.instance.getDb();
+    _fieldValues["INSDATE"] = DateTime.now();
+    _fieldValues["INSBY"] = "AUTO";
+    _fieldValues["UPDDATE"] = DateTime.now();
+    _fieldValues["UPDBY"] = "AUTO";
     return await db.insert(
       tableName,
       _toMap(),
@@ -169,6 +173,8 @@ class BaseModel {
 
   Future<int> _updateInDb() async {
     final Database db = await DBHelperBase.instance.getDb();
+    _fieldValues["UPDDATE"] = DateTime.now();
+    _fieldValues["UPDBY"] = "AUTO";
     return await db.update(
       tableName,
       _toMap(),
