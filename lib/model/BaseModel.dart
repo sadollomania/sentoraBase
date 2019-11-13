@@ -111,7 +111,7 @@ class BaseModel {
   void _fromMap(Map<String, dynamic> map) {
     allFieldTypes.forEach((fieldType){
       if(fieldType.runtimeType == DateField) {
-        set(fieldType.name, ConstantsBase.dateFormat.format(map[fieldType.name]));
+        set(fieldType.name, ConstantsBase.dateFormat.parse(map[fieldType.name]));
       } else {
         set(fieldType.name, map[fieldType.name]);
       }
