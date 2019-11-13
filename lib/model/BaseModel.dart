@@ -57,6 +57,7 @@ class BaseModel {
       _modelListTileSubTitleFields[modelName] = listTileSubTitleField;
       _modelPageTitles[modelName] = pageTitle;
       _modelSingleTitles[modelName] = singleTitle;
+      _models.add(modelName);
     }
 
     allFieldTypes = _constructFields();
