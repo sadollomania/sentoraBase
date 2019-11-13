@@ -6,16 +6,24 @@ import 'dart:core';
 import 'package:sqflite/sqflite.dart';
 import 'dart:io';
 
-abstract class DBHelperBase {
-  final String databaseFileName;
-  final int databaseVersion;
-  final List<Function> versionFunctions;
+class DBHelperBase {
+  static DBHelperBase instance = new DBHelperBase._internal();
+  String databaseFileName;
+  int databaseVersion;
+  List<Function> versionFunctions;
 
-  DBHelperBase({
-    @required this.databaseFileName,
-    @required this.databaseVersion,
-    @required this.versionFunctions,
-  });
+  DBHelperBase._internal();
+
+  factory DBHelperBase({
+    String databaseFileName,
+    int databaseVersion,
+    List<Function> versionFunctions,
+  }) {
+    instance.databaseFileName = databaseFileName;
+    instance.databaseVersion = databaseVersion;
+    instance.versionFunctions = versionFunctions;
+    return instance;
+  }
 
   Database _database;
   bool _didInit = false;
