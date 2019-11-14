@@ -132,7 +132,7 @@ class BaseModel {
         set(fieldType.name, ConstantsBase.dateFormat.parse(map[fieldType.name]));
       } else if(fieldType.runtimeType == ForeignKeyField) {
         ForeignKeyField foreignKeyField = fieldType as ForeignKeyField;
-        BaseModel baseModel = await _getById(foreignKeyField.foreignKeyModel.modelName, foreignKeyField.foreignKeyModel.tableName, map[fieldType.name]);
+        BaseModel baseModel = await getById(foreignKeyField.foreignKeyModel.modelName, foreignKeyField.foreignKeyModel.tableName, map[fieldType.name]);
         set(fieldType.name, baseModel);
       } else if(fieldType.runtimeType == IntField) {
         set(fieldType.name, map[fieldType.name]);
@@ -232,17 +232,6 @@ class BaseModel {
     return retList;
   }
 
-  Future<BaseModel> _getById(String fromModel, String fromTable, String id) async {
-    final Database db = await DBHelperBase.instance.getDb();
-    final List<Map<String, dynamic>> maps = await db.query(fromTable, where: "ID = ?", whereArgs: List<String>.from([id]));
-    if(maps.length > 0) {
-      BaseModel newObj = BaseModel.createNewObject(fromModel);
-      await newObj._fromMap(maps[0]);
-      return newObj;
-    }
-    return null;
-  }
-
   dynamic get(String fieldName) {
     return _fieldValues[fieldName];
   }
@@ -299,6 +288,17 @@ class BaseModel {
 
   static Future<List<BaseModel>> getList(BaseModel baseModel) {
     return baseModel._getList();
+  }
+
+  static Future<BaseModel> getById(String fromModel, String fromTable, String id) async {
+    final Database db = await DBHelperBase.instance.getDb();
+    final List<Map<String, dynamic>> maps = await db.query(fromTable, where: "ID = ?", whereArgs: List<String>.from([id]));
+    if(maps.length > 0) {
+      BaseModel newObj = BaseModel.createNewObject(fromModel);
+      await newObj._fromMap(maps[0]);
+      return newObj;
+    }
+    return null;
   }
 
   static String createDbTableScript(BaseModel baseModel) {

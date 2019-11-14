@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sentora_base/data/DBHelperBase.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/fieldTypes/BlobField.dart';
 import 'package:sentora_base/model/fieldTypes/BooleanField.dart';
@@ -108,19 +109,21 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
               future: BaseModel.getList(foreignKeyField.foreignKeyModel),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-                return DropdownButton<BaseModel>(
-                  items: snapshot.data.map((dropdownKayit) => DropdownMenuItem<BaseModel>(
+                return DropdownButton<String>(
+                  items: snapshot.data.map((dropdownKayit) => DropdownMenuItem<String>(
                     child: Container(
                       child: Text(dropdownKayit.getListTileTitleValue()),
                     ),
-                    value: dropdownKayit.get("ID"),
+                    value: dropdownKayit.get("ID") as String,
                   )).toList(),
-                  onChanged: (dropdownKayit) {
-                    setState(() {
-                      if(widget.kayit == null) {
-                        widget.kayit = BaseModel.createNewObject(widget.modelName);
-                      }
-                      widget.kayit.set(foreignKeyField.name, dropdownKayit);
+                  onChanged: (String dropdownKayitId) {
+                    BaseModel.getById(foreignKeyField.foreignKeyModel.modelName, foreignKeyField.foreignKeyModel.tableName, dropdownKayitId).then((newObj){
+                      setState(() {
+                        if(widget.kayit == null) {
+                          widget.kayit = BaseModel.createNewObject(widget.modelName);
+                        }
+                        widget.kayit.set(foreignKeyField.name, newObj);
+                      });
                     });
                   },
                   isExpanded: false,
