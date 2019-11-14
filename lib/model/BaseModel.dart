@@ -271,7 +271,7 @@ class BaseModel {
   }
 
   String getTileAvatarFieldValue() {
-    return get(listTileAvatarField)[0];
+    return _getPathListValuesFromObj(listTileAvatarField)[0];
   }
 
   static Future<int> insert(BaseModel baseModel) {
