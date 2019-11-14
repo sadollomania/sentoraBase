@@ -73,7 +73,7 @@ class BaseModel {
       throw new Exception("Tanımsız Model Adı : " + modelName);
     }
 
-    return BaseModel(
+     BaseModel ret = BaseModel(
       modelName: modelName,
       tableName: _modelTableNames[modelName],
       fieldTypes: _modelFieldTypes[modelName],
@@ -85,6 +85,12 @@ class BaseModel {
       pageTitle: _modelPageTitles[modelName],
       singleTitle: _modelSingleTitles[modelName],
     );
+
+    ret.allFieldTypes.forEach((fieldType){
+      ret._fieldValues[fieldType.name] = fieldType.defaultValue;
+    });
+
+    return ret;
   }
 
   List<BaseFieldType> _constructFields() {

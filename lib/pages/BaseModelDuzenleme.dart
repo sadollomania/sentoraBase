@@ -141,7 +141,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
               child: TextFormField(
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: fieldType.fieldLabel),
-                initialValue: widget.kayit != null ? widget.kayit.get(fieldType.name) : null,
+                initialValue: widget.kayit != null ? (widget.kayit.get(fieldType.name) != null ? widget.kayit.get(fieldType.name).toString() : null) : null,
                 validator: (value) {
                   if (!fieldType.nullable && value.isEmpty || int.tryParse(value) == null) {
                     return 'Bir tam sayı giriniz!';
@@ -152,7 +152,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                   if(widget.kayit == null) {
                     widget.kayit = BaseModel.createNewObject(widget.modelName);
                   }
-                  widget.kayit.set(fieldType.name, value);
+                  widget.kayit.set(fieldType.name, int.parse(value));
                 },
               ),
             )
@@ -164,7 +164,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
               child: TextFormField(
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: fieldType.fieldLabel),
-                initialValue: widget.kayit != null ? widget.kayit.get(fieldType.name) : null,
+                initialValue: widget.kayit != null ? (widget.kayit.get(fieldType.name) != null ? widget.kayit.get(fieldType.name).toString() : null) : null,
                 validator: (value) {
                   if (!fieldType.nullable && value.isEmpty || double.tryParse(value) == null) {
                     return 'Ondalıklı sayı giriniz!';
@@ -175,7 +175,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                   if(widget.kayit == null) {
                     widget.kayit = BaseModel.createNewObject(widget.modelName);
                   }
-                  widget.kayit.set(fieldType.name, value);
+                  widget.kayit.set(fieldType.name, double.parse(value));
                 },
               ),
             )
