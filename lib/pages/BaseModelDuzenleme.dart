@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sentora_base/data/DBHelperBase.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/fieldTypes/BlobField.dart';
 import 'package:sentora_base/model/fieldTypes/BooleanField.dart';
@@ -246,7 +245,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(ornekKayit.singleTitle + " Düzenleme"),
+        title: Text(ornekKayit.singleTitle + (kayit == null || kayit.get("ID") == null ? " Ekleme" : " Düzenleme")),
       ),
       body: Padding(
           padding:EdgeInsets.all(8.0)

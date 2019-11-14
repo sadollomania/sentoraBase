@@ -5,21 +5,26 @@ import 'package:sentora_base/pages/BaseModelDuzenleme.dart';
 import 'package:sentora_base/widgets/MenuButton.dart';
 
 class BaseModelPage extends StatefulWidget {
-  String modelName;
-  BaseModel ornekKayit;
+  final String widgetModelName;
 
   BaseModelPage({
-    @required this.modelName,
-  }) {
-    this.ornekKayit = BaseModel.createNewObject(this.modelName);
-  }
+    @required this.widgetModelName,
+  });
 
   @override
-  State<StatefulWidget> createState() => new _BaseModelPageState();
+  State<StatefulWidget> createState() => new _BaseModelPageState(modelName: this.widgetModelName);
 }
 
 class _BaseModelPageState extends State<BaseModelPage> {
+  String modelName;
+  BaseModel ornekKayit;
   BaseModel _selectedKayit;
+
+  _BaseModelPageState({
+    @required this.modelName
+  }) {
+    this.ornekKayit = BaseModel.createNewObject(this.modelName);
+}
 
   void _showDialog() {
     showDialog(
@@ -27,7 +32,7 @@ class _BaseModelPageState extends State<BaseModelPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Emin Misiniz?"),
-          content: Text(widget.ornekKayit.singleTitle + " Silinecektir!"),
+          content: Text(ornekKayit.singleTitle + " Silinecektir!"),
           actions: <Widget>[
             FlatButton(
               child: Text("İptal"),
@@ -56,7 +61,7 @@ class _BaseModelPageState extends State<BaseModelPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.ornekKayit.pageTitle),
+        title: Text(ornekKayit.pageTitle),
       ),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -72,7 +77,7 @@ class _BaseModelPageState extends State<BaseModelPage> {
                     onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute<Null>(
                           builder: (BuildContext context) {
-                            return BaseModelDuzenleme(widgetKayit : _selectedKayit, widgetModelName: widget.modelName,);
+                            return BaseModelDuzenleme(widgetKayit : _selectedKayit, widgetModelName: modelName,);
                           }));
                     }),
               ),
@@ -85,7 +90,7 @@ class _BaseModelPageState extends State<BaseModelPage> {
                     onPressed: () {
                       Navigator.of(context).push(
                           MaterialPageRoute<Null>(builder: (BuildContext context) {
-                            return BaseModelDuzenleme(widgetKayit : _selectedKayit, widgetModelName: widget.modelName,);
+                            return BaseModelDuzenleme(widgetKayit : _selectedKayit, widgetModelName: modelName,);
                           }));
                     }),
               ),
@@ -103,7 +108,7 @@ class _BaseModelPageState extends State<BaseModelPage> {
           ),
           Expanded(
             child: FutureBuilder<List<BaseModel>>(
-              future: BaseModel.getList(widget.ornekKayit),
+              future: BaseModel.getList(ornekKayit),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
                 return ListView(
