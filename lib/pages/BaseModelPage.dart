@@ -122,11 +122,11 @@ class _BaseModelPageState extends State<BaseModelPage> {
                           });
                         }
                       },
-                      title: Text(kayit.listTileTitle + " : " + kayit.get(kayit.listTileTitleField)),
-                      subtitle: Text(kayit.listTileSubTitle + " : " + kayit.get(kayit.listTileSubTitleField)),
+                      title: Text(kayit.listTileTitle + " : " + kayit.getListTileTitleValue()),
+                      subtitle: Text(kayit.listTileSubTitle + " : " + kayit.getListTileSubTitleValue()),
                       leading: CircleAvatar(
                         backgroundColor: Colors.red,
-                        child: Text(kayit.get(kayit.listTileAvatarField)[0], style: TextStyle(fontSize: 18.0, color: Colors.white,)),
+                        child: Text(kayit.getTileAvatarFieldValue(), style: TextStyle(fontSize: 18.0, color: Colors.white,)),
                       ),
                     ),
                   )).toList(),

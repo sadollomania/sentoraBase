@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
 import 'package:sentora_base/model/fieldTypes/BlobField.dart';
+import 'package:sentora_base/model/fieldTypes/BooleanField.dart';
 import 'package:sentora_base/model/fieldTypes/DateField.dart';
+import 'package:sentora_base/model/fieldTypes/ForeignKeyField.dart';
 import 'package:sentora_base/model/fieldTypes/IntField.dart';
 import 'package:sentora_base/model/fieldTypes/RealField.dart';
 import 'package:sentora_base/model/fieldTypes/StringField.dart';
@@ -99,21 +101,47 @@ class BaseModel {
   Map<String, dynamic> _toMap() {
     Map<String, dynamic> retVals = Map<String, dynamic>();
     allFieldTypes.forEach((fieldType){
-      if(fieldType.runtimeType == DateField) {
-        retVals[fieldType.name] = ConstantsBase.dateFormat.format(_fieldValues[fieldType.name]);
-      } else {
+      if(fieldType.runtimeType == BlobField) {
         retVals[fieldType.name] = _fieldValues[fieldType.name];
+      } else if(fieldType.runtimeType == BooleanField) {
+        retVals[fieldType.name] = _fieldValues[fieldType.name] == true ? 1 : 0;
+      } else if(fieldType.runtimeType == DateField) {
+        retVals[fieldType.name] = ConstantsBase.dateFormat.format(_fieldValues[fieldType.name]);
+      } else if(fieldType.runtimeType == ForeignKeyField) {
+        retVals[fieldType.name] = (_fieldValues[fieldType.name] as BaseModel).get("ID");
+      } else if(fieldType.runtimeType == IntField) {
+        retVals[fieldType.name] = _fieldValues[fieldType.name];
+      } else if(fieldType.runtimeType == RealField) {
+        retVals[fieldType.name] = _fieldValues[fieldType.name];
+      } else if(fieldType.runtimeType == StringField) {
+        retVals[fieldType.name] = _fieldValues[fieldType.name];
+      } else {
+        throw new Exception("Unknown FieldType : " + fieldType.runtimeType.toString());
       }
     });
     return retVals;
   }
 
-  void _fromMap(Map<String, dynamic> map) {
-    allFieldTypes.forEach((fieldType){
-      if(fieldType.runtimeType == DateField) {
-        set(fieldType.name, ConstantsBase.dateFormat.parse(map[fieldType.name]));
-      } else {
+  Future<void> _fromMap(Map<String, dynamic> map) async{
+    await allFieldTypes.forEach((fieldType) async{
+      if(fieldType.runtimeType == BlobField) {
         set(fieldType.name, map[fieldType.name]);
+      } else if(fieldType.runtimeType == BooleanField) {
+        set(fieldType.name, map[fieldType.name] == 1);
+      } else if(fieldType.runtimeType == DateField) {
+        set(fieldType.name, ConstantsBase.dateFormat.parse(map[fieldType.name]));
+      } else if(fieldType.runtimeType == ForeignKeyField) {
+        ForeignKeyField foreignKeyField = fieldType as ForeignKeyField;
+        BaseModel baseModel = await _getById(foreignKeyField.foreignKeyModel.modelName, foreignKeyField.foreignKeyModel.tableName, map[fieldType.name]);
+        set(fieldType.name, baseModel);
+      } else if(fieldType.runtimeType == IntField) {
+        set(fieldType.name, map[fieldType.name]);
+      } else if(fieldType.runtimeType == RealField) {
+        set(fieldType.name, map[fieldType.name]);
+      } else if(fieldType.runtimeType == StringField) {
+        set(fieldType.name, map[fieldType.name]);
+      } else {
+        throw new Exception("Unknown FieldType : " + fieldType.runtimeType.toString());
       }
     });
   }
@@ -124,9 +152,9 @@ class BaseModel {
     allFieldTypes.forEach((fieldType){
       ++index;
       str += fieldType.name;
-      if(fieldType.runtimeType == StringField || fieldType.runtimeType == DateField) {
+      if(fieldType.runtimeType == StringField || fieldType.runtimeType == DateField || fieldType.runtimeType == ForeignKeyField) {
         str += " TEXT";
-      } else if(fieldType.runtimeType == IntField) {
+      } else if(fieldType.runtimeType == IntField || fieldType.runtimeType == BooleanField) {
         str += " INTEGER";
       } else if(fieldType.runtimeType == RealField) {
         str += " REAL";
@@ -195,11 +223,24 @@ class BaseModel {
   Future<List<BaseModel>> _getList() async {
     final Database db = await DBHelperBase.instance.getDb();
     final List<Map<String, dynamic>> maps = await db.query(tableName);
-    return List.generate(maps.length, (i) {
+    List<BaseModel> retList = List<BaseModel>();
+    for(int i = 0, len = maps.length; i < len; ++i) {
       BaseModel newObj = BaseModel.createNewObject(modelName);
-      newObj._fromMap(maps[i]);
+      await newObj._fromMap(maps[i]);
+      retList.add(newObj);
+    }
+    return retList;
+  }
+
+  Future<BaseModel> _getById(String fromModel, String fromTable, String id) async {
+    final Database db = await DBHelperBase.instance.getDb();
+    final List<Map<String, dynamic>> maps = await db.query(fromTable, where: "ID = ?", whereArgs: List<String>.from([id]));
+    if(maps.length > 0) {
+      BaseModel newObj = BaseModel.createNewObject(fromModel);
+      await newObj._fromMap(maps[0]);
       return newObj;
-    });
+    }
+    return null;
   }
 
   dynamic get(String fieldName) {
@@ -208,6 +249,40 @@ class BaseModel {
 
   void set(String fieldName, dynamic fieldValue) {
     _fieldValues[fieldName] = fieldValue;
+  }
+
+  String _getPathValueFromObj(pathStr) {
+    List<String> path = pathStr.split(".");
+    BaseModel currentModel = this;
+    int i = 0;
+    for(int len = path.length - 1; i < len; ++i) {
+      currentModel = currentModel.get(path[i]) as BaseModel;
+    }
+    return currentModel.get(path[i]);
+  }
+
+  String _getPathListValuesFromObj(String tileFieldValue) {
+    List<String> pathList = tileFieldValue.split("&");
+    String retStr = "";
+    for(int i = 0, len = pathList.length; i < len; ++i) {
+      retStr += _getPathValueFromObj(pathList[i]);
+      if(i != len - 1) {
+        retStr += " / ";
+      }
+    }
+    return retStr;
+  }
+
+  String getListTileTitleValue() {
+    return _getPathListValuesFromObj(listTileTitleField);
+  }
+
+  String getListTileSubTitleValue() {
+    return _getPathListValuesFromObj(listTileSubTitleField);
+  }
+
+  String getTileAvatarFieldValue() {
+    return get(listTileAvatarField)[0];
   }
 
   static Future<int> insert(BaseModel baseModel) {

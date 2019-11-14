@@ -13,5 +13,9 @@ abstract class BaseFieldType {
     @required this.name,
     @required this.nullable,
     this.defaultValue
-  });
+  }) {
+    if(this.name.contains("&") || this.name.contains(".")) {
+      throw new Exception("Field Adı & ya da . işareti bulunduramaz!");
+    }
+  }
 }
