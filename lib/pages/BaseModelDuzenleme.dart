@@ -127,7 +127,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                     });
                   },
                   isExpanded: false,
-                  value: widget.kayit != null ? widget.kayit.get(foreignKeyField.name).get("ID") : null,
+                  value: widget.kayit != null && widget.kayit.get(foreignKeyField.name) != null ? widget.kayit.get(foreignKeyField.name).get("ID") : null,
                   hint: Text(foreignKeyField.fieldHint),
                 );
               },
