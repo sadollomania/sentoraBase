@@ -47,29 +47,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
     List<Widget> retWidgets = List<Widget>();
     widget.ornekKayit.fieldTypes.forEach((fieldType){
       if(fieldType.runtimeType == BlobField) {
-      /*retWidgets.add(Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: TextFormField(
-                decoration: InputDecoration(labelText: fieldType.fieldLabel, hintText: fieldType.fieldHint),
-                initialValue: widget.kayit != null ? widget.kayit.get(fieldType.name) : '',
-                validator: (value) {
-                  if (!fieldType.nullable && value.isEmpty) {
-                    return fieldType.fieldLabel + ' Giriniz';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  setState(() {
-                    if(widget.kayit == null) {
-                      widget.kayit = BaseModel.createNewObject(widget.modelName);
-                    }
-                    widget.kayit.set(fieldType.name, value);
-                  });
-                },
-              ),
-            )
-        ));*/
+        throw new Exception("BlobField için şu anda düzenleme formuna component konulmadı.");
       } else if(fieldType.runtimeType == BooleanField) {
         retWidgets.add(Expanded(
           child: Padding(
@@ -135,9 +113,9 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                     child: Container(
                       child: Text(dropdownKayit.getListTileTitleValue()),
                     ),
-                    value: dropdownKayit,
+                    value: dropdownKayit.get("ID"),
                   )).toList(),
-                  onChanged: (BaseModel dropdownKayit) {
+                  onChanged: (dropdownKayit) {
                     setState(() {
                       if(widget.kayit == null) {
                         widget.kayit = BaseModel.createNewObject(widget.modelName);
@@ -146,7 +124,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                     });
                   },
                   isExpanded: false,
-                  value: widget.kayit != null ? widget.kayit.get(foreignKeyField.name) : null,
+                  value: widget.kayit != null ? widget.kayit.get(foreignKeyField.name).get("ID") : null,
                   hint: Text(foreignKeyField.fieldHint),
                 );
               },
