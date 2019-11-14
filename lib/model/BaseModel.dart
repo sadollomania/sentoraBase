@@ -122,8 +122,9 @@ class BaseModel {
     return retVals;
   }
 
-  Future<void> _fromMap(Map<String, dynamic> map) async{
-    await allFieldTypes.forEach((fieldType) async{
+  Future<void> _fromMap(Map<String, dynamic> map) async {
+    for(int i = 0, len = allFieldTypes.length; i < len; ++i) {
+      BaseFieldType fieldType = allFieldTypes[i];
       if(fieldType.runtimeType == BlobField) {
         set(fieldType.name, map[fieldType.name]);
       } else if(fieldType.runtimeType == BooleanField) {
@@ -143,7 +144,7 @@ class BaseModel {
       } else {
         throw new Exception("Unknown FieldType : " + fieldType.runtimeType.toString());
       }
-    });
+    }
   }
 
   String _createDbTableScript() {
@@ -286,8 +287,8 @@ class BaseModel {
     return baseModel._deleteFromDb();
   }
 
-  static Future<List<BaseModel>> getList(BaseModel baseModel) {
-    return baseModel._getList();
+  static Future<List<BaseModel>> getList(BaseModel baseModel) async{
+    return await baseModel._getList();
   }
 
   static Future<BaseModel> getById(String fromModel, String fromTable, String id) async {
