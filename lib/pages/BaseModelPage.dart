@@ -72,7 +72,7 @@ class _BaseModelPageState extends State<BaseModelPage> {
                     onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute<Null>(
                           builder: (BuildContext context) {
-                            return BaseModelDuzenleme(kayit : _selectedKayit, modelName: widget.modelName,);
+                            return BaseModelDuzenleme(widgetKayit : _selectedKayit, widgetModelName: widget.modelName,);
                           }));
                     }),
               ),
@@ -85,7 +85,7 @@ class _BaseModelPageState extends State<BaseModelPage> {
                     onPressed: () {
                       Navigator.of(context).push(
                           MaterialPageRoute<Null>(builder: (BuildContext context) {
-                            return BaseModelDuzenleme(kayit : _selectedKayit, modelName: widget.modelName,);
+                            return BaseModelDuzenleme(widgetKayit : _selectedKayit, widgetModelName: widget.modelName,);
                           }));
                     }),
               ),

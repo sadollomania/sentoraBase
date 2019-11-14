@@ -12,21 +12,28 @@ import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/MenuButton.dart';
 
 class BaseModelDuzenleme extends StatefulWidget {
-  BaseModel kayit;
-  String modelName;
-  BaseModel ornekKayit;
+  final BaseModel widgetKayit;
+  final String widgetModelName;
   BaseModelDuzenleme({
-    @required this.kayit,
-    @required this.modelName,
-  }) {
-    this.ornekKayit = BaseModel.createNewObject(this.modelName);
-  }
+    @required this.widgetKayit,
+    @required this.widgetModelName,
+  });
+
   @override
-  _BaseModelDuzenlemeState createState() => new _BaseModelDuzenlemeState();
+  _BaseModelDuzenlemeState createState() => new _BaseModelDuzenlemeState(kayit:this.widgetKayit, modelName: this.widgetModelName);
 }
 
 class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
   final _formKey = GlobalKey<FormState>();
+  BaseModel ornekKayit;
+  BaseModel kayit;
+  String modelName;
+  _BaseModelDuzenlemeState({
+    @required this.kayit,
+    @required this.modelName
+  }) {
+    this.ornekKayit = BaseModel.createNewObject(this.modelName);
+  }
 
   bool _checkDateValidity(value) {
     if (value.isEmpty || value.length != 10 || value[4] != '-' || value[7] != '-') {
@@ -46,7 +53,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
 
   List<Widget> getFormItems() {
     List<Widget> retWidgets = List<Widget>();
-    widget.ornekKayit.fieldTypes.forEach((fieldType){
+    ornekKayit.fieldTypes.forEach((fieldType){
       if(fieldType.runtimeType == BlobField) {
         throw new Exception("BlobField için şu anda düzenleme formuna component konulmadı.");
       } else if(fieldType.runtimeType == BooleanField) {
@@ -59,14 +66,14 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                   children: <Widget>[
                     Expanded(child:Text(fieldType.fieldLabel)),
                     Checkbox(
-                      value: widget.kayit != null ? widget.kayit.get(fieldType.name) : ( fieldType.defaultValue != null ? fieldType.defaultValue : false ),
-                      tristate: true,
+                      value: kayit != null ? kayit.get(fieldType.name) : ( fieldType.defaultValue != null ? fieldType.defaultValue : false ),
+                      tristate: fieldType.defaultValue == null,
                       onChanged: (value) async{
                         setState(() {
-                          if(widget.kayit == null) {
-                            widget.kayit = BaseModel.createNewObject(widget.modelName);
+                          if(kayit == null) {
+                            kayit = BaseModel.createNewObject(modelName);
                           }
-                          widget.kayit.set(fieldType.name, value);
+                          kayit.set(fieldType.name, value);
                         });
                       },
                     )
@@ -81,7 +88,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
               padding: EdgeInsets.all(8.0),
               child: TextFormField(
                 decoration: InputDecoration(labelText: fieldType.fieldLabel),
-                initialValue: widget.kayit != null ? ConstantsBase.dateFormat.format(widget.kayit.get(fieldType.name)) : null,
+                initialValue: kayit != null ? ConstantsBase.dateFormat.format(kayit.get(fieldType.name)) : null,
                 validator: (value) {
                   if (!fieldType.nullable && !_checkDateValidity(value)) {
                     return 'yyyy-MM-dd şeklinde tarih giriniz';
@@ -89,13 +96,13 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                   return null;
                 },
                 onSaved: (value) {
-                  if(widget.kayit == null) {
-                    widget.kayit = BaseModel.createNewObject(widget.modelName);
+                  if(kayit == null) {
+                    kayit = BaseModel.createNewObject(modelName);
                   }
                   if(value == null) {
-                    widget.kayit.set(fieldType.name, null);
+                    kayit.set(fieldType.name, null);
                   } else {
-                    widget.kayit.set(fieldType.name, ConstantsBase.dateFormat.parse(value));
+                    kayit.set(fieldType.name, ConstantsBase.dateFormat.parse(value));
                   }
                 },
               ),
@@ -119,15 +126,15 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                   onChanged: (String dropdownKayitId) {
                     BaseModel.getById(foreignKeyField.foreignKeyModel.modelName, foreignKeyField.foreignKeyModel.tableName, dropdownKayitId).then((newObj){
                       setState(() {
-                        if(widget.kayit == null) {
-                          widget.kayit = BaseModel.createNewObject(widget.modelName);
+                        if(kayit == null) {
+                          kayit = BaseModel.createNewObject(modelName);
                         }
-                        widget.kayit.set(foreignKeyField.name, newObj);
+                        kayit.set(foreignKeyField.name, newObj);
                       });
                     });
                   },
-                  isExpanded: false,
-                  value: widget.kayit != null && widget.kayit.get(foreignKeyField.name) != null ? widget.kayit.get(foreignKeyField.name).get("ID") : null,
+                  isExpanded: true,
+                  value: kayit != null && kayit.get(foreignKeyField.name) != null ? kayit.get(foreignKeyField.name).get("ID") : null,
                   hint: Text(foreignKeyField.fieldHint),
                 );
               },
@@ -141,7 +148,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
               child: TextFormField(
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: fieldType.fieldLabel),
-                initialValue: widget.kayit != null ? (widget.kayit.get(fieldType.name) != null ? widget.kayit.get(fieldType.name).toString() : null) : null,
+                initialValue: kayit != null ? (kayit.get(fieldType.name) != null ? kayit.get(fieldType.name).toString() : null) : null,
                 validator: (value) {
                   if (!fieldType.nullable && value.isEmpty || int.tryParse(value) == null) {
                     return 'Bir tam sayı giriniz!';
@@ -149,10 +156,10 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                   return null;
                 },
                 onSaved: (value) {
-                  if(widget.kayit == null) {
-                    widget.kayit = BaseModel.createNewObject(widget.modelName);
+                  if(kayit == null) {
+                    kayit = BaseModel.createNewObject(modelName);
                   }
-                  widget.kayit.set(fieldType.name, int.parse(value));
+                  kayit.set(fieldType.name, int.parse(value));
                 },
               ),
             )
@@ -164,7 +171,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
               child: TextFormField(
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: fieldType.fieldLabel),
-                initialValue: widget.kayit != null ? (widget.kayit.get(fieldType.name) != null ? widget.kayit.get(fieldType.name).toString() : null) : null,
+                initialValue: kayit != null ? (kayit.get(fieldType.name) != null ? kayit.get(fieldType.name).toString() : null) : null,
                 validator: (value) {
                   if (!fieldType.nullable && value.isEmpty || double.tryParse(value) == null) {
                     return 'Ondalıklı sayı giriniz!';
@@ -172,10 +179,10 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                   return null;
                 },
                 onSaved: (value) {
-                  if(widget.kayit == null) {
-                    widget.kayit = BaseModel.createNewObject(widget.modelName);
+                  if(kayit == null) {
+                    kayit = BaseModel.createNewObject(modelName);
                   }
-                  widget.kayit.set(fieldType.name, double.parse(value));
+                  kayit.set(fieldType.name, double.parse(value));
                 },
               ),
             )
@@ -186,7 +193,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
               padding: EdgeInsets.all(8.0),
               child: TextFormField(
                 decoration: InputDecoration(labelText: fieldType.fieldLabel, hintText: fieldType.fieldHint),
-                initialValue: widget.kayit != null ? widget.kayit.get(fieldType.name) : '',
+                initialValue: kayit != null ? kayit.get(fieldType.name) : '',
                 validator: (value) {
                   if (!fieldType.nullable && value.isEmpty) {
                     return fieldType.fieldLabel + ' Giriniz';
@@ -195,10 +202,10 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                 },
                 onSaved: (value) {
                   setState(() {
-                    if(widget.kayit == null) {
-                      widget.kayit = BaseModel.createNewObject(widget.modelName);
+                    if(kayit == null) {
+                      kayit = BaseModel.createNewObject(modelName);
                     }
-                    widget.kayit.set(fieldType.name, value);
+                    kayit.set(fieldType.name, value);
                   });
                 },
               ),
@@ -216,15 +223,15 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
           if (_formKey.currentState.validate()) {
             _formKey.currentState.save();
             ConstantsBase.showToast(context, "Bilgiler Kaydediliyor");
-            if(widget.kayit.get("ID") == null) {
-              widget.kayit.set("ID", ConstantsBase.getRandomUUID());
-              BaseModel.insert(widget.kayit).then((_){
-                ConstantsBase.showToast(context, widget.kayit.singleTitle + " Eklendi");
+            if(kayit.get("ID") == null) {
+              kayit.set("ID", ConstantsBase.getRandomUUID());
+              BaseModel.insert(kayit).then((_){
+                ConstantsBase.showToast(context, kayit.singleTitle + " Eklendi");
                 Navigator.pop(context);
               });
             } else {
-              BaseModel.update(widget.kayit).then((_){
-                ConstantsBase.showToast(context, widget.kayit.singleTitle + " Güncellendi");
+              BaseModel.update(kayit).then((_){
+                ConstantsBase.showToast(context, kayit.singleTitle + " Güncellendi");
                 Navigator.pop(context);
               });
             }
@@ -239,7 +246,7 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.ornekKayit.singleTitle + " Düzenleme"),
+        title: Text(ornekKayit.singleTitle + " Düzenleme"),
       ),
       body: Padding(
           padding:EdgeInsets.all(8.0)
