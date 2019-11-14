@@ -7,5 +7,6 @@ class StringField extends BaseFieldType {
     @required String fieldHint,
     @required String name,
     @required bool nullable,
-  }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable);
+    String defaultValue,
+  }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, defaultValue: defaultValue);
 }

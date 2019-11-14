@@ -5,6 +5,7 @@ abstract class BaseFieldType {
   String fieldHint;
   String name;
   bool nullable;
+  bool multiple;
   dynamic defaultValue;
 
   BaseFieldType({
@@ -12,6 +13,7 @@ abstract class BaseFieldType {
     @required this.fieldHint,
     @required this.name,
     @required this.nullable,
+    @required this.multiple,
     this.defaultValue
   }) {
     if(this.name.contains("&") || this.name.contains(".")) {

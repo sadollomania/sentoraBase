@@ -74,17 +74,26 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
         retWidgets.add(Expanded(
           child: Padding(
               padding: EdgeInsets.all(8.0),
-              child: Checkbox(
-                value: widget.kayit != null ? widget.kayit.get(fieldType.name) : ( fieldType.defaultValue != null ? fieldType.defaultValue : false ),
-                onChanged: (value) async{
-                  setState(() {
-                    if(widget.kayit == null) {
-                      widget.kayit = BaseModel.createNewObject(widget.modelName);
-                    }
-                    widget.kayit.set(fieldType.name, value);
-                  });
-                },
-              )
+              child: Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Expanded(child:Text(fieldType.fieldLabel)),
+                    Checkbox(
+                      value: widget.kayit != null ? widget.kayit.get(fieldType.name) : ( fieldType.defaultValue != null ? fieldType.defaultValue : false ),
+                      tristate: true,
+                      onChanged: (value) async{
+                        setState(() {
+                          if(widget.kayit == null) {
+                            widget.kayit = BaseModel.createNewObject(widget.modelName);
+                          }
+                          widget.kayit.set(fieldType.name, value);
+                        });
+                      },
+                    )
+                  ],
+                )
+              ),
           )
         ));
       } else if(fieldType.runtimeType == DateField) {
@@ -123,7 +132,9 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                 if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
                 return DropdownButton<BaseModel>(
                   items: snapshot.data.map((dropdownKayit) => DropdownMenuItem<BaseModel>(
-                    child: Text(dropdownKayit.getListTileTitleValue()),
+                    child: Container(
+                      child: Text(dropdownKayit.getListTileTitleValue()),
+                    ),
                     value: dropdownKayit,
                   )).toList(),
                   onChanged: (BaseModel dropdownKayit) {
