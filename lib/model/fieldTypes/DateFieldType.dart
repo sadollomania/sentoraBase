@@ -1,8 +1,7 @@
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
-import 'package:sentora_base/pages/BaseModelDuzenleme.dart';
 import 'package:sentora_base/widgets/form/DateFormField.dart';
 
 class DateFieldType extends BaseFieldType {
@@ -15,17 +14,12 @@ class DateFieldType extends BaseFieldType {
   }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, defaultValue: defaultValue);
 
   @override
-  Widget constructFormField(BaseModelDuzenlemeState state) {
+  Widget constructFormField(BaseModel kayit) {
     return DateFormField(
       dateFieldType: this,
-      initialValue: state.kayit != null ? state.kayit.get(name) : null,
+      initialValue: kayit.get(name),
       onSaved: (DateTime value) {
-        state.setState(() {
-          if(state.kayit == null) {
-            state.kayit = BaseModel.createNewObject(state.modelName);
-          }
-          state.kayit.set(name, value);
-        });
+        kayit.set(name, value);
       },
       validator: (DateTime value) {
         if (!nullable && value == null) {

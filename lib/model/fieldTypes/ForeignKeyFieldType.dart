@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
-import 'package:sentora_base/pages/BaseModelDuzenleme.dart';
 
 class ForeignKeyFieldType extends BaseFieldType {
   final String foreignKeyModelName;
@@ -20,7 +19,7 @@ class ForeignKeyFieldType extends BaseFieldType {
   }
 
   @override
-  Widget constructFormField(BaseModelDuzenlemeState state) {
+  Widget constructFormField(BaseModel kayit) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
@@ -39,16 +38,11 @@ class ForeignKeyFieldType extends BaseFieldType {
                 )).toList(),
                 onChanged: (String dropdownKayitId) {
                   BaseModel.getById(foreignKeyModel.modelName, foreignKeyModel.tableName, dropdownKayitId).then((newObj){
-                    state.setState(() {
-                      if(state.kayit == null) {
-                        state.kayit = BaseModel.createNewObject(state.modelName);
-                      }
-                      state.kayit.set(name, newObj);
-                    });
+                    kayit.set(name, newObj);
                   });
                 },
                 isExpanded: true,
-                value: state.kayit != null && state.kayit.get(name) != null ? state.kayit.get(name).get("ID") : null,
+                value: kayit.get(name) != null ? kayit.get(name).get("ID") : null,
                 hint: Text(fieldHint),
               );
             },

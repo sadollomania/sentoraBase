@@ -24,13 +24,16 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
     @required this.kayit,
     @required this.modelName
   }) {
-    this.ornekKayit = BaseModel.createNewObject(this.modelName);
+    ornekKayit = BaseModel.createNewObject(modelName);
+    if(kayit == null) {
+      kayit = BaseModel.createNewObject(modelName);
+    }
   }
 
   List<Widget> getFormItems() {
     List<Widget> retWidgets = List<Widget>();
     ornekKayit.fieldTypes.forEach((fieldType){
-      retWidgets.add(fieldType.constructFormField(this));
+      retWidgets.add(fieldType.constructFormField(kayit));
       retWidgets.add(SizedBox(height: 20,));
     });
     retWidgets.add(
@@ -42,10 +45,15 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
             ConstantsBase.showToast(context, "Bilgiler Kaydediliyor");
             if(kayit.get("ID") == null) {
               kayit.set("ID", ConstantsBase.getRandomUUID());
-              BaseModel.insert(kayit).then((_){
-                ConstantsBase.showToast(context, kayit.singleTitle + " Eklendi");
-                Navigator.pop(context);
-              });
+              try{
+                BaseModel.insert(kayit).then((_){
+                  ConstantsBase.showToast(context, kayit.singleTitle + " Eklendi");
+                  Navigator.pop(context);
+                });
+              } catch(e) {
+                kayit.set("ID", null);
+              }
+
             } else {
               BaseModel.update(kayit).then((_){
                 ConstantsBase.showToast(context, kayit.singleTitle + " Güncellendi");
