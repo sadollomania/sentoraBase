@@ -1,6 +1,6 @@
 name: sentora_base
 description: Base Sentora
-version: 0.0.25
+version: 0.0.26
 author:
 homepage:
 
@@ -8,6 +8,7 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
+  flutter_datetime_picker: ^1.2.8
   firebase_admob: ^0.9.0+7
   uuid: 2.0.1
   intl:

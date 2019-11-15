@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/fieldTypes/BlobField.dart';
 import 'package:sentora_base/model/fieldTypes/BooleanField.dart';
@@ -84,27 +85,79 @@ class _BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
       } else if(fieldType.runtimeType == DateField) {
         retWidgets.add(Expanded(
             child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: TextFormField(
-                decoration: InputDecoration(labelText: fieldType.fieldLabel),
-                initialValue: kayit != null ? ConstantsBase.dateFormat.format(kayit.get(fieldType.name)) : null,
-                validator: (value) {
-                  if (!fieldType.nullable && !_checkDateValidity(value)) {
-                    return 'yyyy-MM-dd şeklinde tarih giriniz';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  if(kayit == null) {
-                    kayit = BaseModel.createNewObject(modelName);
-                  }
-                  if(value == null) {
-                    kayit.set(fieldType.name, null);
-                  } else {
-                    kayit.set(fieldType.name, ConstantsBase.dateFormat.parse(value));
-                  }
-                },
-              ),
+                padding: EdgeInsets.all(8.0),
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0)
+                  ),
+                  elevation: 4.0,
+                  onPressed: () {
+                    DatePicker.showDatePicker(context,
+                        theme: DatePickerTheme(
+                          containerHeight: 210.0,
+                        ),
+                        showTitleActions: true,
+                        minTime: DateTime(2000, 1, 1),
+                        maxTime: DateTime(2199, 12, 31),
+                        onConfirm: (date) {
+                          if(kayit == null) {
+                            kayit = BaseModel.createNewObject(modelName);
+                          }
+                          if(date == null) {
+                            kayit.set(fieldType.name, null);
+                          } else {
+                            kayit.set(fieldType.name, date);
+                          }
+                          //print('confirm $date');
+                          //_date = '${date.year} - ${date.month} - ${date.day}';
+                          setState(() {});
+                        },
+                        currentTime: kayit != null && kayit.get(fieldType.name) != null ? kayit.get(fieldType.name) : DateTime.now(),
+                        locale: LocaleType.en
+                      );
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      height: 50.0,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Container(
+                                child: Row(
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.date_range,
+                                      size: 18.0,
+                                      color: Colors.teal,
+                                    ),
+                                    Text(
+                                      ConstantsBase.dateFormat.format(kayit != null && kayit.get(fieldType.name) != null ? kayit.get(fieldType.name) : DateTime.now()),
+                                      style: TextStyle(
+                                        color: Colors.teal,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                          Text(
+                            "  Değiştir",
+                            style: TextStyle(
+                              color: Colors.teal,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.0
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    color: Colors.white,
+              )
             )
         ));
       } else if(fieldType.runtimeType == ForeignKeyField) {
