@@ -22,6 +22,7 @@ class ForeignKeyFormField extends FormField<BaseModel> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Text(fieldType.fieldLabel),
+            SizedBox(width: 10,),
             Expanded(
               child: FutureBuilder<List<BaseModel>>(
                 future: BaseModel.getList(fieldType.foreignKeyModel),
@@ -40,7 +41,7 @@ class ForeignKeyFormField extends FormField<BaseModel> {
                       });
                     },
                     isExpanded: true,
-                    value: initialValue != null ? initialValue.get("ID") : null,
+                    value: state.value != null ? state.value.get("ID") : null,
                     hint: Text(fieldType.fieldHint),
                   );
                 },

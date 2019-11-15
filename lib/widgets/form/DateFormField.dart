@@ -39,7 +39,7 @@ class DateFormField extends FormField<DateTime> {
                           minTime: defaultMinTime,
                           maxTime: defaultMaxTime, onConfirm: (date) {
                         state.didChange(date);
-                      }, currentTime: initialValue, locale: LocaleType.en);
+                      }, currentTime: state.value != null ? state.value : DateTime.now(), locale: LocaleType.en);
                     },
                   ),
                   Expanded(
