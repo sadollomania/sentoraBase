@@ -20,8 +20,8 @@ class MenuButton extends StatelessWidget {
   final EdgeInsetsGeometry edgeInsetsGeometry;
   final Color iconColor;
   final double circularRadius;
-  final MaterialColor disabledColor;
-  final MaterialColor enabledColor;
+  final Color disabledColor;
+  final Color enabledColor;
 
   @override
   Widget build(BuildContext context) {

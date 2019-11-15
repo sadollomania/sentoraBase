@@ -21,9 +21,9 @@ class SntIconButton extends StatelessWidget {
   final EdgeInsetsGeometry edgeInsetsGeometry;
   final Color buttonColor;
   final double circularRadius;
-  final MaterialColor iconColor;
-  final MaterialColor disabledColor;
-  final MaterialColor enabledColor;
+  final Color iconColor;
+  final Color disabledColor;
+  final Color enabledColor;
 
   @override
   Widget build(BuildContext context) {
