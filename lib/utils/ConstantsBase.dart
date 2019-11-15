@@ -8,7 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ConstantsBase {
-  static final DateFormat dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
+  static final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+  static final DateFormat dateTimeFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
   static final _uuid = Uuid();
   static SharedPreferences _prefs;
 

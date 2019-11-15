@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:sentora_base/model/BaseModel.dart';
+import 'package:sentora_base/pages/BaseModelDuzenleme.dart';
 
 abstract class BaseFieldType {
   String fieldLabel;
@@ -7,6 +10,8 @@ abstract class BaseFieldType {
   bool nullable;
   bool multiple;
   dynamic defaultValue;
+
+  Widget constructFormField(BaseModelDuzenlemeState state);
 
   BaseFieldType({
     @required this.fieldLabel,

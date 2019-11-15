@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
-import 'package:sentora_base/model/fieldTypes/BlobField.dart';
-import 'package:sentora_base/model/fieldTypes/BooleanField.dart';
-import 'package:sentora_base/model/fieldTypes/DateField.dart';
-import 'package:sentora_base/model/fieldTypes/ForeignKeyField.dart';
-import 'package:sentora_base/model/fieldTypes/IntField.dart';
-import 'package:sentora_base/model/fieldTypes/RealField.dart';
-import 'package:sentora_base/model/fieldTypes/StringField.dart';
+import 'package:sentora_base/model/fieldTypes/BlobFieldType.dart';
+import 'package:sentora_base/model/fieldTypes/BooleanFieldType.dart';
+import 'package:sentora_base/model/fieldTypes/DateFieldType.dart';
+import 'package:sentora_base/model/fieldTypes/ForeignKeyFieldType.dart';
+import 'package:sentora_base/model/fieldTypes/IntFieldType.dart';
+import 'package:sentora_base/model/fieldTypes/RealFieldType.dart';
+import 'package:sentora_base/model/fieldTypes/StringFieldType.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sentora_base/data/DBHelperBase.dart';
@@ -95,11 +95,11 @@ class BaseModel {
 
   List<BaseFieldType> _constructFields() {
     List<BaseFieldType> allFieldTypes = List<BaseFieldType>();
-    allFieldTypes.add(StringField(fieldLabel:"ID", fieldHint:"ID", name:"ID", nullable: false));
-    allFieldTypes.add(DateField(fieldLabel:"INSDATE", fieldHint:"INSDATE", name:"INSDATE", nullable: false));
-    allFieldTypes.add(StringField(fieldLabel:"INSBY", fieldHint:"INSBY", name:"INSBY", nullable: false));
-    allFieldTypes.add(DateField(fieldLabel:"UPDDATE", fieldHint:"UPDDATE", name:"UPDDATE", nullable: false));
-    allFieldTypes.add(StringField(fieldLabel:"UPDBY", fieldHint:"UPDBY", name:"UPDBY", nullable: false));
+    allFieldTypes.add(StringFieldType(fieldLabel:"ID", fieldHint:"ID", name:"ID", nullable: false));
+    allFieldTypes.add(DateFieldType(fieldLabel:"INSDATE", fieldHint:"INSDATE", name:"INSDATE", nullable: false));
+    allFieldTypes.add(StringFieldType(fieldLabel:"INSBY", fieldHint:"INSBY", name:"INSBY", nullable: false));
+    allFieldTypes.add(DateFieldType(fieldLabel:"UPDDATE", fieldHint:"UPDDATE", name:"UPDDATE", nullable: false));
+    allFieldTypes.add(StringFieldType(fieldLabel:"UPDBY", fieldHint:"UPDBY", name:"UPDBY", nullable: false));
     allFieldTypes.addAll(fieldTypes);
     return allFieldTypes;
   }
@@ -107,19 +107,19 @@ class BaseModel {
   Map<String, dynamic> _toMap() {
     Map<String, dynamic> retVals = Map<String, dynamic>();
     allFieldTypes.forEach((fieldType){
-      if(fieldType.runtimeType == BlobField) {
+      if(fieldType.runtimeType == BlobFieldType) {
         retVals[fieldType.name] = _fieldValues[fieldType.name];
-      } else if(fieldType.runtimeType == BooleanField) {
+      } else if(fieldType.runtimeType == BooleanFieldType) {
         retVals[fieldType.name] = _fieldValues[fieldType.name] == true ? 1 : 0;
-      } else if(fieldType.runtimeType == DateField) {
-        retVals[fieldType.name] = ConstantsBase.dateFormat.format(_fieldValues[fieldType.name]);
-      } else if(fieldType.runtimeType == ForeignKeyField) {
+      } else if(fieldType.runtimeType == DateFieldType) {
+        retVals[fieldType.name] = ConstantsBase.dateTimeFormat.format(_fieldValues[fieldType.name]);
+      } else if(fieldType.runtimeType == ForeignKeyFieldType) {
         retVals[fieldType.name] = (_fieldValues[fieldType.name] as BaseModel).get("ID");
-      } else if(fieldType.runtimeType == IntField) {
+      } else if(fieldType.runtimeType == IntFieldType) {
         retVals[fieldType.name] = _fieldValues[fieldType.name];
-      } else if(fieldType.runtimeType == RealField) {
+      } else if(fieldType.runtimeType == RealFieldType) {
         retVals[fieldType.name] = _fieldValues[fieldType.name];
-      } else if(fieldType.runtimeType == StringField) {
+      } else if(fieldType.runtimeType == StringFieldType) {
         retVals[fieldType.name] = _fieldValues[fieldType.name];
       } else {
         throw new Exception("Unknown FieldType : " + fieldType.runtimeType.toString());
@@ -131,21 +131,21 @@ class BaseModel {
   Future<void> _fromMap(Map<String, dynamic> map) async {
     for(int i = 0, len = allFieldTypes.length; i < len; ++i) {
       BaseFieldType fieldType = allFieldTypes[i];
-      if(fieldType.runtimeType == BlobField) {
+      if(fieldType.runtimeType == BlobFieldType) {
         set(fieldType.name, map[fieldType.name]);
-      } else if(fieldType.runtimeType == BooleanField) {
+      } else if(fieldType.runtimeType == BooleanFieldType) {
         set(fieldType.name, map[fieldType.name] == 1);
-      } else if(fieldType.runtimeType == DateField) {
-        set(fieldType.name, ConstantsBase.dateFormat.parse(map[fieldType.name]));
-      } else if(fieldType.runtimeType == ForeignKeyField) {
-        ForeignKeyField foreignKeyField = fieldType as ForeignKeyField;
+      } else if(fieldType.runtimeType == DateFieldType) {
+        set(fieldType.name, ConstantsBase.dateTimeFormat.parse(map[fieldType.name]));
+      } else if(fieldType.runtimeType == ForeignKeyFieldType) {
+        ForeignKeyFieldType foreignKeyField = fieldType as ForeignKeyFieldType;
         BaseModel baseModel = await getById(foreignKeyField.foreignKeyModel.modelName, foreignKeyField.foreignKeyModel.tableName, map[fieldType.name]);
         set(fieldType.name, baseModel);
-      } else if(fieldType.runtimeType == IntField) {
+      } else if(fieldType.runtimeType == IntFieldType) {
         set(fieldType.name, map[fieldType.name]);
-      } else if(fieldType.runtimeType == RealField) {
+      } else if(fieldType.runtimeType == RealFieldType) {
         set(fieldType.name, map[fieldType.name]);
-      } else if(fieldType.runtimeType == StringField) {
+      } else if(fieldType.runtimeType == StringFieldType) {
         set(fieldType.name, map[fieldType.name]);
       } else {
         throw new Exception("Unknown FieldType : " + fieldType.runtimeType.toString());
@@ -159,13 +159,13 @@ class BaseModel {
     allFieldTypes.forEach((fieldType){
       ++index;
       str += fieldType.name;
-      if(fieldType.runtimeType == StringField || fieldType.runtimeType == DateField || fieldType.runtimeType == ForeignKeyField) {
+      if(fieldType.runtimeType == StringFieldType || fieldType.runtimeType == DateFieldType || fieldType.runtimeType == ForeignKeyFieldType) {
         str += " TEXT";
-      } else if(fieldType.runtimeType == IntField || fieldType.runtimeType == BooleanField) {
+      } else if(fieldType.runtimeType == IntFieldType || fieldType.runtimeType == BooleanFieldType) {
         str += " INTEGER";
-      } else if(fieldType.runtimeType == RealField) {
+      } else if(fieldType.runtimeType == RealFieldType) {
         str += " REAL";
-      } else if(fieldType.runtimeType == BlobField) {
+      } else if(fieldType.runtimeType == BlobFieldType) {
         str += " BLOB";
       } else {
         throw new Exception("Unknown type : " + fieldType.runtimeType.toString());
@@ -257,7 +257,7 @@ class BaseModel {
     String retStr;
     dynamic objVal = currentModel.get(path[i]);
     if(objVal.runtimeType == DateTime) {
-      retStr = ConstantsBase.dateFormat.format(objVal as DateTime);
+      retStr = ConstantsBase.dateTimeFormat.format(objVal as DateTime);
     } else {
       retStr = objVal.toString();
     }
