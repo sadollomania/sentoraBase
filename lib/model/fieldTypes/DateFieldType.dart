@@ -16,7 +16,7 @@ class DateFieldType extends BaseFieldType {
   @override
   Widget constructFormField(BaseModel kayit) {
     return DateFormField(
-      dateFieldType: this,
+      fieldType: this,
       initialValue: kayit.get(name),
       onSaved: (DateTime value) {
         kayit.set(name, value);

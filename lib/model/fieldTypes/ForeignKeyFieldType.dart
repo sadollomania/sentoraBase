@@ -1,11 +1,15 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
+import 'package:sentora_base/widgets/form/ForeignKeyFormField.dart';
 
 class ForeignKeyFieldType extends BaseFieldType {
   final String foreignKeyModelName;
   BaseModel foreignKeyModel;
+  VoidCallback onChange;
 
   ForeignKeyFieldType({
     @required String fieldLabel,
@@ -20,35 +24,18 @@ class ForeignKeyFieldType extends BaseFieldType {
 
   @override
   Widget constructFormField(BaseModel kayit) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        Text(fieldLabel),
-        Expanded(
-          child: FutureBuilder<List<BaseModel>>(
-            future: BaseModel.getList(foreignKeyModel),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-              return DropdownButton<String>(
-                items: snapshot.data.map((dropdownKayit) => DropdownMenuItem<String>(
-                  child: Container(
-                    child: Text(dropdownKayit.getListTileTitleValue()),
-                  ),
-                  value: dropdownKayit.get("ID") as String,
-                )).toList(),
-                onChanged: (String dropdownKayitId) {
-                  BaseModel.getById(foreignKeyModel.modelName, foreignKeyModel.tableName, dropdownKayitId).then((newObj){
-                    kayit.set(name, newObj);
-                  });
-                },
-                isExpanded: true,
-                value: kayit.get(name) != null ? kayit.get(name).get("ID") : null,
-                hint: Text(fieldHint),
-              );
-            },
-          ),
-        )
-      ],
+    return ForeignKeyFormField(
+      fieldType: this,
+      initialValue: kayit.get(name),
+      onSaved: (BaseModel value) {
+        kayit.set(name, value);
+      },
+      validator: (BaseModel value) {
+        if (!nullable && value == null) {
+          return fieldLabel + ' Seçiniz';
+        }
+        return null;
+      },
     );
   }
 }

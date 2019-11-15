@@ -10,7 +10,7 @@ class DateFormField extends FormField<DateTime> {
   static final DateTime defaultMaxTime = DateTime(2199, 12, 31);
 
   DateFormField({
-    @required DateFieldType dateFieldType,
+    @required DateFieldType fieldType,
     FormFieldSetter<DateTime> onSaved,
     FormFieldValidator<DateTime> validator,
     DateTime initialValue,
@@ -27,7 +27,7 @@ class DateFormField extends FormField<DateTime> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  Text(dateFieldType.fieldLabel),
+                  Text(fieldType.fieldLabel),
                   SntIconButton(
                     iconData: Icons.date_range,
                     onPressed: () {

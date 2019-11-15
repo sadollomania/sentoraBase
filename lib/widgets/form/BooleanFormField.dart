@@ -22,7 +22,7 @@ class BooleanFormField extends FormField<bool> {
               children: <Widget>[
                 Expanded(child:Text(booleanFieldType.fieldLabel)),
                 Checkbox(
-                  value: state.value != null ? state.value : ( booleanFieldType.defaultValue != null ? booleanFieldType.defaultValue : null ),
+                  value: initialValue,
                   tristate: booleanFieldType.defaultValue == null,
                   onChanged: (value) {
                     state.didChange(value);
