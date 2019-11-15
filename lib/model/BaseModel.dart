@@ -254,7 +254,14 @@ class BaseModel {
     for(int len = path.length - 1; i < len; ++i) {
       currentModel = currentModel.get(path[i]) as BaseModel;
     }
-    return currentModel.get(path[i]);
+    String retStr;
+    dynamic objVal = currentModel.get(path[i]);
+    if(objVal.runtimeType == DateTime) {
+      retStr = ConstantsBase.dateFormat.format(objVal as DateTime);
+    } else {
+      retStr = objVal.toString();
+    }
+    return retStr;
   }
 
   String _getPathListValuesFromObj(String tileFieldValue) {
