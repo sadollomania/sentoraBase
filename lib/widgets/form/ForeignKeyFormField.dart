@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sentora_base/model/BaseModel.dart';
-import 'package:sentora_base/model/fieldTypes/BooleanFieldType.dart';
 import 'package:sentora_base/model/fieldTypes/ForeignKeyFieldType.dart';
 
 class ForeignKeyFormField extends FormField<BaseModel> {

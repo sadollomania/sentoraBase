@@ -7,6 +7,8 @@ import 'package:sentora_base/model/fieldTypes/ForeignKeyFieldType.dart';
 import 'package:sentora_base/model/fieldTypes/IntFieldType.dart';
 import 'package:sentora_base/model/fieldTypes/RealFieldType.dart';
 import 'package:sentora_base/model/fieldTypes/StringFieldType.dart';
+import 'package:sentora_base/pages/BaseModelPage.dart';
+import 'package:sentora_base/pages/BaseModelQueryPage.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sentora_base/data/DBHelperBase.dart';
@@ -22,6 +24,8 @@ class BaseModel {
   static Map<String, String> _modelListTileSubTitleFields = Map<String, String>();
   static Map<String, String> _modelPageTitles = Map<String, String>();
   static Map<String, String> _modelSingleTitles = Map<String, String>();
+  static Map<String, Color Function(BaseModel baseModel)> _modelListBgColors = Map<String, Color Function(BaseModel baseModel)>();
+  static Map<String, List<List<String>>> _modelMultiColumnUniqueConstraints = Map<String, List<List<String>>>();
 
   String modelName;
   String tableName;
@@ -34,6 +38,8 @@ class BaseModel {
   String listTileSubTitleField;
   String pageTitle;
   String singleTitle;
+  List<List<String>> multiColumnUniqueConstraints;
+  Color Function(BaseModel baseModel) listBgColor;
 
   Map<String, dynamic> _fieldValues = Map<String, dynamic>();
 
@@ -48,6 +54,8 @@ class BaseModel {
     @required this.listTileSubTitleField,
     @required this.pageTitle,
     @required this.singleTitle,
+    @required this.multiColumnUniqueConstraints,
+    Color Function(BaseModel baseModel) this.listBgColor,
   }) {
     if(!_models.contains(modelName)) {
       _modelTableNames[modelName] = tableName;
@@ -59,6 +67,8 @@ class BaseModel {
       _modelListTileSubTitleFields[modelName] = listTileSubTitleField;
       _modelPageTitles[modelName] = pageTitle;
       _modelSingleTitles[modelName] = singleTitle;
+      _modelMultiColumnUniqueConstraints[modelName] = multiColumnUniqueConstraints;
+      _modelListBgColors[modelName] = listBgColor;
       _models.add(modelName);
     }
 
@@ -84,6 +94,8 @@ class BaseModel {
       listTileSubTitleField: _modelListTileSubTitleFields[modelName],
       pageTitle: _modelPageTitles[modelName],
       singleTitle: _modelSingleTitles[modelName],
+      multiColumnUniqueConstraints: _modelMultiColumnUniqueConstraints[modelName],
+       listBgColor: _modelListBgColors[modelName],
     );
 
     ret.allFieldTypes.forEach((fieldType){
@@ -91,6 +103,14 @@ class BaseModel {
     });
 
     return ret;
+  }
+
+  BaseModelPage createBaseModelPage() {
+    return BaseModelPage(widgetModelName: modelName,);
+  }
+
+  BaseModelQueryPage createBaseModelQueryPage(String pageTitle, String getListQuery, Row Function(BaseModel selectedKayit) constructButtonsRow) {
+    return BaseModelQueryPage(widgetModelName: modelName, pageTitle: pageTitle, getListQuery: getListQuery, constructButtonsRow: constructButtonsRow,);
   }
 
   List<BaseFieldType> _constructFields() {
@@ -112,9 +132,17 @@ class BaseModel {
       } else if(fieldType.runtimeType == BooleanFieldType) {
         retVals[fieldType.name] = _fieldValues[fieldType.name] == true ? 1 : 0;
       } else if(fieldType.runtimeType == DateFieldType) {
-        retVals[fieldType.name] = ConstantsBase.dateTimeFormat.format(_fieldValues[fieldType.name]);
+        if(_fieldValues[fieldType.name] != null) {
+          retVals[fieldType.name] = ConstantsBase.dateTimeFormat.format(_fieldValues[fieldType.name]);
+        } else {
+          retVals[fieldType.name] = null;
+        }
       } else if(fieldType.runtimeType == ForeignKeyFieldType) {
-        retVals[fieldType.name] = (_fieldValues[fieldType.name] as BaseModel).get("ID");
+        if(_fieldValues[fieldType.name] != null) {
+          retVals[fieldType.name] = (_fieldValues[fieldType.name] as BaseModel).get("ID");
+        } else {
+          retVals[fieldType.name] = null;
+        }
       } else if(fieldType.runtimeType == IntFieldType) {
         retVals[fieldType.name] = _fieldValues[fieldType.name];
       } else if(fieldType.runtimeType == RealFieldType) {
@@ -136,11 +164,19 @@ class BaseModel {
       } else if(fieldType.runtimeType == BooleanFieldType) {
         set(fieldType.name, map[fieldType.name] == 1);
       } else if(fieldType.runtimeType == DateFieldType) {
-        set(fieldType.name, ConstantsBase.dateTimeFormat.parse(map[fieldType.name]));
+        if(map[fieldType.name] != null) {
+          set(fieldType.name, ConstantsBase.dateTimeFormat.parse(map[fieldType.name]));
+        } else {
+          set(fieldType.name, null);
+        }
       } else if(fieldType.runtimeType == ForeignKeyFieldType) {
-        ForeignKeyFieldType foreignKeyField = fieldType as ForeignKeyFieldType;
-        BaseModel baseModel = await getById(foreignKeyField.foreignKeyModel.modelName, foreignKeyField.foreignKeyModel.tableName, map[fieldType.name]);
-        set(fieldType.name, baseModel);
+        if(map[fieldType.name] != null) {
+          ForeignKeyFieldType foreignKeyField = fieldType as ForeignKeyFieldType;
+          BaseModel baseModel = await getById(foreignKeyField.foreignKeyModel.modelName, foreignKeyField.foreignKeyModel.tableName, map[fieldType.name]);
+          set(fieldType.name, baseModel);
+        } else {
+          set(fieldType.name, null);
+        }
       } else if(fieldType.runtimeType == IntFieldType) {
         set(fieldType.name, map[fieldType.name]);
       } else if(fieldType.runtimeType == RealFieldType) {
@@ -178,17 +214,35 @@ class BaseModel {
           str += " DEFAULT " + fieldType.defaultValue;
         }*/
 
-        if(fieldType.nullable) {
-          str += " NULL";
-        } else {
+        if(fieldType.nullable == false) {
           str += " NOT NULL";
+        } else {
+          str += " NULL";
         }
+      }
+
+      if(fieldType.unique) {
+        str += " UNIQUE";
       }
 
       if(index != len) {
         str += ",";
       }
     });
+
+    multiColumnUniqueConstraints.forEach((List<String> uniqueConstraint){
+      String uniqueStr = ",UNIQUE(";
+      for (int i = 0, len = uniqueConstraint.length; i < len; ++i) {
+        String columnName = uniqueConstraint[i];
+        uniqueStr += columnName;
+        if(i != len - 1) {
+          uniqueStr += ",";
+        }
+      }
+      uniqueStr += ")";
+      str += uniqueStr;
+    });
+
     str += " ); ";
     return str;
   }
@@ -199,11 +253,18 @@ class BaseModel {
     _fieldValues["INSBY"] = "AUTO";
     _fieldValues["UPDDATE"] = DateTime.now();
     _fieldValues["UPDBY"] = "AUTO";
-    return await db.insert(
-      tableName,
-      _toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    int retVal;
+    try {
+      retVal = await db.insert(
+        tableName,
+        _toMap(),
+        conflictAlgorithm: ConflictAlgorithm.fail,
+      );
+    } catch(e) {
+      debugPrint(e.toString());
+      throw e;
+    }
+    return retVal;
   }
 
   Future<int> _updateInDb() async {
@@ -239,6 +300,50 @@ class BaseModel {
     return retList;
   }
 
+  Future<List<BaseModel>> _getListByQuery(String query) async {
+    final Database db = await DBHelperBase.instance.getDb();
+    final List<Map<String, dynamic>> maps = await db.rawQuery(query);
+    List<BaseModel> retList = List<BaseModel>();
+    for(int i = 0, len = maps.length; i < len; ++i) {
+      BaseModel newObj = BaseModel.createNewObject(modelName);
+      await newObj._fromMap(maps[i]);
+      retList.add(newObj);
+    }
+    return retList;
+  }
+
+  BaseFieldType _getFieldTypeByName(String name) {
+    for(int i = 0, len = allFieldTypes.length; i < len; ++i) {
+      if(allFieldTypes[i].name == name) {
+        return allFieldTypes[i];
+      }
+    }
+    return null;
+  }
+
+  String _convertDbErrorToStr(DatabaseException e) {
+    String errorMsg = e.toString();
+    String defaultRetStr = "Detaylandırılmamış Hata ( BaseModel ) : " + errorMsg;
+    String retStr = "";
+    if(errorMsg.contains("UNIQUE")) { //TODO eğer burda çoklu kolon varsa ne olur bak
+      int tableNameIndex = errorMsg.indexOf(tableName);
+      if(tableNameIndex == -1) {
+        retStr = defaultRetStr;
+      } else {
+        String columnName = errorMsg.substring(tableNameIndex + tableName.length + 1).split(" ")[0];
+        BaseFieldType fieldType = _getFieldTypeByName(columnName);
+        if(fieldType == null) {
+          retStr = defaultRetStr;
+        } else {
+          retStr = singleTitle + " tablosunda " + fieldType.fieldLabel + " kolonunda -> \"" + get(fieldType.name) + "\" değerinde kayıt zaten mevcut";
+        }
+      }
+    } else {
+      retStr = defaultRetStr;
+    }
+    return retStr;
+  }
+
   dynamic get(String fieldName) {
     return _fieldValues[fieldName];
   }
@@ -259,7 +364,7 @@ class BaseModel {
     if(objVal.runtimeType == DateTime) {
       retStr = ConstantsBase.dateTimeFormat.format(objVal as DateTime);
     } else {
-      retStr = objVal.toString();
+      retStr = objVal == null ? "" : objVal.toString();
     }
     return retStr;
   }
@@ -288,6 +393,25 @@ class BaseModel {
     return _getPathListValuesFromObj(listTileAvatarField)[0];
   }
 
+  dynamic getValueByPath(pathStr, {convertToStr = false}) {
+    List<String> path = pathStr.split(".");
+    BaseModel currentModel = this;
+    int i = 0;
+    for(int len = path.length - 1; i < len; ++i) {
+      currentModel = currentModel.get(path[i]) as BaseModel;
+    }
+    dynamic objVal = currentModel.get(path[i]);
+    if(!convertToStr) {
+      return objVal;
+    } else {
+      if(objVal.runtimeType == DateTime) {
+        return ConstantsBase.dateTimeFormat.format(objVal as DateTime);
+      } else {
+        return objVal == null ? "" : objVal.toString();
+      }
+    }
+  }
+
   static Future<int> insert(BaseModel baseModel) {
     return baseModel._insertToDb();
   }
@@ -304,6 +428,14 @@ class BaseModel {
     return await baseModel._getList();
   }
 
+  static Future<List<BaseModel>> getListByQuery(BaseModel baseModel, String query) async{
+    return await baseModel._getListByQuery(query);
+  }
+
+  static String convertDbErrorToStr(BaseModel baseModel, DatabaseException e) {
+    return baseModel._convertDbErrorToStr(e);
+  }
+
   static Future<BaseModel> getById(String fromModel, String fromTable, String id) async {
     final Database db = await DBHelperBase.instance.getDb();
     final List<Map<String, dynamic>> maps = await db.query(fromTable, where: "ID = ?", whereArgs: List<String>.from([id]));
@@ -317,5 +449,9 @@ class BaseModel {
 
   static String createDbTableScript(BaseModel baseModel) {
     return baseModel._createDbTableScript();
+  }
+
+  static String dropDbTableScript(BaseModel baseModel) {
+    return "DROP TABLE " + baseModel.tableName + ";";
   }
 }

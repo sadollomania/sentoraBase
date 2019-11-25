@@ -1,0 +1,5 @@
+//TODO Foreign Keyler index olarak eklenecek ve silinemez yapılacak.
+//TODO Belirlenmemiş Ödemeler buttons a işlem butonları konulacak.
+//TODO Belirli koşullarda mail atma notification altyapısı eklenecek.
+//TODO Android ve IOS için widget ya da İOS sol sayfada gösterme yapılabilirse eklenecek.
+//TODO Calculated Field eklenecek. ( Birden fazla kolondan işlem yapılarak oluşturulacak fieldType )

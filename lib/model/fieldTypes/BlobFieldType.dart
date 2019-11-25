@@ -8,8 +8,10 @@ class BlobFieldType extends BaseFieldType {
     @required String fieldLabel,
     @required String fieldHint,
     @required String name,
-    @required bool nullable,
-  }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, defaultValue: null);
+    bool nullable,
+    bool unique = false,
+    bool Function(BaseModel baseModel) nullableFn,
+  }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, unique: unique, defaultValue: null, nullableFn : nullableFn);
 
   @override
   Widget constructFormField(BaseModel kayit) {

@@ -21,10 +21,10 @@ class _BaseModelPageState extends State<BaseModelPage> {
   BaseModel _selectedKayit;
 
   _BaseModelPageState({
-    @required this.modelName
+    @required this.modelName,
   }) {
     this.ornekKayit = BaseModel.createNewObject(this.modelName);
-}
+  }
 
   void _showDialog() {
     showDialog(
@@ -113,7 +113,7 @@ class _BaseModelPageState extends State<BaseModelPage> {
                 if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
                 return ListView(
                   children: snapshot.data.map((kayit) => Container(
-                    color: _selectedKayit != null && _selectedKayit.get("ID") == kayit.get("ID") ? Colors.yellow : Colors.white,
+                    color: _selectedKayit != null && _selectedKayit.get("ID") == kayit.get("ID") ? Colors.yellow : ( kayit.listBgColor != null ? kayit.listBgColor(kayit) : Colors.white ),
                     child: ListTile(
                       selected: _selectedKayit != null && _selectedKayit.get("ID") == kayit.get("ID"),
                       onTap: () {
@@ -133,7 +133,7 @@ class _BaseModelPageState extends State<BaseModelPage> {
                         backgroundColor: Colors.red,
                         child: Text(kayit.getTileAvatarFieldValue(), style: TextStyle(fontSize: 18.0, color: Colors.white,)),
                       ),
-                    ),
+                  ),
                   )).toList(),
                 );
               },

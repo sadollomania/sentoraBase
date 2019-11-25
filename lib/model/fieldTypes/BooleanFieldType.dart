@@ -9,9 +9,11 @@ class BooleanFieldType extends BaseFieldType {
     @required String fieldLabel,
     @required String fieldHint,
     @required String name,
-    @required bool nullable,
+    bool nullable,
     bool defaultValue,
-  }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, defaultValue: defaultValue);
+    bool unique = false,
+    bool Function(BaseModel baseModel) nullableFn,
+  }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, unique: unique, defaultValue: defaultValue, nullableFn : nullableFn);
 
   @override
   Widget constructFormField(BaseModel kayit) {
@@ -22,7 +24,7 @@ class BooleanFieldType extends BaseFieldType {
         kayit.set(name, value);
       },
       validator: (bool value) {
-        if (!nullable && value == null) {
+        if (!isNullable(kayit) && value == null) {
           return fieldLabel + ' Giriniz';
         }
         return null;

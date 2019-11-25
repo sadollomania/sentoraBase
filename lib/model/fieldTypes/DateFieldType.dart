@@ -9,9 +9,11 @@ class DateFieldType extends BaseFieldType {
     @required String fieldLabel,
     @required String fieldHint,
     @required String name,
-    @required bool nullable,
-    String defaultValue,
-  }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, defaultValue: defaultValue);
+    bool nullable,
+    DateTime defaultValue,
+    bool unique = false,
+    bool Function(BaseModel baseModel) nullableFn,
+  }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, unique: unique, defaultValue: defaultValue, nullableFn : nullableFn);
 
   @override
   Widget constructFormField(BaseModel kayit) {
@@ -22,7 +24,7 @@ class DateFieldType extends BaseFieldType {
         kayit.set(name, value);
       },
       validator: (DateTime value) {
-        if (!nullable && value == null) {
+        if (!isNullable(kayit) && value == null) {
           return fieldLabel + ' Seçiniz';
         }
         return null;

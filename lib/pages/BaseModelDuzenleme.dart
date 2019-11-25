@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/MenuButton.dart';
+import 'package:sqflite/sqflite.dart';
 
 class BaseModelDuzenleme extends StatefulWidget {
   final BaseModel widgetKayit;
@@ -40,24 +41,34 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
       MenuButton(
         title: 'Kaydet',
         onPressed: () {
+          _formKey.currentState.save();
           if (_formKey.currentState.validate()) {
-            _formKey.currentState.save();
             ConstantsBase.showToast(context, "Bilgiler Kaydediliyor");
             if(kayit.get("ID") == null) {
               kayit.set("ID", ConstantsBase.getRandomUUID());
-              try{
-                BaseModel.insert(kayit).then((_){
-                  ConstantsBase.showToast(context, kayit.singleTitle + " Eklendi");
-                  Navigator.pop(context);
-                });
-              } catch(e) {
+              BaseModel.insert(kayit).then((_){
+                ConstantsBase.showToast(context, kayit.singleTitle + " Eklendi");
+                Navigator.pop(context);
+              }).catchError((e){
+                debugPrint(e.toString());
                 kayit.set("ID", null);
-              }
-
+                if(e is DatabaseException) {
+                  ConstantsBase.showToast(context, BaseModel.convertDbErrorToStr(kayit, e));
+                } else {
+                  ConstantsBase.showToast(context, e.toString());
+                }
+              });
             } else {
               BaseModel.update(kayit).then((_){
                 ConstantsBase.showToast(context, kayit.singleTitle + " Güncellendi");
                 Navigator.pop(context);
+              }).catchError((e){
+                debugPrint(e.toString());
+                if(e is DatabaseException) {
+                  ConstantsBase.showToast(context, BaseModel.convertDbErrorToStr(kayit, e));
+                } else {
+                  ConstantsBase.showToast(context, e.toString());
+                }
               });
             }
           }

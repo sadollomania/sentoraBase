@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:sentora_base/lang/AppLocalizationsBase.dart';
 import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
@@ -8,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ConstantsBase {
+  static int currentNotificationId = 0;
   static final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
   static final DateFormat dateTimeFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
   static final _uuid = Uuid();
@@ -17,6 +19,10 @@ class ConstantsBase {
 
   static String getRandomUUID() {
     return _uuid.v1();
+  }
+
+  static String translate(BuildContext context, String key) {
+    return AppLocalizationsBase.of(context).translate(key);
   }
 
   static void showToast(BuildContext context, String text) {
