@@ -5,6 +5,15 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sentora_base/notification/ReceivedNotification.dart';
 
 class BaseNotification {
+  static RepeatInterval INTERVAL_EVERY_MINUTE = RepeatInterval.EveryMinute;
+  static RepeatInterval INTERVAL_HOURLY = RepeatInterval.Hourly;
+  static RepeatInterval INTERVAL_DAILY = RepeatInterval.Daily;
+  static RepeatInterval INTERVAL_WEEKLY = RepeatInterval.Weekly;
+
+  static Time contructNotificationTime(int hour, int minute, int second) {
+    return Time(hour, minute, second);
+  }
+
   static FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
   static StreamController<ReceivedNotification> _didReceiveLocalNotificationController;
   static StreamController<String> _selectNotificationController;
@@ -71,13 +80,43 @@ class BaseNotification {
     }
 
     await _flutterLocalNotificationsPlugin.cancel(id);
-    if(time != null) {
-      await _flutterLocalNotificationsPlugin.showDailyAtTime(id, title, body, time, nDetails, payload: payload);
-    } else if(interval != null) {
-      await _flutterLocalNotificationsPlugin.periodicallyShow(id, title, body, interval, nDetails, payload: payload);
+    if(interval != null) {
+      switch(interval) {
+        case RepeatInterval.EveryMinute:
+        case RepeatInterval.Hourly:
+        case RepeatInterval.Weekly:
+          await _flutterLocalNotificationsPlugin.periodicallyShow(id, title, body, interval, nDetails, payload: payload);
+          break;
+        case RepeatInterval.Daily:
+          if(time != null) {
+            await _flutterLocalNotificationsPlugin.showDailyAtTime(id, title, body, time, nDetails, payload: payload);
+          } else {
+            await _flutterLocalNotificationsPlugin.periodicallyShow(id, title, body, interval, nDetails, payload: payload);
+          }
+          break;
+      }
     } else {
-      await _flutterLocalNotificationsPlugin.show(id, title, body, nDetails, payload: payload);
+      if(time != null) {
+        DateTime now = DateTime.now();
+        DateTime dt = DateTime(now.year, now.month, now.day, time.hour, time.minute, time.second);
+        if(dt.isBefore(now)) {
+          dt.add(Duration(days: 1));
+        }
+        await _flutterLocalNotificationsPlugin.schedule(id, title, body, dt, nDetails, payload: payload, androidAllowWhileIdle: true);
+      } else {
+        await _flutterLocalNotificationsPlugin.show(id, title, body, nDetails, payload: payload);
+      }
     }
+  }
+
+  static Future<void> scheduleNotification(int id, String title, String body, DateTime scheduledDate, {String payload}) async {
+    if(!_initialized) {
+      print('call init method first!!!');
+      return;
+    }
+
+    await _flutterLocalNotificationsPlugin.cancel(id);
+    await _flutterLocalNotificationsPlugin.schedule(id, title, body, scheduledDate, nDetails, payload: payload, androidAllowWhileIdle: true);
   }
 
   static Future<void> cancelNotification(int id) async {

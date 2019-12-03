@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'dart:core';
@@ -81,6 +83,19 @@ class DBHelperBase {
     f.copySync(dbPath);
     if(dbOpen) {
       await getDb();
+    }
+  }
+
+  static Future<void> openFileExplorerForDBRestore(BuildContext context) async {
+    try {
+      String _path = await FilePicker.getFilePath(type: FileType.ANY, fileExtension: "");
+      if(null != _path) {
+        await instance.restoreDB(_path);
+        await instance.getDb();
+      }
+    } on PlatformException catch (e) {
+      print("Unsupported operation" + e.toString());
+      throw e;
     }
   }
 }

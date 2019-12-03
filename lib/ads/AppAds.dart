@@ -1,7 +1,7 @@
-import 'package:firebase_admob/firebase_admob.dart';
+//import 'package:firebase_admob/firebase_admob.dart';
 
 class AppAds {
-  static bool _appsDisabled = false;
+  /*static bool _appsDisabled = false;
   static String _appId;
   static String _bannerUnitId;
   static String _screenUnitId;
@@ -140,5 +140,5 @@ class AppAds {
     if(_screenUnitId != null && myInterstitial != null) {
       myInterstitial.dispose();
     }
-  }
+  }*/
 }

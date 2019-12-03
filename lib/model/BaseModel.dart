@@ -8,7 +8,6 @@ import 'package:sentora_base/model/fieldTypes/IntFieldType.dart';
 import 'package:sentora_base/model/fieldTypes/RealFieldType.dart';
 import 'package:sentora_base/model/fieldTypes/StringFieldType.dart';
 import 'package:sentora_base/pages/BaseModelPage.dart';
-import 'package:sentora_base/pages/BaseModelQueryPage.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sentora_base/data/DBHelperBase.dart';
@@ -26,6 +25,15 @@ class BaseModel {
   static Map<String, String> _modelSingleTitles = Map<String, String>();
   static Map<String, Color Function(BaseModel baseModel)> _modelListBgColors = Map<String, Color Function(BaseModel baseModel)>();
   static Map<String, List<List<String>>> _modelMultiColumnUniqueConstraints = Map<String, List<List<String>>>();
+
+  Future<void> beforeInsert() async{}
+  Future<void> afterInsert() async{}
+
+  Future<void> beforeUpdate() async{}
+  Future<void> afterUpdate() async{}
+
+  Future<void> beforeDelete() async{}
+  Future<void> afterDelete() async{}
 
   String modelName;
   String tableName;
@@ -55,7 +63,7 @@ class BaseModel {
     @required this.pageTitle,
     @required this.singleTitle,
     @required this.multiColumnUniqueConstraints,
-    Color Function(BaseModel baseModel) this.listBgColor,
+    this.listBgColor,
   }) {
     if(!_models.contains(modelName)) {
       _modelTableNames[modelName] = tableName;
@@ -109,17 +117,17 @@ class BaseModel {
     return BaseModelPage(widgetModelName: modelName,);
   }
 
-  BaseModelQueryPage createBaseModelQueryPage(String pageTitle, String getListQuery, Row Function(BaseModel selectedKayit) constructButtonsRow) {
-    return BaseModelQueryPage(widgetModelName: modelName, pageTitle: pageTitle, getListQuery: getListQuery, constructButtonsRow: constructButtonsRow,);
+  BaseModelPage createBaseModelQueryPage(String pageTitle, String getListQuery, Row Function(BaseModel selectedKayit) constructButtonsRow) {
+    return BaseModelPage(widgetModelName: modelName, pageTitle: pageTitle, getListQuery: getListQuery, constructButtonsRow: constructButtonsRow,);
   }
 
   List<BaseFieldType> _constructFields() {
     List<BaseFieldType> allFieldTypes = List<BaseFieldType>();
-    allFieldTypes.add(StringFieldType(fieldLabel:"ID", fieldHint:"ID", name:"ID", nullable: false));
-    allFieldTypes.add(DateFieldType(fieldLabel:"INSDATE", fieldHint:"INSDATE", name:"INSDATE", nullable: false));
-    allFieldTypes.add(StringFieldType(fieldLabel:"INSBY", fieldHint:"INSBY", name:"INSBY", nullable: false));
-    allFieldTypes.add(DateFieldType(fieldLabel:"UPDDATE", fieldHint:"UPDDATE", name:"UPDDATE", nullable: false));
-    allFieldTypes.add(StringFieldType(fieldLabel:"UPDBY", fieldHint:"UPDBY", name:"UPDBY", nullable: false));
+    allFieldTypes.add(StringFieldType(fieldLabel:"ID", fieldHint:"Kayıt No", name:"ID", nullable: false, filterable: false));
+    allFieldTypes.add(DateFieldType(fieldLabel:"Kyt.Trh.", fieldHint:"Kayıt Tarihi", name:"INSDATE", nullable: false));
+    allFieldTypes.add(StringFieldType(fieldLabel:"Kyt.Eden", fieldHint:"Kayıt Eden", name:"INSBY", nullable: false, sortable: false, filterable: false));
+    allFieldTypes.add(DateFieldType(fieldLabel:"Gün.Trh.", fieldHint:"Güncelleme Tarihi", name:"UPDDATE", nullable: false));
+    allFieldTypes.add(StringFieldType(fieldLabel:"Gün.Yapan", fieldHint:"Güncelleme Yapan", name:"UPDBY", nullable: false, sortable: false, filterable: false));
     allFieldTypes.addAll(fieldTypes);
     return allFieldTypes;
   }
@@ -248,6 +256,7 @@ class BaseModel {
   }
 
   Future<int> _insertToDb() async {
+    await beforeInsert();
     final Database db = await DBHelperBase.instance.getDb();
     _fieldValues["INSDATE"] = DateTime.now();
     _fieldValues["INSBY"] = "AUTO";
@@ -264,52 +273,162 @@ class BaseModel {
       debugPrint(e.toString());
       throw e;
     }
+
+    await afterInsert();
     return retVal;
   }
 
   Future<int> _updateInDb() async {
+    await beforeUpdate();
     final Database db = await DBHelperBase.instance.getDb();
     _fieldValues["UPDDATE"] = DateTime.now();
     _fieldValues["UPDBY"] = "AUTO";
-    return await db.update(
+    int retVal = await db.update(
       tableName,
       _toMap(),
       where: "ID = ?",
       whereArgs: [get("ID")],
     );
+    await afterUpdate();
+    return retVal;
   }
 
   Future<int> _deleteFromDb() async {
+    await beforeDelete();
     final db = await DBHelperBase.instance.getDb();
-    return await db.delete(
+    int retVal = await db.delete(
       tableName,
       where: "ID = ?",
       whereArgs: [get("ID")],
     );
+    await afterDelete();
+    return retVal;
   }
 
-  Future<List<BaseModel>> _getList() async {
+  Future<Map<String, dynamic>> _getList(int limit, int offset, String orderBy, String rawQuery, Map<String, dynamic> filterMap) async {
+    Map<String, dynamic> retMap = Map<String, dynamic>();
     final Database db = await DBHelperBase.instance.getDb();
-    final List<Map<String, dynamic>> maps = await db.query(tableName);
+    String where;
+    List<dynamic> whereArgs = List<dynamic>();
+    String whereStr;
+    if(filterMap != null && filterMap.length > 0) {
+      String str;
+      dynamic val;
+      where = "";
+      List<String> filterKeys =  filterMap.keys.toList();
+      for(int i = 0, len = filterKeys.length; i < len; ++i) {
+        str = filterKeys[i];
+        val = filterMap[str];
+
+        List<String> tmpArr = str.split("-");
+        String fieldName = tmpArr[0];
+        String operator = tmpArr[1];
+        if(i != 0) {
+          where += " and ";
+        }
+
+        switch(operator) {
+          case "isnotnull":
+            where += fieldName + " is not null ";
+            break;
+          case "isnull":
+            where += fieldName + " is null ";
+            break;
+          case "like":
+            where += fieldName + " like '%' || ? || '%' ";
+            break;
+          case "dateeq":
+            where += " substr(" + fieldName + ",1,10) = ? ";
+            break;
+          case "dategt":
+            where += " substr(" + fieldName + ",1,10) > ? ";
+            break;
+          case "datelt":
+            where += " substr(" + fieldName + ",1,10) < ? ";
+            break;
+          case "inteq":
+          case "realeq":
+          case "foreigneq":
+            where += fieldName + " = ? ";
+            break;
+          case "booleq":
+            val = val ? 1 : 0;
+            where += fieldName + " = ? ";
+            break;
+          case "intgt":
+          case "realgt":
+            where += fieldName + " > ? ";
+            break;
+          case "intlt":
+          case "reallt":
+            where += fieldName + " < ? ";
+            break;
+          default:
+            throw Exception("unknown filter mode : " + operator);
+        }
+        whereArgs.add(val);
+      }
+    }
+
+    List<Map<String, dynamic>> maps;
+    if(rawQuery == null) {
+      if(limit == -1) {
+        if(where == null) {
+          maps = await db.query(tableName);
+        } else {
+          maps = await db.query(tableName, where: where, whereArgs: whereArgs);
+        }
+      } else {
+        if(where == null) {
+          maps = await db.query(tableName, limit: limit, offset: offset, orderBy: orderBy != null && orderBy.isNotEmpty ? orderBy : null);
+        } else {
+          maps = await db.query(tableName, limit: limit, offset: offset, orderBy: orderBy != null && orderBy.isNotEmpty ? orderBy : null, where: where, whereArgs: whereArgs);
+        }
+      }
+    } else {
+      String pagedQuery = rawQuery;
+      if(where != null) {
+        pagedQuery += " WHERE " + where;
+      }
+      if(orderBy != null && orderBy.isNotEmpty) {
+        pagedQuery += " ORDER BY " + orderBy;
+      }
+      if(limit != -1) {
+        pagedQuery += " LIMIT " + limit.toString() + " OFFSET " + offset.toString();
+      }
+      if(where == null) {
+        maps = await db.rawQuery(pagedQuery);
+      } else {
+        maps = await db.rawQuery(pagedQuery, whereArgs);
+      }
+    }
     List<BaseModel> retList = List<BaseModel>();
     for(int i = 0, len = maps.length; i < len; ++i) {
       BaseModel newObj = BaseModel.createNewObject(modelName);
       await newObj._fromMap(maps[i]);
       retList.add(newObj);
     }
-    return retList;
-  }
-
-  Future<List<BaseModel>> _getListByQuery(String query) async {
-    final Database db = await DBHelperBase.instance.getDb();
-    final List<Map<String, dynamic>> maps = await db.rawQuery(query);
-    List<BaseModel> retList = List<BaseModel>();
-    for(int i = 0, len = maps.length; i < len; ++i) {
-      BaseModel newObj = BaseModel.createNewObject(modelName);
-      await newObj._fromMap(maps[i]);
-      retList.add(newObj);
+    int totalCount;
+    if(limit == -1) {
+      totalCount = maps.length;
+    } else {
+      if(rawQuery == null) {
+        if(where == null) {
+          totalCount = (await db.query(tableName)).length;
+        } else {
+          totalCount = (await db.query(tableName, where: where, whereArgs: whereArgs)).length;
+        }
+      } else {
+        if(where == null) {
+          totalCount = (await db.rawQuery(rawQuery)).length;
+        } else {
+          totalCount = (await db.rawQuery(rawQuery + " WHERE " + where)).length;
+        }
+      }
     }
-    return retList;
+    retMap[ConstantsBase.totalCountTag] = totalCount;
+    retMap[ConstantsBase.dataTag] = retList;
+    return retMap;
   }
 
   BaseFieldType _getFieldTypeByName(String name) {
@@ -424,12 +543,14 @@ class BaseModel {
     return baseModel._deleteFromDb();
   }
 
-  static Future<List<BaseModel>> getList(BaseModel baseModel) async{
-    return await baseModel._getList();
-  }
-
-  static Future<List<BaseModel>> getListByQuery(BaseModel baseModel, String query) async{
-    return await baseModel._getListByQuery(query);
+  static Future<Map<String, dynamic>> getList(BaseModel baseModel, { int pageSize = -1, int currentPage = 1, String orderBy, String rawQuery, Map<String, dynamic> filterMap }) async{
+    assert(pageSize >= -1);
+    assert(currentPage > 0);
+    int offset = 0;
+    if(pageSize != -1) {
+      offset = (currentPage - 1) * pageSize;
+    }
+    return await baseModel._getList(pageSize, offset, orderBy, rawQuery, filterMap);
   }
 
   static String convertDbErrorToStr(BaseModel baseModel, DatabaseException e) {

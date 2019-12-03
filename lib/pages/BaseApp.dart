@@ -1,22 +1,23 @@
+import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:sentora_base/ads/AppAds.dart';
 import 'package:sentora_base/data/DBHelperBase.dart';
 import 'package:sentora_base/lang/AppLocalizationsBase.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/notification/BaseNotification.dart';
 import 'package:sentora_base/notification/NotificationTaskConfig.dart';
 import 'package:sentora_base/notification/ReceivedNotification.dart';
+import 'package:sentora_base/utils/ConstantsBase.dart';
 
 abstract class BaseApp extends StatefulWidget {
 
   final String appTitle;
-  final Iterable<Locale> supportedLocales;
   final Widget Function() getMainPage;
   final Map<String, dynamic> notificationConfig;
   final Map<String, dynamic> adsConfig;
   final Map<String, dynamic> dbConfig;
   final Map<String, dynamic> bgTaskConfig;
+  final Map<String, dynamic> localeConfig;
 
   void initBaseModelClasses();
   void beforeInitState();
@@ -24,12 +25,12 @@ abstract class BaseApp extends StatefulWidget {
 
   BaseApp({
     @required this.appTitle,
-    @required this.supportedLocales,
     @required this.getMainPage,
     this.dbConfig,
     this.adsConfig,
     this.notificationConfig,
     this.bgTaskConfig,
+    this.localeConfig,
   }) :
         assert(
             dbConfig == null ||
@@ -61,6 +62,12 @@ abstract class BaseApp extends StatefulWidget {
                     notificationConfig["tasks"] is List<NotificationTaskConfig>
                 )
             )
+        ),
+        assert(
+          localeConfig == null ||
+          (
+            localeConfig["supportedLocales"] != null && localeConfig["supportedLocales"] is Iterable<Locale> && (localeConfig["supportedLocales"] as Iterable<Locale>).length > 0
+          )
         );
 
   @override
@@ -71,6 +78,7 @@ class _BaseAppState extends State<BaseApp> {
   @override
   void initState() {
     widget.beforeInitState();
+    ConstantsBase.loadPrefs();
     super.initState();
     widget.initBaseModelClasses();
     if(widget.dbConfig != null) {
@@ -91,12 +99,18 @@ class _BaseAppState extends State<BaseApp> {
       });
     }
 
-    if(widget.adsConfig != null) {
+    if(widget.localeConfig != null) {
+      ConstantsBase.localeExists = true;
+    }
+
+    ConstantsBase.eventBus = EventBus();
+
+    /*if(widget.adsConfig != null) {
       if(widget.adsConfig["adsDisabled"] == true) {
         AppAds.setAppsDisabled();
       }
       AppAds.init(widget.adsConfig["adsAppId"], bannerUnitId: widget.adsConfig["adsBannerUnitId"], screenUnitId: widget.adsConfig["adsScreenUnitId"], rewardUnitId: widget.adsConfig["adsRewardUnitId"]);
-    }
+    }*/
     widget.afterInitState();
   }
 
@@ -108,9 +122,10 @@ class _BaseAppState extends State<BaseApp> {
     if(widget.notificationConfig != null) {
       BaseNotification.dispose();
     }
-    if(widget.adsConfig != null) {
+    ConstantsBase.eventBus.destroy();
+    /*if(widget.adsConfig != null) {
       AppAds.dispose();
-    }
+    }*/
     super.dispose();
   }
 
@@ -122,11 +137,16 @@ class _BaseAppState extends State<BaseApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      supportedLocales: widget.supportedLocales,
-      localizationsDelegates: [
+      supportedLocales: widget.localeConfig != null ? widget.localeConfig["supportedLocales"] : [const Locale('en', 'US')],
+      localizationsDelegates: widget.localeConfig != null ? [
         // THIS CLASS WILL BE ADDED LATER
         // A class which loads the translations from JSON files
         AppLocalizationsBase.delegate,
+        // Built-in localization of basic text for Material widgets
+        GlobalMaterialLocalizations.delegate,
+        // Built-in localization for text direction LTR/RTL
+        GlobalWidgetsLocalizations.delegate,
+      ] : [
         // Built-in localization of basic text for Material widgets
         GlobalMaterialLocalizations.delegate,
         // Built-in localization for text direction LTR/RTL

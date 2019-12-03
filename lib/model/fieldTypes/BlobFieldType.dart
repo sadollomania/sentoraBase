@@ -11,10 +11,25 @@ class BlobFieldType extends BaseFieldType {
     bool nullable,
     bool unique = false,
     bool Function(BaseModel baseModel) nullableFn,
-  }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, unique: unique, defaultValue: null, nullableFn : nullableFn);
+  }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, unique: unique, defaultValue: null, nullableFn : nullableFn, sortable : false, filterable : false);
 
   @override
-  Widget constructFormField(BaseModel kayit) {
-    return Text("Blob Not Implmented Yet");
+  Widget constructFormField(BaseModel kayit, BuildContext context) {
+    throw Exception("Blob Not Implmented Yet : constructFormField");
+  }
+
+  @override
+  List<Widget> constructFilterFields(BuildContext context, Map<String, dynamic> filterMap) {
+    throw Exception("Blob can not be filtered : constructFilterFields");
+  }
+
+  @override
+  List<Widget> constructFilterButtons(BuildContext context, Map<String, dynamic> filterMap) {
+    throw Exception("Blob can not be filtered : constructFilterButtons");
+  }
+
+  @override
+  void clearFilterControllers() {
+    //Nothing to clear
   }
 }

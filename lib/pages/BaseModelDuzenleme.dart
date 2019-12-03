@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sentora_base/model/BaseModel.dart';
+import 'package:sentora_base/model/ModelDuzenlemeEvent.dart';
+import 'package:sentora_base/model/fieldTypes/DateFieldType.dart';
+import 'package:sentora_base/model/fieldTypes/ForeignKeyFieldType.dart';
+import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/MenuButton.dart';
 import 'package:sqflite/sqflite.dart';
@@ -21,6 +25,8 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
   BaseModel ornekKayit;
   BaseModel kayit;
   String modelName;
+  //StreamSubscription loginSubscription;
+
   BaseModelDuzenlemeState({
     @required this.kayit,
     @required this.modelName
@@ -31,10 +37,26 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
     }
   }
 
+  void initState() {
+    super.initState();
+    /*loginSubscription = ConstantsBase.eventBus.on<FormFieldSetStateEvent>().listen((event){
+      setState(() {
+
+      });
+    });*/
+  }
+
+  void dispose() {
+    super.dispose();
+    DateFieldType.clearEditors();
+    ForeignKeyFieldType.clearEditors();
+    //loginSubscription.cancel();
+  }
+
   List<Widget> getFormItems() {
     List<Widget> retWidgets = List<Widget>();
     ornekKayit.fieldTypes.forEach((fieldType){
-      retWidgets.add(fieldType.constructFormField(kayit));
+      retWidgets.add(fieldType.constructFormField(kayit, context));
       retWidgets.add(SizedBox(height: 20,));
     });
     retWidgets.add(
@@ -48,7 +70,8 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
               kayit.set("ID", ConstantsBase.getRandomUUID());
               BaseModel.insert(kayit).then((_){
                 ConstantsBase.showToast(context, kayit.singleTitle + " Eklendi");
-                Navigator.pop(context);
+                NavigatorBase.pop();
+                ConstantsBase.eventBus.fire(ModelDuzenlemeEvent());
               }).catchError((e){
                 debugPrint(e.toString());
                 kayit.set("ID", null);
@@ -61,7 +84,8 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
             } else {
               BaseModel.update(kayit).then((_){
                 ConstantsBase.showToast(context, kayit.singleTitle + " Güncellendi");
-                Navigator.pop(context);
+                NavigatorBase.pop();
+                ConstantsBase.eventBus.fire(ModelDuzenlemeEvent());
               }).catchError((e){
                 debugPrint(e.toString());
                 if(e is DatabaseException) {
