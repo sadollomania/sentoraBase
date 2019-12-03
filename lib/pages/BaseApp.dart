@@ -153,6 +153,11 @@ class _BaseAppState extends State<BaseApp> {
         GlobalWidgetsLocalizations.delegate,
       ],
       localeResolutionCallback: (locale, supportedLocales) {
+        if (locale == null) {
+          debugPrint("*language locale is null!!!");
+          return supportedLocales.first;
+        }
+
         // Check if the current device locale is supported
         for (var supportedLocale in supportedLocales) {
           if (supportedLocale.languageCode == locale.languageCode &&
