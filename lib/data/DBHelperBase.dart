@@ -94,7 +94,7 @@ class DBHelperBase {
         await instance.getDb();
       }
     } on PlatformException catch (e) {
-      print("Unsupported operation" + e.toString());
+      debugPrint("Unsupported operation" + e.toString());
       throw e;
     }
   }

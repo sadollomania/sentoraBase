@@ -310,7 +310,6 @@ class BaseModel {
     final Database db = await DBHelperBase.instance.getDb();
     String where;
     List<dynamic> whereArgs = List<dynamic>();
-    String whereStr;
     if(filterMap != null && filterMap.length > 0) {
       String str;
       dynamic val;

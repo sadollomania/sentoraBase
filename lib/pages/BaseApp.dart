@@ -105,10 +105,7 @@ class _BaseAppState extends State<BaseApp> {
 
     ConstantsBase.eventBus = EventBus();
 
-    /*if(widget.adsConfig != null) {
-      if(widget.adsConfig["adsDisabled"] == true) {
-        AppAds.setAppsDisabled();
-      }
+    /*if(widget.adsConfig != null && widget.adsConfig["adsDisabled"] != true) {
       AppAds.init(widget.adsConfig["adsAppId"], bannerUnitId: widget.adsConfig["adsBannerUnitId"], screenUnitId: widget.adsConfig["adsScreenUnitId"], rewardUnitId: widget.adsConfig["adsRewardUnitId"]);
     }*/
     widget.afterInitState();
