@@ -19,8 +19,9 @@ class BaseNotification {
   static StreamController<String> _selectNotificationController;
   static bool _initialized = false;
 
+
   static AndroidNotificationDetails andDetails = AndroidNotificationDetails(
-      'TR_COM_SENTORA_CHANNEL_ID', 'TR_COM_SENTORA_CHANNEL_NAME', 'TR_COM_SENTORA_CHANNEL',
+      'TR_COM_SENTORA_NOTIFICATION_ID', 'TR_COM_SENTORA_NOTIFICATION_NAME', 'TR_COM_SENTORA_NOTIFICATION_CHANNEL',
       importance: Importance.Max, priority: Priority.High, ticker: 'ticker');
   static IOSNotificationDetails iosDetails = IOSNotificationDetails();
   static NotificationDetails nDetails = NotificationDetails(andDetails, iosDetails);
@@ -96,7 +97,6 @@ class BaseNotification {
         case RepeatInterval.Daily:
           if(time != null) {
             await _flutterLocalNotificationsPlugin.showDailyAtTime(id, title, body, time, nDetails, payload: payload);
-            debugPrint("daily notification set on time");
           } else {
             await _flutterLocalNotificationsPlugin.periodicallyShow(id, title, body, interval, nDetails, payload: payload);
           }
