@@ -55,8 +55,8 @@ abstract class BaseApp extends StatefulWidget {
         assert(
             notificationConfig == null ||
             (
-                notificationConfig["receiveFun"] != null && notificationConfig["receiveFun"] is Function(ReceivedNotification) &&
-                notificationConfig["payloadFun"] != null && notificationConfig["payloadFun"] is Function(String) &&
+                (notificationConfig["receiveFun"] == null || notificationConfig["receiveFun"] is Function(ReceivedNotification)) &&
+                (notificationConfig["payloadFun"] == null || notificationConfig["payloadFun"] is Function(String)) &&
                 (
                     notificationConfig["tasks"] == null ||
                     notificationConfig["tasks"] is List<NotificationTaskConfig>

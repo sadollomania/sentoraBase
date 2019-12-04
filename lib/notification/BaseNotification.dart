@@ -65,12 +65,16 @@ class BaseNotification {
             _selectNotificationController.add(payload);
           });
 
-      _didReceiveLocalNotificationController.stream.listen((ReceivedNotification receivedNotification) async {
-        receiveFun(receivedNotification);
-      });
-      _selectNotificationController.stream.listen((String payload) async {
-        payloadFun(payload);
-      });
+      if(receiveFun != null) {
+        _didReceiveLocalNotificationController.stream.listen((ReceivedNotification receivedNotification) async {
+          receiveFun(receivedNotification);
+        });
+      }
+      if(payloadFun != null) {
+        _selectNotificationController.stream.listen((String payload) async {
+          payloadFun(payload);
+        });
+      }
 
       _initialized = true;
     }
