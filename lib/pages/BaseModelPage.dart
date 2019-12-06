@@ -224,7 +224,7 @@ class _BaseModelPageState extends State<BaseModelPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(ornekKayit.pageTitle),
+        title: Text(pageTitle ?? ornekKayit.pageTitle),
       ),
       body: Padding(
         padding: EdgeInsets.all(8.0),

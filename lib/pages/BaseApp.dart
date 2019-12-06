@@ -1,6 +1,7 @@
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:sentora_base/ads/AppAds.dart';
 import 'package:sentora_base/data/DBHelperBase.dart';
 import 'package:sentora_base/lang/AppLocalizationsBase.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
@@ -8,6 +9,8 @@ import 'package:sentora_base/notification/BaseNotification.dart';
 import 'package:sentora_base/notification/NotificationTaskConfig.dart';
 import 'package:sentora_base/notification/ReceivedNotification.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
+import 'package:share/receive_share_state.dart';
+import 'package:share/share.dart';
 
 abstract class BaseApp extends StatefulWidget {
 
@@ -18,10 +21,15 @@ abstract class BaseApp extends StatefulWidget {
   final Map<String, dynamic> dbConfig;
   final Map<String, dynamic> bgTaskConfig;
   final Map<String, dynamic> localeConfig;
+  final Map<String, dynamic> shareConfig;
+  //_BaseAppState _baseAppState;
 
   void initBaseModelClasses();
   void beforeInitState();
   void afterInitState();
+  void beforeDispose();
+  void afterDispose();
+  void receiveShare(Share shared);
 
   BaseApp({
     @required this.appTitle,
@@ -31,6 +39,7 @@ abstract class BaseApp extends StatefulWidget {
     this.notificationConfig,
     this.bgTaskConfig,
     this.localeConfig,
+    this.shareConfig,
   }) :
         assert(
             dbConfig == null ||
@@ -42,14 +51,29 @@ abstract class BaseApp extends StatefulWidget {
         ),
         assert(
             adsConfig == null ||
+            adsConfig["adsDisabled"] == true ||
             (
-                adsConfig["adsAppId"] != null &&
+                List<String>.from(["AdMob", "UnityAds"]).contains(adsConfig["type"]) &&
+                (
+                    adsConfig["type"] == "AdMob" &&
+                    adsConfig["adsAppId"] != null &&
                     (
                         adsConfig["adsBannerUnitId"] != null ||
                         adsConfig["adsScreenUnitId"] != null ||
-                        adsConfig["adsRewardUnitId"] != null ||
-                        adsConfig["adsDisabled"] == true
+                        adsConfig["adsRewardUnitId"] != null
                     )
+                ) ||
+                (
+                    adsConfig["type"] == "UnityAds" &&
+                    adsConfig["androidId"] != null &&
+                    adsConfig["iosId"] != null &&
+                    adsConfig["testMode"] != null && adsConfig["testMode"] is bool &&
+                    (
+                        adsConfig["bannerPlacementId"] != null ||
+                        adsConfig["screenPlacementId"] != null ||
+                        adsConfig["videoPlacementId"] != null
+                    )
+                )
             )
         ),
         assert(
@@ -70,13 +94,23 @@ abstract class BaseApp extends StatefulWidget {
           )
         );
 
-  @override
   State<StatefulWidget> createState() => new _BaseAppState();
+
+  /*@override
+  State<StatefulWidget> createState() {
+    _baseAppState = ;
+    return _baseAppState;
+  }
+
+  void setState(Function f) {
+    _baseAppState.setState(f);
+  }*/
 }
 
-class _BaseAppState extends State<BaseApp> {
+class _BaseAppState extends ReceiveShareState<BaseApp> {
   @override
   void initState() {
+    ConstantsBase.setIsEmulator();
     widget.beforeInitState();
     ConstantsBase.loadPrefs();
     super.initState();
@@ -103,11 +137,15 @@ class _BaseAppState extends State<BaseApp> {
       ConstantsBase.localeExists = true;
     }
 
+    if(widget.shareConfig != null && widget.shareConfig["enableReceiveShare"] == true) {
+      enableShareReceiving();
+    }
+
     ConstantsBase.eventBus = EventBus();
 
-    /*if(widget.adsConfig != null && widget.adsConfig["adsDisabled"] != true) {
-      AppAds.init(widget.adsConfig["adsAppId"], bannerUnitId: widget.adsConfig["adsBannerUnitId"], screenUnitId: widget.adsConfig["adsScreenUnitId"], rewardUnitId: widget.adsConfig["adsRewardUnitId"]);
-    }*/
+    if(widget.adsConfig != null && widget.adsConfig["adsDisabled"] != true) {
+      AppAds.init(widget.adsConfig);
+    }
     widget.afterInitState();
   }
 
@@ -120,10 +158,12 @@ class _BaseAppState extends State<BaseApp> {
       BaseNotification.dispose();
     }
     ConstantsBase.eventBus.destroy();
-    /*if(widget.adsConfig != null) {
+    if(widget.adsConfig != null && widget.adsConfig["adsDisabled"] != true) {
       AppAds.dispose();
-    }*/
+    }
+    widget.beforeDispose();
     super.dispose();
+    widget.afterDispose();
   }
 
   @override
@@ -168,5 +208,10 @@ class _BaseAppState extends State<BaseApp> {
       },
       home:  widget.getMainPage()
     );
+  }
+
+  @override
+  void receiveShare(Share shared) {
+    widget.receiveShare(shared);
   }
 }

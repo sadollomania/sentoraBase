@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:device_info/device_info.dart';
 
 class ConstantsBase {
   static int pageSize = 6;
@@ -34,6 +35,23 @@ class ConstantsBase {
   static SharedPreferences _prefs;
   static EventBus eventBus;
   static String _notificationPreferenceKey = "__NOTIFICATION_ID_MAP__";
+  static bool isAndroid = true;
+  static bool isEmulator = true;
+
+  static Future setIsEmulator() async{
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    try{
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      isEmulator = androidInfo.isPhysicalDevice;
+      isAndroid = true;
+    } catch(e) {}
+
+    try{
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      isEmulator = iosInfo.isPhysicalDevice;
+      isAndroid = false;
+    } catch(e) {}
+  }
 
   static Map<String, String> prefDefaultVals = {
   };
@@ -56,6 +74,14 @@ class ConstantsBase {
 
   static String getRandomUUID() {
     return _uuid.v1();
+  }
+
+  static DateTime tryParse(DateFormat dateFormat, String str) {
+    try {
+      return dateFormat.parse(str);
+    } catch(e) {
+      return null;
+    }
   }
 
   static String translate(BuildContext context, String key) {

@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sentora_base/notification/ReceivedNotification.dart';
+import 'package:synchronized/synchronized.dart';
 
 class BaseNotification {
   static RepeatInterval intervalEveryMinute = RepeatInterval.EveryMinute;
   static RepeatInterval intervalHourly = RepeatInterval.Hourly;
   static RepeatInterval intervalDaily = RepeatInterval.Daily;
   static RepeatInterval intervalWeekly = RepeatInterval.Weekly;
+  static Lock lock = Lock();
 
   static Time contructNotificationTime(int hour, int minute, int second) {
     return Time(hour, minute, second);
@@ -45,39 +47,41 @@ class BaseNotification {
   ///
   /// -keep class com.dexterous.** { *; }
   static Future<void> init(Function(ReceivedNotification) receiveFun, Function(String) payloadFun) async {
-    if(!_initialized) {
-      _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-      _didReceiveLocalNotificationController = StreamController<ReceivedNotification>();
-      _selectNotificationController = StreamController<String>();
+    await lock.synchronized(() async {
+      if(!_initialized) {
+        _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+        _didReceiveLocalNotificationController = StreamController<ReceivedNotification>();
+        _selectNotificationController = StreamController<String>();
 
-      var initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
-      var initializationSettingsIOS = IOSInitializationSettings(
-          onDidReceiveLocalNotification: (int id, String title, String body, String payload) async {
-            _didReceiveLocalNotificationController.add(ReceivedNotification(id: id, title: title, body: body, payload: payload));
+        var initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
+        var initializationSettingsIOS = IOSInitializationSettings(
+            onDidReceiveLocalNotification: (int id, String title, String body, String payload) async {
+              _didReceiveLocalNotificationController.add(ReceivedNotification(id: id, title: title, body: body, payload: payload));
+            });
+        var initializationSettings = InitializationSettings(initializationSettingsAndroid, initializationSettingsIOS);
+        await _flutterLocalNotificationsPlugin.initialize(
+            initializationSettings,
+            onSelectNotification: (String payload) async {
+              if (payload != null) {
+                debugPrint('notification payload: ' + payload);
+              }
+              _selectNotificationController.add(payload);
+            });
+
+        if(receiveFun != null) {
+          _didReceiveLocalNotificationController.stream.listen((ReceivedNotification receivedNotification) async {
+            receiveFun(receivedNotification);
           });
-      var initializationSettings = InitializationSettings(initializationSettingsAndroid, initializationSettingsIOS);
-      await _flutterLocalNotificationsPlugin.initialize(
-          initializationSettings,
-          onSelectNotification: (String payload) async {
-            if (payload != null) {
-              debugPrint('notification payload: ' + payload);
-            }
-            _selectNotificationController.add(payload);
+        }
+        if(payloadFun != null) {
+          _selectNotificationController.stream.listen((String payload) async {
+            payloadFun(payload);
           });
+        }
 
-      if(receiveFun != null) {
-        _didReceiveLocalNotificationController.stream.listen((ReceivedNotification receivedNotification) async {
-          receiveFun(receivedNotification);
-        });
+        _initialized = true;
       }
-      if(payloadFun != null) {
-        _selectNotificationController.stream.listen((String payload) async {
-          payloadFun(payload);
-        });
-      }
-
-      _initialized = true;
-    }
+    });
   }
 
   static Future<List<PendingNotificationRequest>> getPendingRequests() {
