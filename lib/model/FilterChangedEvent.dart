@@ -1,4 +1,5 @@
 class FilterChangedEvent {
-  Map<String, dynamic> newFilterMap;
-  FilterChangedEvent(this.newFilterMap);
+  Map<String, dynamic> filterMap;
+  String baseModelPageId;
+  FilterChangedEvent(this.filterMap, this.baseModelPageId);
 }

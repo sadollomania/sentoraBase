@@ -13,14 +13,22 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:device_info/device_info.dart';
 
+enum SNACKBAR_DURATION{
+  SHORT,
+  LONG,
+  ALWAYS,
+  NONE,
+}
+
 class ConstantsBase {
-  static int pageSize = 6;
+  static int pageSize = 8;
   static final String dataTag = "data";
   static final String totalCountTag = "totalCount";
   static const Color defaultDisabledColor = Colors.black26;
-  static const Color defaultButtonColor = Color(0xFF42A5F5);
+  static const Color defaultButtonColor = Colors.blue;
   static const Color defaultIconColor = Colors.teal;
   static const Color defaultEnabledColor = Colors.white;
+  static Color defaultSecondaryColor = Colors.greenAccent.shade100;
   static const int defaultMenuButtonIconFlex = 1;
   static const int defaultMenuButtonTextFlex = 3;
   static const double filterDetailButtonWidth = 25;
@@ -30,6 +38,7 @@ class ConstantsBase {
 
   static final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
   static final DateFormat dateTimeFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
+  static final DateFormat timeFormat = DateFormat('HH:mm:ss');
   static final _uuid = Uuid();
   static bool localeExists = false;
   static SharedPreferences _prefs;
@@ -37,6 +46,10 @@ class ConstantsBase {
   static String _notificationPreferenceKey = "__NOTIFICATION_ID_MAP__";
   static bool isAndroid = true;
   static bool isEmulator = true;
+
+  static String getCompFieldName(String name, String filterMode){
+    return name + (filterMode == null ? "" : ("-" + filterMode));
+  }
 
   static Future setIsEmulator() async{
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -97,6 +110,41 @@ class ConstantsBase {
 
   static void showToastLong(BuildContext context, String text) {
     Toast.show(text, context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+  }
+
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBarShort(GlobalKey<ScaffoldState> _scaffoldKey, String text) {
+    return showSnackBar(_scaffoldKey, text, SNACKBAR_DURATION.SHORT);
+  }
+
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBarLong(GlobalKey<ScaffoldState> _scaffoldKey, String text) {
+    return showSnackBar(_scaffoldKey, text, SNACKBAR_DURATION.LONG);
+  }
+
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBarAlways(GlobalKey<ScaffoldState> _scaffoldKey, String text) {
+    return showSnackBar(_scaffoldKey, text, SNACKBAR_DURATION.ALWAYS);
+  }
+
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBarWithDuration(GlobalKey<ScaffoldState> _scaffoldKey, String text, Duration duration) {
+    return showSnackBar(_scaffoldKey, text, SNACKBAR_DURATION.NONE, duration : duration);
+  }
+
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBar(GlobalKey<ScaffoldState> _scaffoldKey, String text, SNACKBAR_DURATION snackBarDuration, { Duration duration }) {
+    Duration compDuration;
+    switch(snackBarDuration) {
+      case SNACKBAR_DURATION.SHORT:
+        compDuration = Duration(seconds: 3);
+        break;
+      case SNACKBAR_DURATION.LONG:
+        compDuration = Duration(seconds: 10);
+        break;
+      case SNACKBAR_DURATION.ALWAYS:
+        compDuration = null;
+        break;
+      case SNACKBAR_DURATION.NONE:
+        compDuration = duration ?? const Duration(seconds: 3);
+        break;
+    }
+    return _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(text), duration: compDuration,));
   }
 
   static Future<void> loadPrefs() async {

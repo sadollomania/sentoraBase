@@ -1,3 +1,4 @@
 class ModelDuzenlemeEvent {
-  ModelDuzenlemeEvent();
+  String baseModelPageId;
+  ModelDuzenlemeEvent(this.baseModelPageId);
 }

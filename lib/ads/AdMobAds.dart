@@ -1,4 +1,4 @@
-import 'package:firebase_admob/firebase_admob.dart';
+/*import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 
@@ -131,4 +131,4 @@ class AdMobAds {
       _myInterstitial.dispose();
     }
   }
-}
+}*/

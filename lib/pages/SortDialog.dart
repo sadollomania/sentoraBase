@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sentora_base/data/DBHelperBase.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/SortChangedEvent.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
@@ -8,28 +9,40 @@ import 'package:sentora_base/widgets/MenuButton.dart';
 class SortDialog extends StatefulWidget {
   final String orderBy;
   final BaseModel ornekKayit;
+  final String baseModelPageId;
 
   SortDialog({
     @required this.orderBy,
     @required this.ornekKayit,
+    @required this.baseModelPageId,
   });
 
   @override
-  _SortDialogState createState() => new _SortDialogState();
+  _SortDialogState createState() => new _SortDialogState(baseModelPageId : baseModelPageId);
 }
 
 class _SortDialogState extends State<SortDialog> {
   List<String> listOrder = List<String>();
+  List<String> listTitles = List<String>();
   List<bool> enabledList = List<bool>();
   List<String> directionList = List<String>();
+  List<String> nullsOrderList = List<String>();
+  String baseModelPageId;
+
+  _SortDialogState({
+    String baseModelPageId,
+  }):
+        this.baseModelPageId = baseModelPageId;
 
   @override
   void initState(){
     widget.ornekKayit.allFieldTypes.forEach((fieldType){
       if(fieldType.sortable) {
         listOrder.add(fieldType.name);
+        listTitles.add(fieldType.fieldLabel);
         enabledList.add(false);
         directionList.add("ASC");
+        nullsOrderList.add(DBHelperBase.nullsNone);
       }
     });
 
@@ -39,13 +52,22 @@ class _SortDialogState extends State<SortDialog> {
         List<String> tmpArr = currList[i].split(" ");
         String currName = tmpArr[0];
         String currDirection = tmpArr[1];
+        String nullsOrder = DBHelperBase.nullsNone;
+        if(tmpArr.length == 3) {
+          nullsOrder = tmpArr[2];
+        }
+        String title;
         int index = listOrder.indexOf(currName);
         listOrder.removeAt(index);
         listOrder.insert(0, currName);
+        title = listTitles.removeAt(index);
+        listTitles.insert(0, title);
         enabledList.removeAt(index);
         enabledList.insert(0, true);
         directionList.removeAt(index);
         directionList.insert(0, currDirection);
+        nullsOrderList.removeAt(index);
+        nullsOrderList.insert(0, nullsOrder);
       }
     }
     super.initState();
@@ -55,12 +77,16 @@ class _SortDialogState extends State<SortDialog> {
     List<String> newListOrder = List<String>();
     List<bool> newEnabledList = List<bool>();
     List<String> newDirectionList = List<String>();
+    List<String> newTitlesList = List<String>();
+    List<String> newNullsOrderList = List<String>();
 
     for(int i = 0, len = listOrder.length; i < len; ++i) {
       if(enabledList[i]) {
         newListOrder.add(listOrder[i]);
         newEnabledList.add(enabledList[i]);
         newDirectionList.add(directionList[i]);
+        newNullsOrderList.add(nullsOrderList[i]);
+        newTitlesList.add(listTitles[i]);
       }
     }
 
@@ -69,12 +95,16 @@ class _SortDialogState extends State<SortDialog> {
         newListOrder.add(listOrder[i]);
         newEnabledList.add(enabledList[i]);
         newDirectionList.add(directionList[i]);
+        newNullsOrderList.add(nullsOrderList[i]);
+        newTitlesList.add(listTitles[i]);
       }
     }
 
     listOrder = newListOrder;
     enabledList = newEnabledList;
     directionList = newDirectionList;
+    listTitles = newTitlesList;
+    nullsOrderList = newNullsOrderList;
   }
 
   @override
@@ -82,13 +112,15 @@ class _SortDialogState extends State<SortDialog> {
     List<Widget> _children = List<Widget>();
     for(int i = 0, len = listOrder.length; i < len; ++i) {
       String fieldName = listOrder[i];
+      String fieldLabel = listTitles[i];
       bool enabled = enabledList[i];
       String direction = directionList[i];
+      String nullsOrder = nullsOrderList[i];
       _children.add(ListTile(
           key: ValueKey(fieldName),
-          title: Text(fieldName),
+          title: Text(fieldLabel),
           leading: Container(
-            width: 82,
+            width: 123,
               child:Row(
                 children: <Widget>[
                   Expanded(
@@ -117,6 +149,19 @@ class _SortDialogState extends State<SortDialog> {
                       },
                     ),
                   ),
+                  SizedBox(width: 2,),
+                  Expanded(
+                    flex: 1,
+                    child: MenuButton(
+                      iconData: nullsOrder == DBHelperBase.nullsFirst ? Icons.minimize : (nullsOrder == DBHelperBase.nullsLast ? Icons.maximize : Icons.do_not_disturb),
+                      buttonColor: Colors.white,
+                      onPressed: (){
+                        setState(() {
+                          nullsOrderList[i] = nullsOrder == DBHelperBase.nullsFirst ? DBHelperBase.nullsLast : (nullsOrder == DBHelperBase.nullsLast ? DBHelperBase.nullsNone : DBHelperBase.nullsFirst);
+                        });
+                      },
+                    ),
+                  ),
                 ],
               )
           )
@@ -129,7 +174,7 @@ class _SortDialogState extends State<SortDialog> {
         height: ConstantsBase.getMaxHeight(context) * 0.8,
         width: ConstantsBase.getMaxWidth(context) * 0.8,
         child: ReorderableListView(
-          header: Text("Sıralama için uzun basılı tutun."),
+          header: Text("Sıralama için uzun basılı tutun\nSıralamaya katılsın mı\nSıralama Yönü\nBoş Olanların sıralama yeri",maxLines: 4,),
           padding: EdgeInsets.only(top: 20.0),
           children: _children,
           onReorder: (oldIndex, newIndex) {
@@ -145,6 +190,12 @@ class _SortDialogState extends State<SortDialog> {
 
               final String itemDirection = directionList.removeAt(oldIndex);
               directionList.insert(newIndex, itemDirection);
+
+              final String itemTitle = listTitles.removeAt(oldIndex);
+              listTitles.insert(newIndex, itemTitle);
+
+              final String nullsOrder = nullsOrderList.removeAt(oldIndex);
+              nullsOrderList.insert(newIndex, nullsOrder);
               sortListsProperly();
             });
           },
@@ -175,11 +226,15 @@ class _SortDialogState extends State<SortDialog> {
               String newOrderBy = "";
               for(int i = 0, len = listOrder.length; i < len; ++i) {
                 if(enabledList[i]) {
-                  newOrderBy += "," + listOrder[i] + " " + directionList[i];
+                  if(nullsOrderList[i] == DBHelperBase.nullsNone) {
+                    newOrderBy += "," + listOrder[i] + " " + directionList[i];
+                  } else {
+                    newOrderBy += "," + listOrder[i] + " " + directionList[i] + " " + nullsOrderList[i];
+                  }
                 }
               }
               newOrderBy = newOrderBy.length == 0 ? newOrderBy : newOrderBy.substring(1);
-              ConstantsBase.eventBus.fire(SortChangedEvent(newOrderBy));
+              ConstantsBase.eventBus.fire(SortChangedEvent(newOrderBy, baseModelPageId));
               NavigatorBase.pop();
             },
           ),

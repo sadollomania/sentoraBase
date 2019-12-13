@@ -9,6 +9,10 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:io';
 
 class DBHelperBase {
+  static String nullsFirst = "NULLSFIRST";
+  static String nullsLast = "NULLSLAST";
+  static String nullsNone = "";
+
   static DBHelperBase _instance;
   static DBHelperBase get instance => _instance;
   static void init(databaseFileName, databaseVersion, versionFunctions) => _instance ??= DBHelperBase._init(databaseFileName, databaseVersion, versionFunctions);
@@ -46,6 +50,10 @@ class DBHelperBase {
         return true;
       },
       version: databaseVersion,
+      onOpen: (db) async {
+        await db.execute("PRAGMA foreign_keys = ON;");
+        debugPrint("Foreign Keys enabled");
+      }
     );
     _didInit = true;
   }

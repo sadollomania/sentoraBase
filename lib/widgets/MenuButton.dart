@@ -9,17 +9,18 @@ class MenuButton extends StatelessWidget {
     this.title,
     this.iconData,
     this.disabled = false,
-    this.fontSize = 30,
+    double fontSize,
     this.edgeInsetsGeometry = const EdgeInsets.all(10.0),
     this.buttonColor = ConstantsBase.defaultButtonColor,
-    this.iconColor = ConstantsBase.defaultIconColor,
+    Color iconColor,
     this.circularRadius = 10,
     this.disabledColor = ConstantsBase.defaultDisabledColor,
     this.enabledColor = ConstantsBase.defaultEnabledColor,
     this.iconFlex = ConstantsBase.defaultMenuButtonIconFlex,
     this.textFlex = ConstantsBase.defaultMenuButtonTextFlex,
     this.labelWidth
-  }) :
+  }) : this.iconColor = iconColor ?? ConstantsBase.defaultIconColor,
+  this.fontSize = fontSize ?? 30,
   assert(title != null || iconData != null),
   assert(iconFlex != null),
   assert(textFlex != null);

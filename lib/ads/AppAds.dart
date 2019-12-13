@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:sentora_base/ads/AdMobAds.dart';
+//import 'package:sentora_base/ads/AdMobAds.dart';
 import 'package:sentora_base/ads/UnityAds.dart';
 
 class AppAds {
@@ -10,11 +10,11 @@ class AppAds {
     _type = adsConfig["type"];
     _disabled = adsConfig["adsDisabled"];
     switch(_type) {
-      case "AdMob":
+      /*case "AdMob":
         AdMobAds.init(adsConfig["adsAppId"], bannerUnitId: adsConfig["adsBannerUnitId"], screenUnitId: adsConfig["adsScreenUnitId"], rewardUnitId: adsConfig["adsRewardUnitId"]);
-        break;
+        break;*/
       case "UnityAds":
-        UnityAds.init(adsConfig["androidId"], adsConfig["iosId"], adsConfig["testMode"], adsConfig["bannerPlacementId"], adsConfig["screenPlacementId"], adsConfig["videoPlacementId"]);
+        UnityAds.init(adsConfig["androidId"], adsConfig["iosId"], adsConfig["testMode"], adsConfig["bannerPlacementId"], adsConfig["screenPlacementId"], adsConfig["videoPlacementId"], adsConfig["minInterval"]);
         break;
     }
   }
@@ -26,9 +26,9 @@ class AppAds {
     }
 
     switch(_type) {
-      case "AdMob":
+      /*case "AdMob":
         AdMobAds.showBanner();
-        break;
+        break;*/
       case "UnityAds":
         UnityAds.showBanner();
         break;
@@ -42,9 +42,9 @@ class AppAds {
     }
 
     switch(_type) {
-      case "AdMob":
+      /*case "AdMob":
         AdMobAds.showScreen();
-        break;
+        break;*/
       case "UnityAds":
         UnityAds.showScreen();
         break;
@@ -58,9 +58,9 @@ class AppAds {
     }
 
     switch(_type) {
-      case "AdMob":
+      /*case "AdMob":
         AdMobAds.showVideo();
-        break;
+        break;*/
       case "UnityAds":
         UnityAds.showVideo();
         break;
@@ -74,9 +74,9 @@ class AppAds {
     }
 
     switch(_type) {
-      case "AdMob":
+      /*case "AdMob":
         AdMobAds.dispose();
-        break;
+        break;*/
       case "UnityAds":
         UnityAds.dispose();
         break;

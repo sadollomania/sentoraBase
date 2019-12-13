@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:sentora_base/model/BaseModel.dart';
+import 'package:sentora_base/utils/ConstantsBase.dart';
+import 'package:sentora_base/widgets/MenuButton.dart';
 
 abstract class BaseFieldType {
   String fieldLabel;
@@ -14,18 +16,10 @@ abstract class BaseFieldType {
   bool filterable;
   dynamic defaultValue;
 
-  Widget constructFormField(BaseModel kayit, BuildContext context);
-  List<Widget> constructFilterFields(BuildContext context, Map<String, dynamic> filterMap);
-  List<Widget> constructFilterButtons(BuildContext context, Map<String, dynamic> filterMap);
-  void clearFilterControllers();
-
-  bool isNullable(BaseModel kayit) {
-    if(nullable == null) {
-      return nullableFn(kayit);
-    } else {
-      return nullable;
-    }
-  }
+  List<String> getFilterModes();
+  List<String> getFilterModeTitles();
+  Widget constructFormField(BuildContext context, BaseModel kayit, bool lastField, GlobalKey<ScaffoldState> scaffoldKey);
+  Widget constructFilterField(BuildContext context, Map<String, dynamic> filterMap, int filterIndex, GlobalKey<ScaffoldState> scaffoldKey);
 
   BaseFieldType({
     @required this.fieldLabel,
@@ -46,6 +40,48 @@ abstract class BaseFieldType {
     }
     if(name.endsWith("-eq") || name.endsWith("-qt") || name.endsWith("-lt") || name.endsWith("-like")) {
       throw new Exception("Field Adı '-eq','-qt','-lt','-like' ile bitemez!");
+    }
+    if(getFilterModes().length != getFilterModeTitles().length) {
+      throw new Exception("getFilterModes() ile getFilterModeTitles() uzunlukları aynı olmalı.");
+    }
+  }
+
+  List<Widget> constructFilterFields(BuildContext context, Map<String, dynamic> filterMap, GlobalKey<ScaffoldState> scaffoldKey) {
+    List<String> filterModes = getFilterModes();
+    List<Widget> retList = List<Widget>();
+    for(int i = 0, len = filterModes.length; i < len; ++i) {
+      retList.add(constructFilterField(context, filterMap, i, scaffoldKey));
+    }
+    return retList;
+  }
+
+  List<Widget> constructFilterButtons(BuildContext context, Map<String, dynamic> filterMap) {
+    List<String> filterModes = getFilterModes();
+    List<String> filterModeTitles = getFilterModeTitles();
+    List<Widget> retList = List<Widget>();
+    for(int i = 0, len = filterModes.length; i < len; ++i) {
+      String filterMode = filterModes[i];
+      String filterModeTitle = filterModeTitles[i];
+      retList.add(SizedBox(
+        width: ConstantsBase.filterDetailButtonWidth,
+        child: MenuButton(
+          edgeInsetsGeometry: ConstantsBase.filterButtonEdges,
+          title: filterModeTitle,
+          fontSize: ConstantsBase.filterButtonFontSize,
+          buttonColor: filterMap[name + "-" + filterMode] != null ? Colors.greenAccent : ConstantsBase.defaultDisabledColor,
+          onPressed: (){},
+        ),
+      ));
+      retList.add(SizedBox(width:2));
+    }
+    return retList;
+  }
+
+  bool isNullable(BaseModel kayit) {
+    if(nullable == null) {
+      return nullableFn(kayit);
+    } else {
+      return nullable;
     }
   }
 }

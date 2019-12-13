@@ -10,41 +10,45 @@ import 'package:sentora_base/widgets/MenuButton.dart';
 import 'package:sentora_base/model/FilterValueChangedEvent.dart';
 
 class FilterDialog extends StatefulWidget {
-  final Map<String, dynamic> finalFilterMap;
+  final Map<String, dynamic> filterMap;
   final BaseModel ornekKayit;
+  final String baseModelPageId;
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
   FilterDialog({
-    @required this.finalFilterMap,
+    @required this.filterMap,
     @required this.ornekKayit,
+    @required this.baseModelPageId,
+    @required this.scaffoldKey,
   }) :
-  assert(finalFilterMap != null),
-  assert(ornekKayit != null);
+  assert(ornekKayit != null),
+  assert(baseModelPageId != null);
 
   @override
-  _FilterDialogState createState() => new _FilterDialogState(finalFilterMap: finalFilterMap);
+  _FilterDialogState createState() => new _FilterDialogState(widgetFilterMap: filterMap, baseModelPageId : baseModelPageId);
 }
 
 class _FilterDialogState extends State<FilterDialog> {
-  Map<String, dynamic> filterMap = Map<String, dynamic>();
+  Map<String, dynamic> filterMap;
+  String baseModelPageId;
   StreamSubscription filterValueChangedSubscription;
 
   _FilterDialogState({
-    Map<String, dynamic> finalFilterMap
-  }): assert(finalFilterMap != null) {
-    finalFilterMap.forEach((str, val) {
-      filterMap[str] = val;
-    });
+    Map<String, dynamic> widgetFilterMap,
+    this.baseModelPageId,
+  }) {
+    filterMap = Map<String, dynamic>();
+    if(widgetFilterMap != null) {
+      widgetFilterMap.forEach((name, val){
+        filterMap[name] = val;
+      });
+    }
   }
 
   @override
   void initState(){
     filterValueChangedSubscription = ConstantsBase.eventBus.on<FilterValueChangedEvent>().listen((event){
       setState(() {
-        if(event.value == null) {
-          filterMap.remove(event.fieldName + "-" + event.mode);
-        } else {
-          filterMap[event.fieldName + "-" + event.mode] = event.value;
-        }
       });
     });
     super.initState();
@@ -53,9 +57,6 @@ class _FilterDialogState extends State<FilterDialog> {
   @override
   void dispose() {
     filterValueChangedSubscription.cancel();
-    widget.ornekKayit.allFieldTypes.forEach((fieldType){
-      fieldType.clearFilterControllers();
-    });
     super.dispose();
   }
 
@@ -86,7 +87,7 @@ class _FilterDialogState extends State<FilterDialog> {
           ),
           expanded: Container(
             child: Column(
-                children: fieldType.constructFilterFields(context, filterMap)
+                children: fieldType.constructFilterFields(context, filterMap, widget.scaffoldKey)
             ),
           ),
           tapHeaderToExpand: true,
@@ -131,7 +132,7 @@ class _FilterDialogState extends State<FilterDialog> {
             title: "Filtrele",
             iconData: Icons.filter_list,
             onPressed: () {
-              ConstantsBase.eventBus.fire(FilterChangedEvent(filterMap));
+              ConstantsBase.eventBus.fire(FilterChangedEvent(filterMap, baseModelPageId));
               NavigatorBase.pop();
             },
           ),

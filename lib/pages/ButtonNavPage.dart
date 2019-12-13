@@ -33,6 +33,7 @@ abstract class ButtonNavPage extends StatefulWidget {
 }
 
 class _ButtonNavPageState extends State<ButtonNavPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   int loadState = 0;
   StreamSubscription loginSubscription;
 
@@ -66,10 +67,16 @@ class _ButtonNavPageState extends State<ButtonNavPage> {
       retList.add(MenuButton(
           title : menuButtonConfig.title,
           iconData: menuButtonConfig.iconData,
+          iconColor: menuButtonConfig.iconColor,
           iconFlex: menuButtonConfig.iconFlex,
           textFlex: menuButtonConfig.textFlex,
-          onPressed: menuButtonConfig.onPressed ?? () {
-            NavigatorBase.push(menuButtonConfig.navPage);
+          fontSize: menuButtonConfig.fontSize,
+          onPressed: (){
+            if(menuButtonConfig.onPressed != null) {
+              menuButtonConfig.onPressed(context, _scaffoldKey);
+            } else {
+              NavigatorBase.push(menuButtonConfig.navPage);
+            }
           }));
       retList.add(SizedBox(height: 10,));
     });
@@ -106,8 +113,10 @@ class _ButtonNavPageState extends State<ButtonNavPage> {
   Widget build(BuildContext context) {
     Widget retWidget;
     Widget mainWidget = Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(widget.pageTitle),
+        centerTitle: true,
       ),
       body:SafeArea(
         child:Container(

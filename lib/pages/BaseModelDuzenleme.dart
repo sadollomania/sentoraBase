@@ -1,122 +1,139 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/ModelDuzenlemeEvent.dart';
-import 'package:sentora_base/model/fieldTypes/DateFieldType.dart';
-import 'package:sentora_base/model/fieldTypes/ForeignKeyFieldType.dart';
+import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
-import 'package:sentora_base/widgets/MenuButton.dart';
 import 'package:sqflite/sqflite.dart';
 
 class BaseModelDuzenleme extends StatefulWidget {
   final BaseModel widgetKayit;
   final String widgetModelName;
+  final String baseModelPageId;
+  final GlobalKey<ScaffoldState> baseModelPageScaffoldKey;
   BaseModelDuzenleme({
     @required this.widgetKayit,
     @required this.widgetModelName,
+    @required this.baseModelPageId,
+    @required this.baseModelPageScaffoldKey,
   });
 
   @override
-  BaseModelDuzenlemeState createState() => new BaseModelDuzenlemeState(kayit:this.widgetKayit, modelName: this.widgetModelName);
+  BaseModelDuzenlemeState createState() => new BaseModelDuzenlemeState(widgetKayit:this.widgetKayit, modelName: this.widgetModelName, baseModelPageId : baseModelPageId);
 }
 
 class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
   final _formKey = GlobalKey<FormState>();
-  BaseModel ornekKayit;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   BaseModel kayit;
   String modelName;
-  //StreamSubscription loginSubscription;
+  String baseModelPageId;
+  Map<String, TextEditingController> textControllers = Map<String, TextEditingController>();
+  Map<String, dynamic> formVals = Map<String, dynamic>();
 
   BaseModelDuzenlemeState({
-    @required this.kayit,
-    @required this.modelName
+    BaseModel widgetKayit,
+    @required this.modelName,
+    @required this.baseModelPageId,
   }) {
-    ornekKayit = BaseModel.createNewObject(modelName);
-    if(kayit == null) {
+    if(widgetKayit == null) {
       kayit = BaseModel.createNewObject(modelName);
+    } else {
+      kayit = widgetKayit.clone();
     }
   }
 
   void initState() {
     super.initState();
-    /*loginSubscription = ConstantsBase.eventBus.on<FormFieldSetStateEvent>().listen((event){
-      setState(() {
-
-      });
-    });*/
   }
 
   void dispose() {
     super.dispose();
-    DateFieldType.clearEditors();
-    ForeignKeyFieldType.clearEditors();
-    //loginSubscription.cancel();
   }
 
   List<Widget> getFormItems() {
     List<Widget> retWidgets = List<Widget>();
-    ornekKayit.fieldTypes.forEach((fieldType){
-      retWidgets.add(fieldType.constructFormField(kayit, context));
+    for(int i = 0, len = kayit.fieldTypes.length; i < len; ++i) {
+      BaseFieldType fieldType = kayit.fieldTypes[i];
+      retWidgets.add(fieldType.constructFormField(context, kayit, i == len - 1, _scaffoldKey));
       retWidgets.add(SizedBox(height: 20,));
-    });
-    retWidgets.add(
-      MenuButton(
-        title: 'Kaydet',
-        onPressed: () {
-          _formKey.currentState.save();
-          if (_formKey.currentState.validate()) {
-            ConstantsBase.showToast(context, "Bilgiler Kaydediliyor");
-            if(kayit.get("ID") == null) {
-              kayit.set("ID", ConstantsBase.getRandomUUID());
-              BaseModel.insert(kayit).then((_){
-                ConstantsBase.showToast(context, kayit.singleTitle + " Eklendi");
-                NavigatorBase.pop();
-                ConstantsBase.eventBus.fire(ModelDuzenlemeEvent());
-              }).catchError((e){
-                debugPrint(e.toString());
-                kayit.set("ID", null);
-                if(e is DatabaseException) {
-                  ConstantsBase.showToast(context, BaseModel.convertDbErrorToStr(kayit, e));
-                } else {
-                  ConstantsBase.showToast(context, e.toString());
-                }
-              });
-            } else {
-              BaseModel.update(kayit).then((_){
-                ConstantsBase.showToast(context, kayit.singleTitle + " Güncellendi");
-                NavigatorBase.pop();
-                ConstantsBase.eventBus.fire(ModelDuzenlemeEvent());
-              }).catchError((e){
-                debugPrint(e.toString());
-                if(e is DatabaseException) {
-                  ConstantsBase.showToast(context, BaseModel.convertDbErrorToStr(kayit, e));
-                } else {
-                  ConstantsBase.showToast(context, e.toString());
-                }
-              });
-            }
-          }
-        },
-      ),
-    );
+    }
     return retWidgets;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(ornekKayit.singleTitle + (kayit == null || kayit.get("ID") == null ? " Ekleme" : " Düzenleme")),
-      ),
-      body: Padding(
-          padding:EdgeInsets.all(8.0)
-          ,child:Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: getFormItems(),
-            )
+        title: Text(kayit.singleTitle + (kayit.get("ID") == null ? " Ekleme" : " Düzenleme")),
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50.0),
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(width: 1.0, color: Colors.blue.shade300),
+              ),
+            ),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: IconSlideAction(
+                    caption: 'Kaydet',
+                    color: ConstantsBase.defaultButtonColor,
+                    icon: Icons.save,
+                    onTap: () {
+                      _formKey.currentState.save();
+                      if (_formKey.currentState.validate()) {
+                        ConstantsBase.showSnackBarShort(_scaffoldKey, "Bilgiler Kaydediliyor");
+                        if(kayit.get("ID") == null) {
+                          kayit.set("ID", ConstantsBase.getRandomUUID());
+                          BaseModel.insert(kayit).then((_){
+                            ConstantsBase.showSnackBarShort(widget.baseModelPageScaffoldKey, kayit.singleTitle + " Eklendi");
+                            NavigatorBase.pop();
+                            ConstantsBase.eventBus.fire(ModelDuzenlemeEvent(baseModelPageId));
+                          }).catchError((e){
+                            debugPrint(e.toString());
+                            kayit.set("ID", null);
+                            if(e is DatabaseException) {
+                              ConstantsBase.showSnackBarLong(_scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e));
+                            } else {
+                              ConstantsBase.showSnackBarLong(_scaffoldKey, e.toString());
+                            }
+                          });
+                        } else {
+                          BaseModel.update(kayit).then((_){
+                            ConstantsBase.showSnackBarShort(widget.baseModelPageScaffoldKey, kayit.singleTitle + " Güncellendi");
+                            NavigatorBase.pop();
+                            ConstantsBase.eventBus.fire(ModelDuzenlemeEvent(baseModelPageId));
+                          }).catchError((e){
+                            debugPrint(e.toString());
+                            if(e is DatabaseException) {
+                              ConstantsBase.showSnackBarLong(_scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e));
+                            } else {
+                              ConstantsBase.showSnackBarLong(_scaffoldKey, e.toString());
+                            }
+                          });
+                        }
+                      }
+                    })
+                )
+              ])
           )
+        )
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(8.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: getFormItems(),
+          )
+        ),
       )
     );
   }

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:sentora_base/model/fieldTypes/BooleanFieldType.dart';
 
 class BooleanFormField extends FormField<bool> {
@@ -33,3 +33,4 @@ class BooleanFormField extends FormField<bool> {
         );
       });
 }
+*/

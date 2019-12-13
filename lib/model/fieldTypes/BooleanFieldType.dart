@@ -1,13 +1,16 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:sentora_base/model/BaseModel.dart';
-import 'package:sentora_base/model/FilterValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
-import 'package:sentora_base/utils/ConstantsBase.dart';
-import 'package:sentora_base/widgets/MenuButton.dart';
-import 'package:sentora_base/widgets/form/BooleanFormField.dart';
+import 'package:sentora_base/widgets/form/field/BooleanField.dart';
+import 'package:sentora_base/widgets/form/filterField/BooleanFilterField.dart';
 
 class BooleanFieldType extends BaseFieldType {
+  static const String CHECKED = "EVET";
+  static const String NOT_CHECKED = "HAYIR";
+  static const String NULL_CHECKED = "-";
+
   BooleanFieldType({
     @required String fieldLabel,
     @required String fieldHint,
@@ -21,65 +24,34 @@ class BooleanFieldType extends BaseFieldType {
   }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, unique: unique, defaultValue: defaultValue, nullableFn : nullableFn, sortable : sortable, filterable : filterable);
 
   @override
-  Widget constructFormField(BaseModel kayit, BuildContext context) {
-    return BooleanFormField(
-      booleanFieldType: this,
-      initialValue: kayit.get(name),
-      onSaved: (bool value) {
-        kayit.set(name, value);
-      },
-      validator: (bool value) {
-        if (!isNullable(kayit) && value == null) {
-          return fieldLabel + ' Giriniz';
-        }
-        return null;
-      },
+  List<String> getFilterModes() {
+    return List<String>.from(["booleq"]);
+  }
+
+  @override
+  List<String> getFilterModeTitles() {
+    return List<String>.from(["="]);
+  }
+
+  @override
+  Widget constructFilterField(BuildContext context, Map<String, dynamic> filterMap, int filterIndex, GlobalKey<ScaffoldState> scaffoldKey) {
+    return BooleanFilterField(
+      context: context,
+      fieldType: this,
+      filterIndex: filterIndex,
+      filterMap: filterMap,
+      scaffoldKey: scaffoldKey,
     );
   }
 
   @override
-  List<Widget> constructFilterFields(BuildContext context, Map<String, dynamic> filterMap) {
-    List<Widget> retList = List<Widget>();
-    retList.add(Container(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text(fieldLabel),
-            Checkbox(
-              value: filterMap[name + "-booleq"],
-              tristate: true,
-              onChanged: (value) {
-                if(value == null) {
-                  ConstantsBase.eventBus.fire(FilterValueChangedEvent(name, "booleq", null));
-                } else {
-                  ConstantsBase.eventBus.fire(FilterValueChangedEvent(name, "booleq", value));
-                }
-              },
-            )
-          ],
-        )
-    ));
-    return retList;
-  }
-
-  @override
-  List<Widget> constructFilterButtons(BuildContext context, Map<String, dynamic> filterMap) {
-    List<Widget> retList = List<Widget>();
-    retList.add(SizedBox(
-      width: ConstantsBase.filterDetailButtonWidth,
-      child: MenuButton(
-        edgeInsetsGeometry: ConstantsBase.filterButtonEdges,
-        title: "=",
-        fontSize: ConstantsBase.filterButtonFontSize,
-        buttonColor: filterMap[name + "-booleq"] != null ? Colors.greenAccent : ConstantsBase.defaultDisabledColor,
-        onPressed: (){},
-      ),
-    ));
-    return retList;
-  }
-
-  @override
-  void clearFilterControllers() {
-    //Nothing to clear
+  Widget constructFormField(BuildContext context, BaseModel kayit, bool lastField, GlobalKey<ScaffoldState> scaffoldKey) {
+    return BooleanField(
+      context: context,
+      fieldType: this,
+      kayit: kayit,
+      lastField: lastField,
+      scaffoldKey: scaffoldKey,
+    );
   }
 }

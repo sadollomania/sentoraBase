@@ -1,4 +1,5 @@
 class SortChangedEvent {
   String newOrderBy;
-  SortChangedEvent(this.newOrderBy);
+  String baseModelPageId;
+  SortChangedEvent(this.newOrderBy, this.baseModelPageId);
 }

@@ -56,6 +56,7 @@ abstract class WillPopState<T extends StatefulWidget> extends State<T> {
       child: Scaffold(
         appBar: AppBar(
           title : Text(getAppTitle()),
+          centerTitle: true,
         ),
         body: SafeArea(
           child: getBodyContent(),

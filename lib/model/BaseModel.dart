@@ -16,15 +16,15 @@ class BaseModel {
   static List<String> _models = List<String>();
   static Map<String, String> _modelTableNames = Map<String, String>();
   static Map<String, List<BaseFieldType>> _modelFieldTypes = Map<String, List<BaseFieldType>>();
-  static Map<String, String> _modelListTileTitles = Map<String, String>();
-  static Map<String, String> _modelListTileTitleFields = Map<String, String>();
-  static Map<String, String> _modelListTileAvatarFields = Map<String, String>();
-  static Map<String, String> _modelListTileSubTitles = Map<String, String>();
-  static Map<String, String> _modelListTileSubTitleFields = Map<String, String>();
+  static Map<String, List<String>> _modelTitleFields = Map<String, List<String>>();
+  static Map<String, List<String>> _modelSubTitleFields = Map<String, List<String>>();
+  static Map<String, Widget Function(BaseModel baseModel)> _modelLeadingFunctions = Map<String, Widget Function(BaseModel baseModel)>();
+  static Map<String, Widget Function(BaseModel baseModel)> _modelTrailingFunctions = Map<String, Widget Function(BaseModel baseModel)>();
   static Map<String, String> _modelPageTitles = Map<String, String>();
   static Map<String, String> _modelSingleTitles = Map<String, String>();
   static Map<String, Color Function(BaseModel baseModel)> _modelListBgColors = Map<String, Color Function(BaseModel baseModel)>();
   static Map<String, List<List<String>>> _modelMultiColumnUniqueConstraints = Map<String, List<List<String>>>();
+  static Map<String, String> _modelDefaultOrderBys = Map<String, String>();
 
   Future<void> beforeInsert() async{}
   Future<void> afterInsert() async{}
@@ -39,13 +39,13 @@ class BaseModel {
   String tableName;
   List<BaseFieldType> fieldTypes;
   List<BaseFieldType> allFieldTypes;
-  String listTileTitle;
-  String listTileTitleField;
-  String listTileAvatarField;
-  String listTileSubTitle;
-  String listTileSubTitleField;
+  List<String> titleFields;
+  Widget Function(BaseModel baseModel) getLeadingWidget;
+  Widget Function(BaseModel baseModel) getTrailingWidget;
+  List<String> subTitleFields;
   String pageTitle;
   String singleTitle;
+  String defaultOrderBy;
   List<List<String>> multiColumnUniqueConstraints;
   Color Function(BaseModel baseModel) listBgColor;
 
@@ -55,28 +55,28 @@ class BaseModel {
     @required this.modelName,
     @required this.tableName,
     @required this.fieldTypes,
-    @required this.listTileTitle,
-    @required this.listTileTitleField,
-    @required this.listTileAvatarField,
-    @required this.listTileSubTitle,
-    @required this.listTileSubTitleField,
+    @required this.titleFields,
     @required this.pageTitle,
     @required this.singleTitle,
     @required this.multiColumnUniqueConstraints,
+    this.getLeadingWidget,
+    this.getTrailingWidget,
     this.listBgColor,
-  }) {
+    this.subTitleFields,
+    String defaultOrderBy,
+  }) : this.defaultOrderBy = defaultOrderBy ?? "INSDATE ASC" {
     if(!_models.contains(modelName)) {
       _modelTableNames[modelName] = tableName;
       _modelFieldTypes[modelName] = fieldTypes;
-      _modelListTileTitles[modelName] = listTileTitle;
-      _modelListTileTitleFields[modelName] = listTileTitleField;
-      _modelListTileAvatarFields[modelName] = listTileAvatarField;
-      _modelListTileSubTitles[modelName] = listTileSubTitle;
-      _modelListTileSubTitleFields[modelName] = listTileSubTitleField;
+      _modelTitleFields[modelName] = titleFields;
+      _modelLeadingFunctions[modelName] = getLeadingWidget;
+      _modelTrailingFunctions[modelName] = getTrailingWidget;
+      _modelSubTitleFields[modelName] = subTitleFields;
       _modelPageTitles[modelName] = pageTitle;
       _modelSingleTitles[modelName] = singleTitle;
       _modelMultiColumnUniqueConstraints[modelName] = multiColumnUniqueConstraints;
       _modelListBgColors[modelName] = listBgColor;
+      _modelDefaultOrderBys[modelName] = this.defaultOrderBy;
       _models.add(modelName);
     }
 
@@ -95,15 +95,15 @@ class BaseModel {
       modelName: modelName,
       tableName: _modelTableNames[modelName],
       fieldTypes: _modelFieldTypes[modelName],
-      listTileTitle: _modelListTileTitles[modelName],
-      listTileTitleField: _modelListTileTitleFields[modelName],
-      listTileAvatarField: _modelListTileAvatarFields[modelName],
-      listTileSubTitle: _modelListTileSubTitles[modelName],
-      listTileSubTitleField: _modelListTileSubTitleFields[modelName],
+      titleFields: _modelTitleFields[modelName],
+      getLeadingWidget: _modelLeadingFunctions[modelName],
+      getTrailingWidget: _modelTrailingFunctions[modelName],
+      subTitleFields: _modelSubTitleFields[modelName],
       pageTitle: _modelPageTitles[modelName],
       singleTitle: _modelSingleTitles[modelName],
       multiColumnUniqueConstraints: _modelMultiColumnUniqueConstraints[modelName],
-       listBgColor: _modelListBgColors[modelName],
+      listBgColor: _modelListBgColors[modelName],
+      defaultOrderBy: _modelDefaultOrderBys[modelName],
     );
 
     ret.allFieldTypes.forEach((fieldType){
@@ -114,7 +114,7 @@ class BaseModel {
   }
 
   BaseModelPage createBaseModelPage() {
-    return BaseModelPage(widgetModelName: modelName,);
+    return BaseModelPage(widgetModelName: modelName,addButtonExists: true,editButtonExists: true,deleteButtonExists: true,);
   }
 
   BaseModelPage createBaseModelQueryPage(String pageTitle, String getListQuery, Row Function(BaseModel selectedKayit) constructButtonsRow) {
@@ -197,6 +197,17 @@ class BaseModel {
     }
   }
 
+  List<String> _createDbFkIndexes() {
+    List<String> statements = List<String>();
+    allFieldTypes.forEach((fieldType){
+      if(fieldType.runtimeType == ForeignKeyFieldType) {
+        String indexScript = "CREATE INDEX FK_IND_" + tableName + "_" + fieldType.name + " ON " + tableName + "(" + fieldType.name + ");";
+        statements.add(indexScript);
+      }
+    });
+    return statements;
+  }
+
   String _createDbTableScript() {
     String str = " CREATE TABLE " + tableName + " ( ";
     int index = 0, len = allFieldTypes.length;
@@ -235,6 +246,13 @@ class BaseModel {
 
       if(index != len) {
         str += ",";
+      }
+    });
+
+    allFieldTypes.forEach((fieldType){
+      if(fieldType.runtimeType == ForeignKeyFieldType) {
+        ForeignKeyFieldType foreignFieldType = fieldType as ForeignKeyFieldType;
+        str += ",FOREIGN KEY(" + foreignFieldType.name + ") REFERENCES " + foreignFieldType.foreignKeyTableName + "(ID) ON DELETE RESTRICT";
       }
     });
 
@@ -313,6 +331,7 @@ class BaseModel {
     if(filterMap != null && filterMap.length > 0) {
       String str;
       dynamic val;
+      dynamic whereArgVal;
       where = "";
       List<String> filterKeys =  filterMap.keys.toList();
       for(int i = 0, len = filterKeys.length; i < len; ++i) {
@@ -329,47 +348,78 @@ class BaseModel {
         switch(operator) {
           case "isnotnull":
             where += fieldName + " is not null ";
+            whereArgVal = null;
             break;
           case "isnull":
             where += fieldName + " is null ";
+            whereArgVal = null;
             break;
           case "like":
             where += fieldName + " like '%' || ? || '%' ";
+            whereArgVal = val;
             break;
           case "dateeq":
             where += " substr(" + fieldName + ",1,10) = ? ";
+            whereArgVal = ConstantsBase.dateFormat.format(val);
             break;
           case "dategt":
             where += " substr(" + fieldName + ",1,10) > ? ";
+            whereArgVal = ConstantsBase.dateFormat.format(val);
             break;
           case "datelt":
             where += " substr(" + fieldName + ",1,10) < ? ";
+            whereArgVal = ConstantsBase.dateFormat.format(val);
             break;
           case "inteq":
           case "realeq":
+            where += fieldName + " = ? ";
+            whereArgVal = val;
+            break;
           case "foreigneq":
             where += fieldName + " = ? ";
+            whereArgVal = (val as BaseModel).get("ID");
             break;
           case "booleq":
-            val = val ? 1 : 0;
             where += fieldName + " = ? ";
+            whereArgVal = val ? 1 : 0;
             break;
           case "intgt":
           case "realgt":
             where += fieldName + " > ? ";
+            whereArgVal = val;
             break;
           case "intlt":
           case "reallt":
             where += fieldName + " < ? ";
+            whereArgVal = val;
             break;
           default:
             throw Exception("unknown filter mode : " + operator);
         }
-        whereArgs.add(val);
+        if(whereArgVal != null) {
+          whereArgs.add(whereArgVal);
+        }
       }
     }
 
     List<Map<String, dynamic>> maps;
+    String compOrderBy = "";
+    if(orderBy != null && orderBy.isNotEmpty) {
+      List<String> orderByElements = orderBy.split(",");
+      orderByElements.forEach((orderByElement){
+        List<String> orderByElementDetail = orderByElement.split(" ");
+        String orderByFieldName = orderByElementDetail[0];
+        String orderByDirection = orderByElementDetail[1];
+        String orderByNullsOrder = orderByElementDetail.length == 3 ? orderByElementDetail[2] : "";
+        if(orderByNullsOrder == DBHelperBase.nullsFirst) {
+          compOrderBy += "," + orderByFieldName + " IS NULL DESC";
+        } else if(orderByNullsOrder == DBHelperBase.nullsLast) {
+          compOrderBy += "," + orderByFieldName + " IS NULL ASC";
+        }
+        compOrderBy += "," + orderByFieldName + " " + orderByDirection;
+      });
+      orderBy = compOrderBy.substring(1);
+    }
     if(rawQuery == null) {
       if(limit == -1) {
         if(where == null) {
@@ -439,11 +489,18 @@ class BaseModel {
     return null;
   }
 
-  String _convertDbErrorToStr(DatabaseException e) {
+  String _convertDbErrorToStr(dynamic exception) {
+    DatabaseException e;
+    if(exception is DatabaseException) {
+      e = exception as DatabaseException;
+    } else {
+      return null;
+    }
+
     String errorMsg = e.toString();
     String defaultRetStr = "Detaylandırılmamış Hata ( BaseModel ) : " + errorMsg;
     String retStr = "";
-    if(errorMsg.contains("UNIQUE")) { //TODO eğer burda çoklu kolon varsa ne olur bak
+    if(errorMsg.contains("UNIQUE") || errorMsg.contains("unique")) { //TODO eğer burda çoklu kolon varsa ne olur bak
       int tableNameIndex = errorMsg.indexOf(tableName);
       if(tableNameIndex == -1) {
         retStr = defaultRetStr;
@@ -453,9 +510,11 @@ class BaseModel {
         if(fieldType == null) {
           retStr = defaultRetStr;
         } else {
-          retStr = singleTitle + " tablosunda " + fieldType.fieldLabel + " kolonunda -> \"" + get(fieldType.name) + "\" değerinde kayıt zaten mevcut";
+          retStr = singleTitle + " tablosunda " + fieldType.fieldLabel + " kolonunda -> \"" + getValueByPath(fieldType.name, convertToStr: true) + "\" değerinde kayıt zaten mevcut";
         }
       }
+    } else if(errorMsg.contains("FOREIGN KEY")) {
+      retStr = "Kullanımda olan kaydı silemezsiniz!";
     } else {
       retStr = defaultRetStr;
     }
@@ -470,45 +529,102 @@ class BaseModel {
     _fieldValues[fieldName] = fieldValue;
   }
 
-  String _getPathValueFromObj(pathStr) {
+  static BaseFieldType findFieldByName(BaseModel baseModel, String fieldName) {
+    for(int i = 0, len = baseModel.allFieldTypes.length; i < len; ++i) {
+      BaseFieldType fieldType = baseModel.allFieldTypes[i];
+      if(fieldType.name == fieldName) {
+        return fieldType;
+      }
+    }
+    return null;
+  }
+
+  String getCombinedTitleValue() {
+    String retStr = "";
+    titleFields.forEach((titleFieldName){
+      List<String> fieldVals = _getPathValueFromObj(titleFieldName);
+      retStr += " / " + fieldVals[1];
+    });
+    if(retStr.length > 3) {
+      retStr = retStr.substring(3);
+    }
+    return retStr;
+  }
+
+  List<String> _getPathValueFromObj(pathStr) {
     List<String> path = pathStr.split(".");
     BaseModel currentModel = this;
     int i = 0;
+    String fieldTitle = "";
+    String currentFieldName;
     for(int len = path.length - 1; i < len; ++i) {
-      currentModel = currentModel.get(path[i]) as BaseModel;
+      currentFieldName = path[i];
+      fieldTitle += " " + findFieldByName(currentModel, currentFieldName).fieldLabel;
+      currentModel = currentModel.get(currentFieldName) as BaseModel;
     }
-    String retStr;
+    fieldTitle += " " + findFieldByName(currentModel, path[i]).fieldLabel;
+    List<String> retStrList = List<String>();
+    retStrList.add(fieldTitle.substring(1));
     dynamic objVal = currentModel.get(path[i]);
+    String fieldValue = _convertObjValToStr(objVal);
+    retStrList.add(fieldValue);
+    return retStrList;
+  }
+
+  Widget _getPathListValuesFromObj(List<String> fields) {
+    if(fields == null || fields.length == 0) {
+      return null;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: fields.map((fieldName){
+        List<String> fieldVals = _getPathValueFromObj(fieldName);
+        return Text(fieldVals[0] + " : " + fieldVals[1]);
+      }).toList(),
+    );
+  }
+
+  Widget getListTileTitleWidget() {
+    return _getPathListValuesFromObj(titleFields);
+  }
+
+  Widget getListTileSubTitleWidget() {
+    return _getPathListValuesFromObj(subTitleFields);
+  }
+
+  Widget getTileLeadingWidget() {
+    if(getLeadingWidget != null) {
+      return getLeadingWidget(this);
+    }
+    return null;
+  }
+
+  Widget getTileTrailingWidget() {
+    if(getTrailingWidget != null) {
+      return getTrailingWidget(this);
+    }
+    return null;
+  }
+
+  static String _convertObjValToStr(dynamic objVal) {
     if(objVal.runtimeType == DateTime) {
-      retStr = ConstantsBase.dateTimeFormat.format(objVal as DateTime);
-    } else {
-      retStr = objVal == null ? "" : objVal.toString();
-    }
-    return retStr;
-  }
-
-  String _getPathListValuesFromObj(String tileFieldValue) {
-    List<String> pathList = tileFieldValue.split("&");
-    String retStr = "";
-    for(int i = 0, len = pathList.length; i < len; ++i) {
-      retStr += _getPathValueFromObj(pathList[i]);
-      if(i != len - 1) {
-        retStr += " / ";
+      DateTime objDateTimeVal = objVal as DateTime;
+      if(objDateTimeVal.hour != 0 || objDateTimeVal.minute != 0 || objDateTimeVal.second != 0) {
+        return ConstantsBase.dateTimeFormat.format(objDateTimeVal);
+      } else {
+        return ConstantsBase.dateFormat.format(objDateTimeVal);
       }
+    } else if(objVal.runtimeType == bool) {
+      bool objBoolVal = objVal as bool;
+      if(objBoolVal) {
+        return "Evet";
+      } else {
+        return "Hayır";
+      }
+    } else {
+      return objVal == null ? "" : objVal.toString();
     }
-    return retStr;
-  }
-
-  String getListTileTitleValue() {
-    return _getPathListValuesFromObj(listTileTitleField);
-  }
-
-  String getListTileSubTitleValue() {
-    return _getPathListValuesFromObj(listTileSubTitleField);
-  }
-
-  String getTileAvatarFieldValue() {
-    return _getPathListValuesFromObj(listTileAvatarField)[0];
   }
 
   dynamic getValueByPath(pathStr, {convertToStr = false}) {
@@ -522,11 +638,7 @@ class BaseModel {
     if(!convertToStr) {
       return objVal;
     } else {
-      if(objVal.runtimeType == DateTime) {
-        return ConstantsBase.dateTimeFormat.format(objVal as DateTime);
-      } else {
-        return objVal == null ? "" : objVal.toString();
-      }
+      return _convertObjValToStr(objVal);
     }
   }
 
@@ -571,7 +683,19 @@ class BaseModel {
     return baseModel._createDbTableScript();
   }
 
+  static List<String> createDbFkIndexes(BaseModel baseModel) {
+    return baseModel._createDbFkIndexes();
+  }
+
   static String dropDbTableScript(BaseModel baseModel) {
     return "DROP TABLE " + baseModel.tableName + ";";
+  }
+
+  BaseModel clone() {
+    BaseModel clonedData = BaseModel.createNewObject(modelName);
+    this.allFieldTypes.forEach((fieldType){
+      clonedData.set(fieldType.name, this.get(fieldType.name));
+    });
+    return clonedData;
   }
 }

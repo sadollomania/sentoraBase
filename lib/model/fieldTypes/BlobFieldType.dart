@@ -14,22 +14,22 @@ class BlobFieldType extends BaseFieldType {
   }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, unique: unique, defaultValue: null, nullableFn : nullableFn, sortable : false, filterable : false);
 
   @override
-  Widget constructFormField(BaseModel kayit, BuildContext context) {
+  List<String> getFilterModes() {
+    throw Exception("Blob Not Implmented Yet : getFilterModes");
+  }
+
+  @override
+  List<String> getFilterModeTitles() {
+    throw Exception("Blob Not Implmented Yet : getFilterModeTitles");
+  }
+
+  @override
+  Widget constructFilterField(BuildContext context, Map<String, dynamic> filterMap, int filterIndex, GlobalKey<ScaffoldState> scaffoldKey) {
+    throw Exception("Blob Not Implmented Yet : constructFilterField");
+  }
+
+  @override
+  Widget constructFormField(BuildContext context, BaseModel kayit, bool lastField, GlobalKey<ScaffoldState> scaffoldKey) {
     throw Exception("Blob Not Implmented Yet : constructFormField");
-  }
-
-  @override
-  List<Widget> constructFilterFields(BuildContext context, Map<String, dynamic> filterMap) {
-    throw Exception("Blob can not be filtered : constructFilterFields");
-  }
-
-  @override
-  List<Widget> constructFilterButtons(BuildContext context, Map<String, dynamic> filterMap) {
-    throw Exception("Blob can not be filtered : constructFilterButtons");
-  }
-
-  @override
-  void clearFilterControllers() {
-    //Nothing to clear
   }
 }

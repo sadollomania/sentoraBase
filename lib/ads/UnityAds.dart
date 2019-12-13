@@ -4,9 +4,9 @@ import 'package:unity_ads_flutter/unity_ads_flutter.dart';
 class UnityAds with UnityAdsListener{
   static UnityAds _instance;
   static UnityAds get instance => _instance;
-  static void init(androidId, iosId, testMode, bannerPlacementId, screenPlacementId, videoPlacementId) => _instance ??= UnityAds._init(androidId, iosId, testMode, bannerPlacementId, screenPlacementId, videoPlacementId);
+  static void init(androidId, iosId, testMode, bannerPlacementId, screenPlacementId, videoPlacementId, minInterval) => _instance ??= UnityAds._init(androidId, iosId, testMode, bannerPlacementId, screenPlacementId, videoPlacementId, minInterval);
   static DateTime lastShowTime;
-  static int minMinute = 5;
+  static int minMinute = 20;
 
   final String androidId;
   final String iosId;
@@ -14,9 +14,12 @@ class UnityAds with UnityAdsListener{
   final String bannerPlacementId;
   final String screenPlacementId;
   final String videoPlacementId;
+  final int minInterval;
 
-  UnityAds._init(this.androidId, this.iosId, this.testMode, this.bannerPlacementId, this.screenPlacementId, this.videoPlacementId) {
+  UnityAds._init(this.androidId, this.iosId, this.testMode, this.bannerPlacementId, this.screenPlacementId, this.videoPlacementId, this.minInterval) {
+    minMinute = minInterval ?? minMinute;
     UnityAdsFlutter.initialize(androidId, iosId, this, testMode);
+    lastShowTime = DateTime.now();
   }
   factory UnityAds() => instance;
 
@@ -27,6 +30,7 @@ class UnityAds with UnityAdsListener{
 
   @override
   void onUnityAdsFinish(String placementId, FinishState result) {
+    lastShowTime = DateTime.now();
     debugPrint('Unity Finished $placementId with $result');
   }
 
