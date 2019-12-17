@@ -17,13 +17,14 @@ class RealFilterField extends BaseFilterField {
       filterIndex: filterIndex,
       textValue : filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] != null ? filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]].toString() : "",
       realValue : filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]],
+      inputFormatters : ConstantsBase.getNumberTextInputFormatters(fieldType.signed, true),
       keyboardType : TextInputType.numberWithOptions(signed: fieldType.signed, decimal: false),
       scaffoldKey : scaffoldKey,
       onChanged : (sentoraFieldBaseStateUid, textValue) {
         if(textValue.isEmpty) {
           filterMap.remove(fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]);
         } else {
-          filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = double.parse(textValue);
+          filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = ConstantsBase.parseDouble(textValue);
         }
         ConstantsBase.eventBus.fire(FilterValueChangedEvent());
       }

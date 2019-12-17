@@ -18,6 +18,7 @@ class SentoraFieldBase extends StatefulWidget {
   final String Function(String textValue, dynamic realValue) validator;
   final TextInputType keyboardType;
   final bool suffixCheckboxExists;
+  final List<TextInputFormatter> inputFormatters;
   final void Function() suffixClearButtonFunc;
   final void Function() beforeInitState;
   final void Function() beforeDispose;
@@ -41,6 +42,7 @@ class SentoraFieldBase extends StatefulWidget {
     this.beforeDispose,
     this.onTapReplacementFunc,
     this.scaffoldKey,
+    this.inputFormatters,
   }) : this.lastField = lastField ?? true,
     this.readOnly = onTapReplacementFunc != null,
     this.suffixCheckboxExists = suffixCheckboxExists ?? false;
@@ -120,6 +122,7 @@ class _SentoraFieldBaseState extends State<SentoraFieldBase> {
       readOnly: widget.readOnly,
       focusNode: focusNode,
       textInputAction : widget.lastField ? TextInputAction.done : TextInputAction.next,
+      inputFormatters: widget.inputFormatters ?? null,
       decoration : InputDecoration(labelText: widget.title, hintText: widget.hint, suffixIcon : widget.suffixCheckboxExists ? Checkbox(
         value: realValue,
         tristate: true,

@@ -364,6 +364,7 @@ class _BaseModelPageState extends State<BaseModelPage> {
         child: new Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Expanded(
               flex: 1,

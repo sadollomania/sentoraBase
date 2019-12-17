@@ -492,7 +492,7 @@ class BaseModel {
   String _convertDbErrorToStr(dynamic exception) {
     DatabaseException e;
     if(exception is DatabaseException) {
-      e = exception as DatabaseException;
+      e = exception;
     } else {
       return null;
     }

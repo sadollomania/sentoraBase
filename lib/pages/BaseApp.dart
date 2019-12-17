@@ -174,7 +174,7 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      supportedLocales: widget.localeConfig != null ? widget.localeConfig["supportedLocales"] : [const Locale('en', 'US')],
+      supportedLocales: widget.localeConfig != null ? widget.localeConfig["supportedLocales"] : [const Locale('tr', 'TR')],
       localizationsDelegates: widget.localeConfig != null ? [
         // THIS CLASS WILL BE ADDED LATER
         // A class which loads the translations from JSON files
@@ -192,7 +192,11 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
       localeResolutionCallback: (locale, supportedLocales) {
         if (locale == null) {
           debugPrint("*language locale is null!!!");
-          return supportedLocales.first;
+          if(supportedLocales == null || supportedLocales.length == 0) {
+            return Locale('en', 'US');
+          } else {
+            return supportedLocales.first;
+          }
         }
 
         // Check if the current device locale is supported

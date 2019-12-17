@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/RealFieldType.dart';
@@ -20,24 +21,25 @@ class RealField extends BaseField {
       textValue : kayit.get(fieldType.name) != null ? kayit.get(fieldType.name).toString() : null,
       realValue : kayit.get(fieldType.name),
       lastField : lastField,
+      inputFormatters : ConstantsBase.getNumberTextInputFormatters(fieldType.signed, true),
       keyboardType : TextInputType.numberWithOptions(signed: fieldType.signed, decimal: true),
       scaffoldKey : scaffoldKey,
       onChanged : (sentoraFieldBaseStateUid, textValue) {
         if(textValue.isEmpty) {
           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, textValue, null));
         } else {
-          ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, textValue, double.parse(textValue)));
+          ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, textValue, ConstantsBase.parseDouble(textValue)));
         }
       },
       onSaved : (textValue, realValue) {
         if (textValue.isNotEmpty) {
-          kayit.set(fieldType.name, double.parse(textValue));
+          kayit.set(fieldType.name, ConstantsBase.parseDouble(textValue));
         } else {
           kayit.set(fieldType.name, null);
         }
       },
       extraValidator : (textValue, realValue) {
-        if(double.tryParse(textValue) == null) {
+        if(ConstantsBase.tryParseDouble(textValue) == null) {
           return 'Ondalıklı sayı giriniz!';
         } else {
           String newStr = fieldType.signed ? textValue.replaceAll("-", "") : textValue;

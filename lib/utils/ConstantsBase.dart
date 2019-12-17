@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sentora_base/lang/AppLocalizationsBase.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:uuid/uuid.dart';
@@ -35,6 +36,8 @@ class ConstantsBase {
   static const double filterDetailButtonLabelWidth = 130;
   static const double filterButtonFontSize = 14;
   static const EdgeInsetsGeometry filterButtonEdges = EdgeInsets.all(5.0);
+  static HashMap<String, String> decimalConversion = HashMap.fromEntries([MapEntry(",","."), MapEntry(".",",")]);
+  static String decimalSeparator;
 
   static final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
   static final DateFormat dateTimeFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
@@ -232,5 +235,27 @@ class ConstantsBase {
       retList[key] = val;
     }
     return retList;
+  }
+
+  static double tryParseDouble(String str) {
+    str = str.replaceAll(",", ".");
+    if (str.endsWith(".")) {
+      str = str.substring(0, str.length - 1);
+    }
+    return double.parse(str);
+  }
+
+  static double parseDouble(String str) {
+    str = str.replaceAll(",", ".");
+    if (str.endsWith(".")) {
+      str = str.substring(0, str.length - 1);
+    }
+    return double.parse(str);
+  }
+
+  static List<TextInputFormatter> getNumberTextInputFormatters(bool signed, bool decimal) {
+    List<TextInputFormatter> textInputFormatters = List<TextInputFormatter>();
+    textInputFormatters.add(WhitelistingTextInputFormatter(RegExp((signed ? "-?" : "") + "(0|[1-9]\\d*)" + (decimal ? "[\\.\\,]?\\d?" : ""))));
+    return textInputFormatters;
   }
 }

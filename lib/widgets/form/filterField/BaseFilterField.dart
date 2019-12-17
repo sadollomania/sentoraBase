@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
 import 'package:sentora_base/widgets/form/baseField/SentoraFieldBase.dart';
 
@@ -14,6 +15,7 @@ class BaseFilterField extends SentoraFieldBase{
     TextInputType keyboardType,
     void Function() suffixClearButtonFunc,
     void Function(String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey) onTapReplacementFunc,
+    List<TextInputFormatter> inputFormatters,
   }) : super(
     title : fieldType.fieldLabel + " " + fieldType.getFilterModeTitles()[filterIndex],
     textValue : textValue,
@@ -21,6 +23,7 @@ class BaseFilterField extends SentoraFieldBase{
     hint : fieldType.fieldHint,
     lastField : true,
     onChanged : onChanged,
+    inputFormatters : inputFormatters,
     keyboardType : keyboardType,
     suffixClearButtonFunc : suffixClearButtonFunc,
     onTapReplacementFunc : onTapReplacementFunc,

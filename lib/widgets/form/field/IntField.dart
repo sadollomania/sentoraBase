@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/IntFieldType.dart';
@@ -20,6 +21,7 @@ class IntField extends BaseField {
     textValue : kayit.get(fieldType.name) != null ? kayit.get(fieldType.name).toString() : null,
     realValue : kayit.get(fieldType.name),
     lastField : lastField,
+    inputFormatters : ConstantsBase.getNumberTextInputFormatters(fieldType.signed, false),
     keyboardType : TextInputType.numberWithOptions(signed: fieldType.signed, decimal: false),
     scaffoldKey : scaffoldKey,
     onSaved : (textValue, realValue) {

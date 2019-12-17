@@ -17,6 +17,7 @@ class IntFilterField extends BaseFilterField {
       filterIndex: filterIndex,
       textValue : filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] != null ? filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]].toString() : "",
       realValue : filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]],
+      inputFormatters : ConstantsBase.getNumberTextInputFormatters(fieldType.signed, false),
       keyboardType : TextInputType.numberWithOptions(signed: fieldType.signed, decimal: false),
       scaffoldKey : scaffoldKey,
       onChanged : (sentoraFieldBaseStateUid, textValue) {

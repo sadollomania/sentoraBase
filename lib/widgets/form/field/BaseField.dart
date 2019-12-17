@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
 import 'package:sentora_base/widgets/form/baseField/SentoraFieldBase.dart';
@@ -23,6 +24,7 @@ class BaseField extends SentoraFieldBase{
     void Function() beforeDispose,
     void Function() suffixClearButtonFunc,
     void Function(String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey) onTapReplacementFunc,
+    List<TextInputFormatter> inputFormatters,
   }) : super(
     title : fieldType.fieldLabel,
     hint : fieldType.fieldHint,
@@ -34,6 +36,7 @@ class BaseField extends SentoraFieldBase{
     suffixCheckboxExists : suffixCheckboxExists,
     beforeInitState : beforeInitState,
     beforeDispose : beforeDispose,
+    inputFormatters : inputFormatters,
     onFieldSubmitted : (term){
       if(!lastField) {
         FocusScope.of(context).nextFocus();
