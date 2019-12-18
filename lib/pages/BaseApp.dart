@@ -22,6 +22,7 @@ abstract class BaseApp extends StatefulWidget {
   final Map<String, dynamic> bgTaskConfig;
   final Map<String, dynamic> localeConfig;
   final Map<String, dynamic> shareConfig;
+  bool prefsLoaded;
   //_BaseAppState _baseAppState;
 
   void initBaseModelClasses();
@@ -40,6 +41,7 @@ abstract class BaseApp extends StatefulWidget {
     this.bgTaskConfig,
     this.localeConfig,
     this.shareConfig,
+    this.prefsLoaded,
   }) :
         assert(
             dbConfig == null ||
@@ -112,7 +114,9 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
   void initState() {
     ConstantsBase.setIsEmulator();
     widget.beforeInitState();
-    ConstantsBase.loadPrefs();
+    if(widget.prefsLoaded != true) {
+      ConstantsBase.loadPrefs();
+    }
     super.initState();
     widget.initBaseModelClasses();
     if(widget.dbConfig != null) {
