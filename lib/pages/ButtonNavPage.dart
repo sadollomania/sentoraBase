@@ -112,29 +112,32 @@ class _ButtonNavPageState extends State<ButtonNavPage> {
   @override
   Widget build(BuildContext context) {
     Widget retWidget;
-    Widget mainWidget = Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(widget.pageTitle),
-        centerTitle: true,
-      ),
-      body:SafeArea(
-        child:Container(
-          alignment: Alignment(0.0, 0.0),
-          child: widget.loadStateHeaders != null && loadState < widget.loadStateHeaders.length ? Container(alignment: Alignment.center, child:Text(widget.loadStateHeaders[loadState])) : LayoutBuilder(
-            builder: (context, constraint){
-              return Container(
-                width: constraint.biggest.width * widget.screenWidthRatio,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: _getMenuItems(context)
-                ),
-              );
-            },
-          )
-        ),
-      ),
+    Widget mainWidget = Container(
+        color: ConstantsBase.defaultButtonColor,
+        child: SafeArea(
+          child: Scaffold(
+            key: _scaffoldKey,
+            appBar: AppBar(
+              title: Text(widget.pageTitle),
+              centerTitle: true,
+            ),
+            body:Container(
+                alignment: Alignment(0.0, 0.0),
+                child: widget.loadStateHeaders != null && loadState < widget.loadStateHeaders.length ? Container(alignment: Alignment.center, child:Text(widget.loadStateHeaders[loadState])) : LayoutBuilder(
+                  builder: (context, constraint){
+                    return Container(
+                      width: constraint.biggest.width * widget.screenWidthRatio,
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: _getMenuItems(context)
+                      ),
+                    );
+                  },
+                )
+            ),
+          ),
+        )
     );
     if(widget.willPopScopeText != null) {
       retWidget = WillPopScope(
