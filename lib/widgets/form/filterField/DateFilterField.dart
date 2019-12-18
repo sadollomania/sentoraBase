@@ -26,7 +26,7 @@ class DateFilterField extends BaseFilterField {
     },
     scaffoldKey : scaffoldKey,
     onTapReplacementFunc: (String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey){
-      SentoraDatePicker.showDatePicker(context,
+      return SentoraDatePicker.showDatePicker(context,
           theme: SentoraDatePickerTheme(
             containerHeight: DateFieldType.datePickerHeight,
             title: fieldType.fieldLabel,
@@ -38,6 +38,7 @@ class DateFilterField extends BaseFilterField {
             ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, ConstantsBase.dateFormat.format(date), date));
             filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = date;
             ConstantsBase.eventBus.fire(FilterValueChangedEvent());
+            return true;
           },
           currentTime: realValue ?? DateTime.now(),
           locale: LocaleType.tr

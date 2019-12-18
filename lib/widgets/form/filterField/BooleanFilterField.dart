@@ -22,7 +22,7 @@ class BooleanFilterField extends BaseFilterField {
     scaffoldKey : scaffoldKey,
     suffixCheckboxExists : true,
     onTapReplacementFunc : (String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey) {
-      showModalBottomSheet(
+      return showModalBottomSheet(
           context: context,
           builder: (BuildContext builder) {
             return Container(
@@ -52,7 +52,7 @@ class BooleanFilterField extends BaseFilterField {
                         onTap: (){
                           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, null, null));
                           filterMap.remove(fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]);
-                          NavigatorBase.pop();
+                          NavigatorBase.pop(true);
                           ConstantsBase.eventBus.fire(FilterValueChangedEvent());
                         },
                       ),
@@ -66,7 +66,7 @@ class BooleanFilterField extends BaseFilterField {
                         onTap: (){
                           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, null, true));
                           filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = true;
-                          NavigatorBase.pop();
+                          NavigatorBase.pop(true);
                           ConstantsBase.eventBus.fire(FilterValueChangedEvent());
                         },
                       ),
@@ -80,7 +80,7 @@ class BooleanFilterField extends BaseFilterField {
                         onTap: (){
                           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, null, false));
                           filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = false;
-                          NavigatorBase.pop();
+                          NavigatorBase.pop(true);
                           ConstantsBase.eventBus.fire(FilterValueChangedEvent());
                         },
                       ),

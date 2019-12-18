@@ -273,9 +273,9 @@ class BaseModel {
     return str;
   }
 
-  Future<int> _insertToDb() async {
+  Future<int> _insertToDb({Database dbParam}) async {
     await beforeInsert();
-    final Database db = await DBHelperBase.instance.getDb();
+    final Database db = dbParam ?? await DBHelperBase.instance.getDb();
     _fieldValues["INSDATE"] = DateTime.now();
     _fieldValues["INSBY"] = "AUTO";
     _fieldValues["UPDDATE"] = DateTime.now();
@@ -296,9 +296,9 @@ class BaseModel {
     return retVal;
   }
 
-  Future<int> _updateInDb() async {
+  Future<int> _updateInDb({Database dbParam}) async {
     await beforeUpdate();
-    final Database db = await DBHelperBase.instance.getDb();
+    final Database db = dbParam ?? await DBHelperBase.instance.getDb();
     _fieldValues["UPDDATE"] = DateTime.now();
     _fieldValues["UPDBY"] = "AUTO";
     int retVal = await db.update(
@@ -311,9 +311,9 @@ class BaseModel {
     return retVal;
   }
 
-  Future<int> _deleteFromDb() async {
+  Future<int> _deleteFromDb({Database dbParam}) async {
     await beforeDelete();
-    final db = await DBHelperBase.instance.getDb();
+    final Database db = dbParam ?? await DBHelperBase.instance.getDb();
     int retVal = await db.delete(
       tableName,
       where: "ID = ?",
@@ -323,9 +323,9 @@ class BaseModel {
     return retVal;
   }
 
-  Future<Map<String, dynamic>> _getList(int limit, int offset, String orderBy, String rawQuery, Map<String, dynamic> filterMap) async {
+  Future<Map<String, dynamic>> _getList(int limit, int offset, String orderBy, String rawQuery, Map<String, dynamic> filterMap, { Database dbParam }) async {
     Map<String, dynamic> retMap = Map<String, dynamic>();
-    final Database db = await DBHelperBase.instance.getDb();
+    final Database db = dbParam ?? await DBHelperBase.instance.getDb();
     String where;
     List<dynamic> whereArgs = List<dynamic>();
     if(filterMap != null && filterMap.length > 0) {
@@ -642,34 +642,34 @@ class BaseModel {
     }
   }
 
-  static Future<int> insert(BaseModel baseModel) {
-    return baseModel._insertToDb();
+  static Future<int> insert(BaseModel baseModel, { Database db }) {
+    return baseModel._insertToDb(dbParam: db);
   }
 
-  static Future<int> update(BaseModel baseModel) {
-    return baseModel._updateInDb();
+  static Future<int> update(BaseModel baseModel, { Database db }) {
+    return baseModel._updateInDb(dbParam: db);
   }
 
-  static Future<int> delete(BaseModel baseModel) {
-    return baseModel._deleteFromDb();
+  static Future<int> delete(BaseModel baseModel, { Database db }) {
+    return baseModel._deleteFromDb(dbParam: db);
   }
 
-  static Future<Map<String, dynamic>> getList(BaseModel baseModel, { int pageSize = -1, int currentPage = 1, String orderBy, String rawQuery, Map<String, dynamic> filterMap }) async{
+  static Future<Map<String, dynamic>> getList(BaseModel baseModel, { int pageSize = -1, int currentPage = 1, String orderBy, String rawQuery, Map<String, dynamic> filterMap, Database db }) async{
     assert(pageSize >= -1);
     assert(currentPage > 0);
     int offset = 0;
     if(pageSize != -1) {
       offset = (currentPage - 1) * pageSize;
     }
-    return await baseModel._getList(pageSize, offset, orderBy, rawQuery, filterMap);
+    return await baseModel._getList(pageSize, offset, orderBy, rawQuery, filterMap, dbParam: db);
   }
 
   static String convertDbErrorToStr(BaseModel baseModel, DatabaseException e) {
     return baseModel._convertDbErrorToStr(e);
   }
 
-  static Future<BaseModel> getById(String fromModel, String fromTable, String id) async {
-    final Database db = await DBHelperBase.instance.getDb();
+  static Future<BaseModel> getById(String fromModel, String fromTable, String id, { Database dbParam }) async {
+    final Database db = dbParam ?? await DBHelperBase.instance.getDb();
     final List<Map<String, dynamic>> maps = await db.query(fromTable, where: "ID = ?", whereArgs: List<String>.from([id]));
     if(maps.length > 0) {
       BaseModel newObj = BaseModel.createNewObject(fromModel);
