@@ -22,7 +22,7 @@ class ForeignKeyFieldType extends BaseFieldType {
     bool unique = false,
     bool Function(BaseModel baseModel) nullableFn,
     bool sortable = true,
-    bool filterable = false,
+    bool filterable = true,
   }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, unique: unique, defaultValue: defaultValue, nullableFn : nullableFn, sortable : sortable, filterable : filterable) {
     foreignKeyModel = BaseModel.createNewObject(foreignKeyModelName);
   }

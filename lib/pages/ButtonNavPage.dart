@@ -121,7 +121,7 @@ class _ButtonNavPageState extends State<ButtonNavPage> {
       body:SafeArea(
         child:Container(
           alignment: Alignment(0.0, 0.0),
-          child: loadState < widget.loadStateHeaders.length ? Container(alignment: Alignment.center, child:Text(widget.loadStateHeaders[loadState])) : LayoutBuilder(
+          child: widget.loadStateHeaders != null && loadState < widget.loadStateHeaders.length ? Container(alignment: Alignment.center, child:Text(widget.loadStateHeaders[loadState])) : LayoutBuilder(
             builder: (context, constraint){
               return Container(
                 width: constraint.biggest.width * widget.screenWidthRatio,

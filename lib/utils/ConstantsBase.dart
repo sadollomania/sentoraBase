@@ -29,7 +29,8 @@ class ConstantsBase {
   static const Color defaultButtonColor = Colors.blue;
   static const Color defaultIconColor = Colors.teal;
   static const Color defaultEnabledColor = Colors.white;
-  static Color defaultSecondaryColor = Colors.greenAccent.shade100;
+  static Color greenAccentShade100Color = Colors.greenAccent.shade100;
+  static Color yellowShade500Color = Colors.yellow.shade500;
   static const int defaultMenuButtonIconFlex = 1;
   static const int defaultMenuButtonTextFlex = 3;
   static const double filterDetailButtonWidth = 25;
@@ -253,7 +254,8 @@ class ConstantsBase {
     return double.parse(str);
   }
 
-  static List<TextInputFormatter> getNumberTextInputFormatters(bool signed, bool decimal) {
+  static List<TextInputFormatter> getNumberTextInputFormatters({bool signed, bool decimal}) {
+    assert(signed != null && decimal != null);
     List<TextInputFormatter> textInputFormatters = List<TextInputFormatter>();
     textInputFormatters.add(WhitelistingTextInputFormatter(RegExp((signed ? "-?" : "") + "(0|[1-9]\\d*)" + (decimal ? "[\\.\\,]?\\d?" : ""))));
     return textInputFormatters;

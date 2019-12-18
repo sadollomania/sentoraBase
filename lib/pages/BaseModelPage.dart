@@ -227,202 +227,204 @@ class _BaseModelPageState extends State<BaseModelPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(pageTitle ?? ornekKayit.pageTitle,),
-        centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(50.0),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(width: 1.0, color: Colors.blue.shade300),
-              ),
-            ),
-            child: Row(
-              children: []
-                ..addAll(widget.addButtonExists ? [
-                  Expanded(
-                    child: IconSlideAction(
-                      caption: 'Ekle',
-                      color: Colors.blue,
-                      icon: Icons.add,
-                      onTap: () {
-                        NavigatorBase.push(BaseModelDuzenleme(widgetKayit : _selectedKayit, widgetModelName: modelName,baseModelPageId: baseModelPageId,baseModelPageScaffoldKey: _scaffoldKey,));
-                      },
-                    ),
-                  )
-                ] : [])
-                ..addAll(expandedAppBarActions)
-                ..addAll([
-                  Expanded(
-                    child: IconSlideAction(
-                      caption: 'Filtrele',
-                      color: filterMap != null && filterMap.length > 0 ? ConstantsBase.defaultSecondaryColor : ConstantsBase.defaultButtonColor,
-                      icon: Icons.filter_list,
-                      onTap: () {
-                        showFilterPopup();
-                      },
-                    ),
+    return SafeArea(
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: Text(pageTitle ?? ornekKayit.pageTitle,),
+          centerTitle: true,
+          bottom: PreferredSize(
+              preferredSize: Size.fromHeight(50.0),
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(width: 1.0, color: Colors.blue.shade300),
                   ),
-                  Expanded(
-                    child: IconSlideAction(
-                      caption: 'Sırala',
-                      color: orderBy != null && orderBy.isNotEmpty ? ConstantsBase.defaultSecondaryColor : ConstantsBase.defaultButtonColor,
-                      icon: Icons.sort_by_alpha,
-                      onTap: () {
-                        showSortPopup();
-                      },
-                    ),
-                  ),
-                ])
                 ),
-          )
-        ),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child:
-              currentListData == null ?
-              Center(child: CircularProgressIndicator()) :
-              ListView(
-                children: currentListData.asMap().entries.map((entry) => Container(
-                  decoration: BoxDecoration(
-                    //border: Border.all(width: 1),
-                    color: _selectedKayit != null && _selectedKayit.get("ID") == entry.value.get("ID") ? Colors.yellow : ( entry.value.listBgColor != null ? entry.value.listBgColor(entry.value) : Colors.white ),
-                  ),
-                  child: Slidable(
-                    actionPane: SlidableDrawerActionPane(),
-                    controller: slidableController,
-                    actionExtentRatio: 0.25,
-                    child: Card(
-                      color: entry.key % 2 == 0 ? Colors.white : ConstantsBase.defaultSecondaryColor,
-                      elevation: 5.0,
-                      child: ListTile(
-                        selected: _selectedKayit != null && _selectedKayit.get("ID") == entry.value.get("ID"),
-                        onLongPress: () {
-                          debugPrint("Long Pressed");
-                        },
-                        onTap: () {
-                          if(_selectedKayit != null && _selectedKayit.get("ID") == entry.value.get("ID")) {
-                            setState(() {
-                              _selectedKayit = null;
-                            });
-                          } else {
-                            setState(() {
-                              _selectedKayit = entry.value;
-                            });
-                          }
-                        },
-                        title: entry.value.getListTileTitleWidget(),
-                        subtitle: entry.value.getListTileSubTitleWidget(),
-                        leading: entry.value.getTileLeadingWidget(),
-                        trailing: entry.value.getTileTrailingWidget(),
-                      )
-                    ),
-                    secondaryActions: []
-                      ..addAll(widget.editButtonExists ? [
-                        Card(
+                child: Row(
+                    children: []
+                      ..addAll(widget.addButtonExists ? [
+                        Expanded(
                           child: IconSlideAction(
-                            caption: 'Düzenle',
-                            color: Colors.black45,
-                            icon: Icons.edit,
+                            caption: 'Ekle',
+                            color: Colors.blue,
+                            icon: Icons.add,
                             onTap: () {
-                              NavigatorBase.push(BaseModelDuzenleme(widgetKayit : entry.value, widgetModelName: modelName,baseModelPageId: baseModelPageId,baseModelPageScaffoldKey: _scaffoldKey));
+                              NavigatorBase.push(BaseModelDuzenleme(widgetKayit : _selectedKayit, widgetModelName: modelName,baseModelPageId: baseModelPageId,baseModelPageScaffoldKey: _scaffoldKey,));
                             },
-                          )
-                        )
-                        ] : [])
-                      ..addAll(widget.deleteButtonExists ? [
-                        Card(
-                          child: IconSlideAction(
-                            caption: 'Sil',
-                            color: Colors.red,
-                            icon: Icons.delete,
-                            onTap: () => _showDialog(entry.value),
                           ),
                         )
-                      ] : []),
-                  ),
-                )).toList(),
+                      ] : [])
+                      ..addAll(expandedAppBarActions)
+                      ..addAll([
+                        Expanded(
+                          child: IconSlideAction(
+                            caption: 'Filtrele',
+                            color: filterMap != null && filterMap.length > 0 ? ConstantsBase.greenAccentShade100Color : ConstantsBase.defaultButtonColor,
+                            icon: Icons.filter_list,
+                            onTap: () {
+                              showFilterPopup();
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: IconSlideAction(
+                            caption: 'Sırala',
+                            color: orderBy != null && orderBy.isNotEmpty ? ConstantsBase.greenAccentShade100Color : ConstantsBase.defaultButtonColor,
+                            icon: Icons.sort_by_alpha,
+                            onTap: () {
+                              showSortPopup();
+                            },
+                          ),
+                        ),
+                      ])
+                ),
               )
           ),
-        ],
-      ),
-    ),
-    bottomNavigationBar: Container(
-      height: 60,
-      child: BottomAppBar(
-        shape: CircularNotchedRectangle(),
-        notchMargin: 4.0,
-        child: new Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Expanded(
-              flex: 1,
-              child: IconSlideAction(
-                color: currentPage == 1 ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
-                icon: Icons.first_page,
-                onTap: () {
-                  if(currentPage > 1) {
-                    refreshData(currentPagePrm: 1);
-                  }
-                }
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: IconSlideAction(
-                color: currentPage == 1 ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
-                icon: Icons.arrow_back_ios,
-                onTap: () {
-                  if(currentPage > 1) {
-                    refreshData(currentPagePrm: currentPage - 1);
-                  }
-                }
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Center(
-                child: Text(totalCount.toString() + " kayıt - " + currentPage.toString() + " / " + lastPage.toString(), style: TextStyle(fontSize: 18),),
-              )
-            ),
-            Expanded(
-              flex: 1,
-              child: IconSlideAction(
-                color: currentPage >= lastPage ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
-                icon: Icons.arrow_forward_ios,
-                onTap: () {
-                  if(currentPage != lastPage) {
-                    refreshData(currentPagePrm: currentPage + 1);
-                  }
-                }
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: IconSlideAction(
-                color: currentPage >= lastPage ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
-                icon: Icons.last_page,
-                onTap: () {
-                  if(currentPage != lastPage) {
-                    refreshData(currentPagePrm: lastPage);
-                  }
-                }
-              ),
-            )
-          ],
         ),
-      ),
-    ));
+        body: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                  child:
+                  currentListData == null ?
+                  Center(child: CircularProgressIndicator()) :
+                  ListView(
+                    children: currentListData.asMap().entries.map((entry) => Container(
+                      decoration: BoxDecoration(
+                        //border: Border.all(width: 1),
+                        color: _selectedKayit != null && _selectedKayit.get("ID") == entry.value.get("ID") ? Colors.yellow : ( entry.value.listBgColor != null ? entry.value.listBgColor(entry.value) : Colors.white ),
+                      ),
+                      child: Slidable(
+                        actionPane: SlidableDrawerActionPane(),
+                        controller: slidableController,
+                        actionExtentRatio: 0.25,
+                        child: Card(
+                            color: entry.key % 2 == 0 ? Colors.white : ConstantsBase.greenAccentShade100Color,
+                            elevation: 5.0,
+                            child: ListTile(
+                              selected: _selectedKayit != null && _selectedKayit.get("ID") == entry.value.get("ID"),
+                              onLongPress: () {
+                                debugPrint("Long Pressed");
+                              },
+                              onTap: () {
+                                if(_selectedKayit != null && _selectedKayit.get("ID") == entry.value.get("ID")) {
+                                  setState(() {
+                                    _selectedKayit = null;
+                                  });
+                                } else {
+                                  setState(() {
+                                    _selectedKayit = entry.value;
+                                  });
+                                }
+                              },
+                              title: entry.value.getListTileTitleWidget(),
+                              subtitle: entry.value.getListTileSubTitleWidget(),
+                              leading: entry.value.getTileLeadingWidget(),
+                              trailing: entry.value.getTileTrailingWidget(),
+                            )
+                        ),
+                        secondaryActions: []
+                          ..addAll(widget.editButtonExists ? [
+                            Card(
+                                child: IconSlideAction(
+                                  caption: 'Düzenle',
+                                  color: Colors.black45,
+                                  icon: Icons.edit,
+                                  onTap: () {
+                                    NavigatorBase.push(BaseModelDuzenleme(widgetKayit : entry.value, widgetModelName: modelName,baseModelPageId: baseModelPageId,baseModelPageScaffoldKey: _scaffoldKey));
+                                  },
+                                )
+                            )
+                          ] : [])
+                          ..addAll(widget.deleteButtonExists ? [
+                            Card(
+                              child: IconSlideAction(
+                                caption: 'Sil',
+                                color: Colors.red,
+                                icon: Icons.delete,
+                                onTap: () => _showDialog(entry.value),
+                              ),
+                            )
+                          ] : []),
+                      ),
+                    )).toList(),
+                  )
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: Container(
+          height: 60,
+          child: BottomAppBar(
+            shape: CircularNotchedRectangle(),
+            notchMargin: 4.0,
+            child: new Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: IconSlideAction(
+                      color: currentPage == 1 ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
+                      icon: Icons.first_page,
+                      onTap: () {
+                        if(currentPage > 1) {
+                          refreshData(currentPagePrm: 1);
+                        }
+                      }
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: IconSlideAction(
+                      color: currentPage == 1 ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
+                      icon: Icons.arrow_back_ios,
+                      onTap: () {
+                        if(currentPage > 1) {
+                          refreshData(currentPagePrm: currentPage - 1);
+                        }
+                      }
+                  ),
+                ),
+                Expanded(
+                    flex: 3,
+                    child: Center(
+                      child: Text(totalCount.toString() + " kayıt - " + currentPage.toString() + " / " + lastPage.toString(), style: TextStyle(fontSize: 18),),
+                    )
+                ),
+                Expanded(
+                  flex: 1,
+                  child: IconSlideAction(
+                      color: currentPage >= lastPage ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
+                      icon: Icons.arrow_forward_ios,
+                      onTap: () {
+                        if(currentPage != lastPage) {
+                          refreshData(currentPagePrm: currentPage + 1);
+                        }
+                      }
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: IconSlideAction(
+                      color: currentPage >= lastPage ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
+                      icon: Icons.last_page,
+                      onTap: () {
+                        if(currentPage != lastPage) {
+                          refreshData(currentPagePrm: lastPage);
+                        }
+                      }
+                  ),
+                )
+              ],
+            ),
+          ),
+        )),
+    );
   }
 }

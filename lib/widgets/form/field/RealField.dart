@@ -21,7 +21,7 @@ class RealField extends BaseField {
       textValue : kayit.get(fieldType.name) != null ? kayit.get(fieldType.name).toString() : null,
       realValue : kayit.get(fieldType.name),
       lastField : lastField,
-      inputFormatters : ConstantsBase.getNumberTextInputFormatters(fieldType.signed, true),
+      inputFormatters : ConstantsBase.getNumberTextInputFormatters(signed: fieldType.signed, decimal: true),
       keyboardType : TextInputType.numberWithOptions(signed: fieldType.signed, decimal: true),
       scaffoldKey : scaffoldKey,
       onChanged : (sentoraFieldBaseStateUid, textValue) {

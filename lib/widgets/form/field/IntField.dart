@@ -21,7 +21,7 @@ class IntField extends BaseField {
     textValue : kayit.get(fieldType.name) != null ? kayit.get(fieldType.name).toString() : null,
     realValue : kayit.get(fieldType.name),
     lastField : lastField,
-    inputFormatters : ConstantsBase.getNumberTextInputFormatters(fieldType.signed, false),
+    inputFormatters : ConstantsBase.getNumberTextInputFormatters(signed: fieldType.signed, decimal: false),
     keyboardType : TextInputType.numberWithOptions(signed: fieldType.signed, decimal: false),
     scaffoldKey : scaffoldKey,
     onSaved : (textValue, realValue) {

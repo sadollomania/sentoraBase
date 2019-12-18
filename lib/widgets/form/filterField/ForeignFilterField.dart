@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sentora_base/model/AppBarActionHolder.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/FilterValueChangedEvent.dart';
 import 'package:sentora_base/model/FormFieldValueChangedEvent.dart';
@@ -6,7 +7,6 @@ import 'package:sentora_base/model/fieldTypes/ForeignKeyFieldType.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/pages/BaseModelPage.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
-import 'package:sentora_base/widgets/MenuButton.dart';
 import 'package:sentora_base/widgets/form/filterField/BaseFilterField.dart';
 
 class ForeignFilterField extends BaseFilterField {
@@ -27,7 +27,7 @@ class ForeignFilterField extends BaseFilterField {
     },
     scaffoldKey : scaffoldKey,
     onTapReplacementFunc: (String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey){
-      showModalBottomSheet(
+      return showModalBottomSheet<bool>(
           isScrollControlled: true,
           context: context,
           builder: (BuildContext builder) {
@@ -36,21 +36,19 @@ class ForeignFilterField extends BaseFilterField {
                 child: BaseModelPage(
                   widgetModelName: fieldType.foreignKeyModelName,
                   pageTitle: fieldType.fieldLabel + " Seçme",
-                  pageSize: 4,
-                  constructButtonsRow: (BaseModel selectedKayit) => Row(
-                    children: <Widget>[
-                      Expanded(child:MenuButton(
-                        title: 'Seç',
-                        disabled: selectedKayit == null,
-                        onPressed: () {
-                          ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, selectedKayit.getCombinedTitleValue(), selectedKayit));
-                          filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = selectedKayit;
-                          NavigatorBase.pop();
-                          ConstantsBase.eventBus.fire(FilterValueChangedEvent());
-                        },
-                      )),
-                    ],
-                  ),
+                  pageSize: 6,
+                  appBarActions: <AppBarActionHolder>[
+                    AppBarActionHolder(
+                    caption: 'Seç',
+                      color: ConstantsBase.defaultButtonColor,
+                      icon: Icons.done,
+                      onTap: (context, selectedKayit, baseModelPageId, scaffoldKey) {
+                        ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, selectedKayit.getCombinedTitleValue(), selectedKayit));
+                        filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = selectedKayit;
+                        NavigatorBase.pop(true);
+                        ConstantsBase.eventBus.fire(FilterValueChangedEvent());
+                      },
+                    )]
                 )
             );
           }

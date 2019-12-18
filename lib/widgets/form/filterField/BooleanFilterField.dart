@@ -20,6 +20,7 @@ class BooleanFilterField extends BaseFilterField {
     textValue : "",
     realValue : filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]],
     scaffoldKey : scaffoldKey,
+    suffixCheckboxExists : true,
     onTapReplacementFunc : (String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey) {
       showModalBottomSheet(
           context: context,

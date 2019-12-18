@@ -16,6 +16,7 @@ class BaseFilterField extends SentoraFieldBase{
     void Function() suffixClearButtonFunc,
     void Function(String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey) onTapReplacementFunc,
     List<TextInputFormatter> inputFormatters,
+    bool suffixCheckboxExists,
   }) : super(
     title : fieldType.fieldLabel + " " + fieldType.getFilterModeTitles()[filterIndex],
     textValue : textValue,
@@ -28,5 +29,6 @@ class BaseFilterField extends SentoraFieldBase{
     suffixClearButtonFunc : suffixClearButtonFunc,
     onTapReplacementFunc : onTapReplacementFunc,
     scaffoldKey : scaffoldKey,
+    suffixCheckboxExists : suffixCheckboxExists,
   );
 }

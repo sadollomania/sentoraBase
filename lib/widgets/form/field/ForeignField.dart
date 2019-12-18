@@ -40,7 +40,7 @@ class ForeignField extends BaseField {
                 child: BaseModelPage(
                   widgetModelName: fieldType.foreignKeyModelName,
                   pageTitle: fieldType.fieldLabel + " Seçme",
-                  pageSize: 4,
+                  pageSize: 6,
                   appBarActions: <AppBarActionHolder>[
                     AppBarActionHolder(
                       caption: 'Sonraki',
