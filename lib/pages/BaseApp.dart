@@ -22,7 +22,7 @@ abstract class BaseApp extends StatefulWidget {
   final Map<String, dynamic> bgTaskConfig;
   final Map<String, dynamic> localeConfig;
   final Map<String, dynamic> shareConfig;
-  bool prefsLoaded;
+  final bool prefsLoaded;
   //_BaseAppState _baseAppState;
 
   void initBaseModelClasses();
