@@ -59,8 +59,8 @@ class _BasePageState extends State<BasePage> {
   final String _pageId = ConstantsBase.getRandomUUID();
   int loadState = 0;
 
-  Future<bool> _willPopCallback(BuildContext context) {
-    return showDialog(
+  Future<bool> _willPopCallback(BuildContext context) async {
+    return await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
