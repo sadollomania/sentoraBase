@@ -8,6 +8,7 @@ class MenuButton extends StatelessWidget {
     @required this.onPressed,
     this.title,
     this.iconData,
+    this.image,
     this.disabled = false,
     double fontSize,
     this.edgeInsetsGeometry = const EdgeInsets.all(10.0),
@@ -21,12 +22,14 @@ class MenuButton extends StatelessWidget {
     this.labelWidth
   }) : this.iconColor = iconColor ?? ConstantsBase.defaultIconColor,
   this.fontSize = fontSize ?? 30,
-  assert(title != null || iconData != null),
+  assert(title != null || iconData != null || image != null),
+  assert(iconData == null || image == null),
   assert(iconFlex != null),
   assert(textFlex != null);
 
   final String title;
   final IconData iconData;
+  final Image image;
   final GestureTapCallback onPressed;
   final bool disabled;
   final double fontSize;
@@ -42,9 +45,9 @@ class MenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget iconWidget, textWidget, combinedWidget;
+    Widget iconImageWidget, textWidget, combinedWidget;
     if(iconData != null) {
-      iconWidget = LayoutBuilder(builder: (context, constraint){
+      iconImageWidget = LayoutBuilder(builder: (context, constraint){
         return Icon(
           iconData,
           size: min(constraint.biggest.width, constraint.biggest.height),
@@ -52,6 +55,18 @@ class MenuButton extends StatelessWidget {
         );
       });
     }
+
+    if(image != null) {
+      iconImageWidget = LayoutBuilder(builder: (context, constraint) {
+
+        return Container(
+          width: image.width ?? 50,
+          height: image.height ?? 50,
+          child: image,
+        );
+      });
+    }
+
     if(title != null) {
       Text tmpTextWidget = Text(title, style: TextStyle(fontSize: fontSize), overflow: TextOverflow.ellipsis,);
       if(labelWidth != null) {
@@ -63,22 +78,24 @@ class MenuButton extends StatelessWidget {
       textWidget = tmpTextWidget;
     }
 
-    if(iconData != null && title != null) {
+    if(iconImageWidget != null && textWidget != null) {
       combinedWidget = Row(
           children: <Widget>[
             Expanded(
               flex: iconFlex,
-              child: iconWidget,
+              child: iconImageWidget,
             ),
             SizedBox(width: 2,),
             Expanded(
               flex: textFlex,
-              child: textWidget,
+              child: Center(
+                child: textWidget,
+              ),
             ),
           ]
       );
-    } else if(iconData != null) {
-      combinedWidget = iconWidget;
+    } else if(iconImageWidget != null) {
+      combinedWidget = iconImageWidget;
     } else {
       combinedWidget = textWidget;
     }

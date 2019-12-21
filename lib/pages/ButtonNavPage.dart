@@ -8,10 +8,10 @@ import 'package:sentora_base/widgets/MenuButton.dart';
 import 'package:sentora_base/model/AnaSayfaUpdateStateEvent.dart';
 
 abstract class ButtonNavPage extends StatefulWidget {
-  final String pageTitle;
-  final List<MenuButtonConfig> menuConfig;
-  final String willPopScopeText;
-  final List<String> loadStateHeaders;
+  final String Function(BuildContext context) pageTitle;
+  final List<MenuButtonConfig> Function(BuildContext context) menuConfig;
+  final String Function(BuildContext context) willPopScopeText;
+  final List<String> Function(BuildContext context) loadStateHeaders;
   final Function initStateFunction;
   final double screenWidthRatio;
 
@@ -23,7 +23,7 @@ abstract class ButtonNavPage extends StatefulWidget {
     this.initStateFunction,
     this.screenWidthRatio = 0.8,
   }) :
-  assert(pageTitle.isNotEmpty),
+  assert(pageTitle != null),
   assert(menuConfig != null),
   assert((loadStateHeaders == null && initStateFunction == null) || (loadStateHeaders != null && initStateFunction != null));
 
@@ -63,10 +63,11 @@ class _ButtonNavPageState extends State<ButtonNavPage> {
 
   List<Widget> _getMenuItems(BuildContext context) {
     List<Widget> retList = List<Widget>();
-    widget.menuConfig.forEach((menuButtonConfig){
+    widget.menuConfig(context).forEach((menuButtonConfig){
       retList.add(MenuButton(
           title : menuButtonConfig.title,
           iconData: menuButtonConfig.iconData,
+          image: menuButtonConfig.image,
           iconColor: menuButtonConfig.iconColor,
           iconFlex: menuButtonConfig.iconFlex,
           textFlex: menuButtonConfig.textFlex,
@@ -89,7 +90,7 @@ class _ButtonNavPageState extends State<ButtonNavPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Uyarı"),
-          content: Text(widget.willPopScopeText),
+          content: Text(widget.willPopScopeText(context)),
           actions: <Widget>[
             FlatButton(
               child: Text("İptal"),
@@ -118,12 +119,12 @@ class _ButtonNavPageState extends State<ButtonNavPage> {
           child: Scaffold(
             key: _scaffoldKey,
             appBar: AppBar(
-              title: Text(widget.pageTitle),
+              title: Text(widget.pageTitle(context)),
               centerTitle: true,
             ),
             body:Container(
                 alignment: Alignment(0.0, 0.0),
-                child: widget.loadStateHeaders != null && loadState < widget.loadStateHeaders.length ? Container(alignment: Alignment.center, child:Text(widget.loadStateHeaders[loadState])) : LayoutBuilder(
+                child: widget.loadStateHeaders != null && loadState < widget.loadStateHeaders(context).length ? Container(alignment: Alignment.center, child:Text(widget.loadStateHeaders(context)[loadState])) : LayoutBuilder(
                   builder: (context, constraint){
                     return Container(
                       width: constraint.biggest.width * widget.screenWidthRatio,

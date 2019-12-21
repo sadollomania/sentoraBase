@@ -4,6 +4,7 @@ import 'package:sentora_base/utils/ConstantsBase.dart';
 class MenuButtonConfig {
   final String title;
   final IconData iconData;
+  final Image image;
   final Widget navPage;
   final void Function(BuildContext context, GlobalKey<ScaffoldState> scaffoldKey) onPressed;
   final int iconFlex;
@@ -13,6 +14,7 @@ class MenuButtonConfig {
   MenuButtonConfig({
     this.title,
     this.iconData,
+    this.image,
     this.navPage,
     this.onPressed,
     this.iconFlex = ConstantsBase.defaultMenuButtonIconFlex,
@@ -20,6 +22,7 @@ class MenuButtonConfig {
     this.iconColor,
     this.fontSize,
   }) :
-      assert(title != null || iconData != null),
+      assert(title != null || iconData != null || image != null),
+      assert(iconData == null || image == null),
       assert(navPage != null || onPressed != null);
 }
