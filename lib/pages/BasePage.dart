@@ -106,7 +106,6 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
         }
       }
     });
-    widget.initStateFunction?.call(stateData);
     WidgetsBinding.instance.addPostFrameCallback((_) => widget.afterRender?.call(stateData));
   }
 
@@ -114,6 +113,7 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
   void didChangeDependencies() {
     super.didChangeDependencies();
     stateData.tag = widget.initialTag?.call(stateData) ?? {};
+    widget.initStateFunction?.call(stateData);
     widget.didChangeDependenciesFunction?.call(stateData);
   }
 
