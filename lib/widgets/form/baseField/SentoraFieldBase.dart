@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sentora_base/model/FormFieldValueChangedEvent.dart';
+import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 
 class SentoraFieldBase extends StatefulWidget {

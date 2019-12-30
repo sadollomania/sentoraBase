@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:sentora_base/model/FilterValueChangedEvent.dart';
-import 'package:sentora_base/model/FormFieldValueChangedEvent.dart';
+import 'package:sentora_base/events/FilterValueChangedEvent.dart';
+import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/BooleanFieldType.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
@@ -48,12 +48,13 @@ class BooleanFilterField extends BaseFilterField {
                       child: ListTile(
                         leading: Icon(Icons.indeterminate_check_box),
                         selected: realValue == null,
-                        title: Center(child: Text(BooleanFieldType.NULL_CHECKED)),
-                        onTap: (){
+                        title: Center(child: Text("-")),
+                        onTap: () async{
                           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, null, null));
                           filterMap.remove(fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]);
-                          NavigatorBase.pop(true);
+                          await NavigatorBase.pop(true);
                           ConstantsBase.eventBus.fire(FilterValueChangedEvent());
+                          return;
                         },
                       ),
                     ),
@@ -62,12 +63,13 @@ class BooleanFilterField extends BaseFilterField {
                       child: ListTile(
                         leading: Icon(Icons.check_box),
                         selected: realValue == true,
-                        title: Center(child: Text(BooleanFieldType.CHECKED)),
-                        onTap: (){
+                        title: Center(child: Text(ConstantsBase.translate(builder, "evet"))),
+                        onTap: () async{
                           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, null, true));
                           filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = true;
-                          NavigatorBase.pop(true);
+                          await NavigatorBase.pop(true);
                           ConstantsBase.eventBus.fire(FilterValueChangedEvent());
+                          return;
                         },
                       ),
                     ),
@@ -76,12 +78,13 @@ class BooleanFilterField extends BaseFilterField {
                       child: ListTile(
                         leading: Icon(Icons.check_box_outline_blank),
                         selected: realValue == false,
-                        title: Center(child: Text(BooleanFieldType.NOT_CHECKED)),
-                        onTap: (){
+                        title: Center(child: Text(ConstantsBase.translate(builder, "hayir"))),
+                        onTap: () async{
                           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, null, false));
                           filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = false;
-                          NavigatorBase.pop(true);
+                          await NavigatorBase.pop(true);
                           ConstantsBase.eventBus.fire(FilterValueChangedEvent());
+                          return;
                         },
                       ),
                     )

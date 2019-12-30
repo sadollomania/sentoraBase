@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sentora_base/model/FilterValueChangedEvent.dart';
+import 'package:sentora_base/events/FilterValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/BlobFieldType.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/form/filterField/BaseFilterField.dart';

@@ -5,8 +5,11 @@ import 'dart:io';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sentora_base/lang/AppLocalizationsBase.dart';
+import 'package:sentora_base/events/UpdatePageStateEvent.dart';
+import 'package:sentora_base/lang/AppTranslations.dart';
+import 'package:sentora_base/lang/SentoraLocaleConfig.dart';
 import 'package:sentora_base/model/BaseModel.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
@@ -22,6 +25,8 @@ enum SNACKBAR_DURATION{
 }
 
 class ConstantsBase {
+  static List<SentoraLocaleConfig> localeConfig;
+  static const String localeKey = "sentora_selected_locale";
   static int pageSize = 8;
   static final String dataTag = "data";
   static final String totalCountTag = "totalCount";
@@ -44,7 +49,6 @@ class ConstantsBase {
   static final DateFormat dateTimeFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
   static final DateFormat timeFormat = DateFormat('HH:mm:ss');
   static final _uuid = Uuid();
-  static bool localeExists = false;
   static SharedPreferences _prefs;
   static EventBus eventBus;
   static String _notificationPreferenceKey = "__NOTIFICATION_ID_MAP__";
@@ -72,6 +76,10 @@ class ConstantsBase {
 
   static Map<String, String> prefDefaultVals = {
   };
+
+  static void fireUpdateStateEvent(String pageId) {
+    eventBus.fire(UpdatePageStateEvent(pageId));
+  }
 
   static double getMaxWidth(BuildContext context) {
     return MediaQuery.of(context).size.width;
@@ -102,10 +110,7 @@ class ConstantsBase {
   }
 
   static String translate(BuildContext context, String key) {
-    if(!localeExists) {
-      throw Exception("Pass localeConfig to App first.");
-    }
-    return AppLocalizationsBase.of(context).translate(key);
+    return AppTranslations.of(context).translate(key);
   }
 
   static void showToast(BuildContext context, String text) {
@@ -151,10 +156,20 @@ class ConstantsBase {
     return _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(text), duration: compDuration,));
   }
 
+  static SizedBox createSizedBoxWithBgColor({double width, double height, Color color}) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: color ?? Colors.white
+        ),
+      ),
+    );
+  }
+
   static Future<void> loadPrefs() async {
-    if(_prefs == null) {
-      _prefs = await SharedPreferences.getInstance();
-    }
+    _prefs = await SharedPreferences.getInstance();
     return;
   }
 
@@ -172,16 +187,16 @@ class ConstantsBase {
   }
 
   static String getKeyValue(String key) {
-    if(_prefs == null) {
+    /*if(_prefs == null) {
       throw new Exception("Prefs not loaded. Consider calling ConstantsBase.loadPrefs with await");
-    }
+    }*/
     return _prefs.getString(key) ?? (prefDefaultVals != null ? prefDefaultVals[key] : throw new Exception("ConstantsBase PREF_DEFAULT_VALS not initialized for $key"));
   }
 
   static Future<void> setKeyValue(String key, String value) async{
-    if(_prefs == null) {
+    /*if(_prefs == null) {
       throw new Exception("Prefs not loaded. Consider calling ConstantsBase.loadPrefs with await");
-    }
+    }*/
     await _prefs.setString(key, value);
   }
 
@@ -259,5 +274,48 @@ class ConstantsBase {
     List<TextInputFormatter> textInputFormatters = List<TextInputFormatter>();
     textInputFormatters.add(WhitelistingTextInputFormatter(RegExp((signed ? "-?" : "") + "(0|[1-9]\\d*)" + (decimal ? "[\\.\\,]?\\d?" : ""))));
     return textInputFormatters;
+  }
+
+  static String convertErrorToStr(dynamic exception, String errorTitle, String uniqueErrDescr, String foreignKeyErrDescr) {
+    DatabaseException e;
+    if(exception is DatabaseException) {
+      e = exception;
+    } else {
+      return null;
+    }
+
+    String errorMsg = e.toString();
+    String defaultRetStr = errorTitle + " : " + errorMsg;
+    String retStr = "";
+    if(errorMsg.contains("UNIQUE") || errorMsg.contains("unique")) { //TODO eğer burda çoklu kolon varsa ne olur bak
+      retStr = uniqueErrDescr;
+    } else if(errorMsg.contains("FOREIGN KEY") || errorMsg.contains("foreign key")) {
+      retStr = foreignKeyErrDescr;
+    } else {
+      retStr = defaultRetStr;
+    }
+    return retStr;
+  }
+
+  static String convertLanguageCodeToTitle(String languageCode) {
+    switch(languageCode) {
+      case "tr":
+        return "Türkçe";
+      case "en":
+        return "English";
+      default:
+        throw Exception("Bilinmeyen languageCode : " + languageCode);
+    }
+  }
+
+  static Image convertLanguageCodeToImage(String languageCode) {
+    switch(languageCode) {
+      case "tr":
+        return Image.asset('assets/images/lang/tr.png', fit: BoxFit.fill);
+      case "en":
+        return Image.asset('assets/images/lang/en.png', fit: BoxFit.fill);
+      default:
+        throw Exception("Bilinmeyen languageCode : " + languageCode);
+    }
   }
 }

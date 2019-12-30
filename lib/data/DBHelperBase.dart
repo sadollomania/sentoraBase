@@ -19,9 +19,9 @@ class DBHelperBase {
 
   final String databaseFileName;
   final int databaseVersion;
-  final List<Function> versionFunctions;
+  final List<Future<void> Function(Database database, int oldVersion, int newVersion)> versionFunctions;
 
-  DBHelperBase._init(this.databaseFileName, this.databaseVersion, this.versionFunctions);
+  DBHelperBase._init(this.databaseFileName, this.databaseVersion, this.versionFunctions): assert(databaseVersion == versionFunctions.length);
   factory DBHelperBase() => instance;
 
   Database _database;
@@ -37,14 +37,14 @@ class DBHelperBase {
       await _getDBPath(),
       onCreate: (db, version) async {
         for(int i = 0; i < version; ++i) {
-          await versionFunctions[i](db);
+          await versionFunctions[i](db, 0, version);
           debugPrint("Upgraded to Version " + ( i + 1 ).toString());
         }
         return true;
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         for(int i = oldVersion; i < newVersion; ++i) {
-          await versionFunctions[i](db);
+          await versionFunctions[i](db, oldVersion, newVersion);
           debugPrint("Upgraded to Version " + ( i + 1 ).toString());
         }
         return true;
@@ -73,7 +73,7 @@ class DBHelperBase {
     return false;
   }
 
-  Future<void> backupDB() async {
+  Future<String> backupDB() async {
     bool dbOpen = await close();
     String dbPath = await _getDBPath();
     String backupPath = await ConstantsBase.getVisiblePath() + "/" + databaseFileName + ".backup";
@@ -82,6 +82,7 @@ class DBHelperBase {
     if(dbOpen) {
       await getDb();
     }
+    return backupPath;
   }
 
   Future<void> restoreDB(String path) async {
@@ -105,5 +106,30 @@ class DBHelperBase {
       debugPrint("Unsupported operation" + e.toString());
       throw e;
     }
+  }
+
+  static Future<List<Map<String, dynamic>>> rawQRY(String sql, [List<dynamic> arguments]) async {
+    Database db = await instance.getDb();
+    return db.rawQuery(sql, arguments);
+  }
+
+  static Future<int> rawUpdate(String sql, [List<dynamic> arguments]) async {
+    Database db = await instance.getDb();
+    return db.rawUpdate(sql, arguments);
+  }
+
+  static Future<int> rawInsert(String sql, [List<dynamic> arguments]) async {
+    Database db = await instance.getDb();
+    return db.rawInsert(sql, arguments);
+  }
+
+  static Future<int> rawDelete(String sql, [List<dynamic> arguments]) async {
+    Database db = await instance.getDb();
+    return db.rawDelete(sql, arguments);
+  }
+
+  static Future<void> rawExecute(String sql, [List<dynamic> arguments]) async {
+    Database db = await instance.getDb();
+    return db.execute(sql, arguments);
   }
 }

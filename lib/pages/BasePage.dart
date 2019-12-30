@@ -1,82 +1,84 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:sentora_base/model/AppBarActionHolder.dart';
+import 'package:sentora_base/events/UpdatePageStateEvent.dart';
+import 'package:sentora_base/model/StateData.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 
 abstract class BasePage extends StatefulWidget {
-  final String Function(BuildContext context) pageTitle;
-  final Widget Function(BuildContext context) body;
+  final String Function(StateData stateData) pageTitle;
+  final Widget Function(StateData stateData) body;
 
-  final List<AppBarActionHolder> topBarActions;
-  final Color safeAreaColor;
-  final String Function(BuildContext context) popText;
-  final String Function(BuildContext context) popTitle;
-  final String Function(BuildContext context) popCancelTitle;
-  final String Function(BuildContext context) popOkTitle;
-  final List<String> Function(BuildContext context) loadStateHeaders;
+  final dynamic Function(StateData stateData) initialTag;
+
+  final PreferredSizeWidget Function(StateData stateData) topBar;
+  final Widget Function(StateData stateData) bottomBar;
+  final void Function(StateData stateData) updateTag;
+  final String Function(StateData stateData) popText;
+  final String Function(StateData stateData) popTitle;
+  final String Function(StateData stateData) popCancelTitle;
+  final String Function(StateData stateData) popOkTitle;
+  final void Function(StateData stateData) initStateFunction;
+  final void Function(StateData stateData) didChangeDependenciesFunction;
+  final void Function(StateData stateData) disposeFunction;
+  final void Function(StateData stateData) afterRender;
+  final int tabLength;
 
   BasePage({
     @required this.pageTitle,
     @required this.body,
-    this.topBarActions,
-    this.popText,
-    this.loadStateHeaders,
+
     Color safeAreaColor,
-    String Function(BuildContext context) popTitle,
-    String Function(BuildContext context) popCancelTitle,
-    String Function(BuildContext context) popOkTitle,
-  })
-      :
-        this.safeAreaColor = safeAreaColor ?? ConstantsBase.defaultButtonColor
-  , this.popTitle = popTitle ?? "Uyarı"
-  , this.popCancelTitle = popCancelTitle ?? "İptal"
-  , this.popOkTitle = popOkTitle ?? "Çık"
-  , assert(pageTitle != null)
-  , assert(body != null) {
-    /*if(topBarActions != null) {
-      topBarActions.forEach((appBarAction){
-        expandedAppBarActions.add(Expanded(
-            child: IconSlideAction(
-                caption: appBarAction.caption,
-                color: appBarAction.color,
-                icon: appBarAction.icon,
-                onTap: (){
-                  appBarAction.onTap(context, _selectedKayit, baseModelPageId, _scaffoldKey);
-                }
-            )
-        ));
-      });
-    }*/
-  }
+    this.topBar,
+    this.bottomBar,
+    this.initialTag,
+    this.updateTag,
+    this.popText,
+    this.popTitle,
+    this.popCancelTitle,
+    this.popOkTitle,
+    this.initStateFunction,
+    this.didChangeDependenciesFunction,
+    this.disposeFunction,
+    this.afterRender,
+    this.tabLength,
+  }) :
+    assert(pageTitle != null)
+    , assert(body != null)
+    , assert((((popText == null) == (popCancelTitle == null)) == (popOkTitle == null)) == (popTitle == null));
 
   @override
-  State<StatefulWidget> createState() => new _BasePageState();
+  State<StatefulWidget> createState() => _BasePageState();
 }
 
-class _BasePageState extends State<BasePage> {
+class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin{
+  TabController _tabController;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final String _pageId = ConstantsBase.getRandomUUID();
-  int loadState = 0;
+  StateData stateData;
+  StreamSubscription updateStateSubscription;
 
   Future<bool> _willPopCallback(BuildContext context) async {
     return await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(widget.popTitle(context)),
-          content: Text(widget.popText(context)),
+          title: Text(widget.popTitle(stateData)),
+          content: Text(widget.popText(stateData)),
           actions: <Widget>[
             FlatButton(
-              child: Text(widget.popCancelTitle(context)),
-              onPressed: () {
-                NavigatorBase.pop(false);
+              child: Text(widget.popCancelTitle(stateData)),
+              onPressed: () async{
+                await NavigatorBase.pop(false);
+                return;
               },
             ),
             FlatButton(
-              child: Text(widget.popOkTitle(context)),
-              onPressed: () {
-                NavigatorBase.pop(true);
+              child: Text(widget.popOkTitle(stateData)),
+              onPressed: () async{
+                await NavigatorBase.pop(true);
+                return;
               },
             ),
           ],
@@ -87,48 +89,53 @@ class _BasePageState extends State<BasePage> {
 
   @override
   void initState() {
+    if(widget.tabLength != null) {
+      _tabController = new TabController(length: widget.tabLength, vsync: this);
+    }
+    stateData = StateData(
+      context: context,
+      scaffoldKey: _scaffoldKey,
+      pageId: _pageId,
+      tabController : _tabController,
+    );
     super.initState();
-    /*if(widget.initStateFunction != null) {
-      loginSubscription = ConstantsBase.eventBus.on<AnaSayfaUpdateStateEvent>().listen((event){
-        _updateState();
-      });
-      widget.initStateFunction();
-    }*/
+    updateStateSubscription = ConstantsBase.eventBus.on<UpdatePageStateEvent>().listen((event){
+      if(event.pageId == _pageId) {
+        if(mounted) {
+          setState(() {});
+        }
+      }
+    });
+    widget.initStateFunction?.call(stateData);
+    WidgetsBinding.instance.addPostFrameCallback((_) => widget.afterRender?.call(stateData));
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    stateData.tag = widget.initialTag?.call(stateData) ?? {};
+    widget.didChangeDependenciesFunction?.call(stateData);
   }
 
   @override
   void dispose() {
-    /*if(widget.initStateFunction != null) {
-      loginSubscription.cancel();
-    }*/
+    updateStateSubscription.cancel();
+    widget.disposeFunction?.call(stateData);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     Widget retWidget;
-    Widget scaffoldWidget = Container(
-        color: widget.safeAreaColor,
-        child: Scaffold(
-          key: _scaffoldKey,
-          appBar: AppBar(
-            title: Text(widget.pageTitle(context)),
-            centerTitle: true,
-            /*bottom: PreferredSize(
-              preferredSize: Size.fromHeight(50.0),
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  border: Border(top: BorderSide(width: 1.0, color: Colors.blue.shade300),),
-                ),
-                child: Row(
-                    children: []..addAll(widget.topBarActions)
-                )
-              )
-            )*/
-          ),
-          body: widget.loadStateHeaders != null && loadState < widget.loadStateHeaders(context).length ? Container(alignment: Alignment.center, child:Text(widget.loadStateHeaders(context)[loadState])) : widget.body(context)
-        )
+    Widget scaffoldWidget = Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text(widget.pageTitle(stateData)),
+        centerTitle: true,
+        bottom: widget.topBar == null ? PreferredSize(preferredSize: Size.fromHeight(0), child: Container(height: 0,),) : widget.topBar(stateData)
+      ),
+      body: SafeArea(child:widget.body(stateData),),
+      bottomNavigationBar: widget.bottomBar == null ? Container(height: 0,) : widget.bottomBar(stateData)
     );
     if(widget.popText != null) {
       retWidget = WillPopScope(

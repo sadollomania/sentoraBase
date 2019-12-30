@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:sentora_base/model/BaseModel.dart';
@@ -7,10 +6,6 @@ import 'package:sentora_base/widgets/form/field/BooleanField.dart';
 import 'package:sentora_base/widgets/form/filterField/BooleanFilterField.dart';
 
 class BooleanFieldType extends BaseFieldType {
-  static const String CHECKED = "EVET";
-  static const String NOT_CHECKED = "HAYIR";
-  static const String NULL_CHECKED = "-";
-
   BooleanFieldType({
     @required String fieldLabel,
     @required String fieldHint,

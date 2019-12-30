@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:sentora_base/ads/AppAds.dart';
 import 'package:sentora_base/data/DBHelperBase.dart';
-import 'package:sentora_base/lang/AppLocalizationsBase.dart';
+import 'package:sentora_base/events/LocaleChangedEvent.dart';
+import 'package:sentora_base/lang/AppTranslationsDelegate.dart';
+import 'package:sentora_base/lang/SentoraLocaleConfig.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/notification/BaseNotification.dart';
 import 'package:sentora_base/notification/NotificationTaskConfig.dart';
@@ -13,6 +17,17 @@ import 'package:share/receive_share_state.dart';
 import 'package:share/share.dart';
 
 abstract class BaseApp extends StatefulWidget {
+  static Future<Null> defaultBeforeRun() {
+    return Future.value(null);
+  }
+
+  void runAppBase() {
+    beforeRun().then((_){
+      ConstantsBase.loadPrefs().then((_) {
+        runApp(this);
+      });
+    });
+  }
 
   final String appTitle;
   final Widget Function() getMainPage;
@@ -20,29 +35,34 @@ abstract class BaseApp extends StatefulWidget {
   final Map<String, dynamic> adsConfig;
   final Map<String, dynamic> dbConfig;
   final Map<String, dynamic> bgTaskConfig;
-  final Map<String, dynamic> localeConfig;
   final Map<String, dynamic> shareConfig;
-  final bool prefsLoaded;
-  //_BaseAppState _baseAppState;
+  final Future<Null> Function() beforeRun;
+  final List<SentoraLocaleConfig> localeConfig;
+  final Map<String, String> prefDefaultVals;
 
-  void initBaseModelClasses();
-  void beforeInitState();
-  void afterInitState();
-  void beforeDispose();
-  void afterDispose();
-  void receiveShare(Share shared);
+  void initBaseModelClasses(BuildContext context);
+  void beforeInitState(BuildContext context);
+  void afterInitState(BuildContext context);
+  void beforeDispose(BuildContext context);
+  void afterDispose(BuildContext context);
+  void afterAppRender(BuildContext context);
+  void receiveShare(BuildContext context, Share shared);
 
   BaseApp({
     @required this.appTitle,
     @required this.getMainPage,
+    List<SentoraLocaleConfig> localeConfig,
     this.dbConfig,
     this.adsConfig,
     this.notificationConfig,
     this.bgTaskConfig,
-    this.localeConfig,
     this.shareConfig,
-    this.prefsLoaded,
+    Map<String, String> prefDefaultVals,
+    Future<Null> Function() beforeRun
   }) :
+      this.beforeRun = beforeRun ?? defaultBeforeRun,
+        this.localeConfig = localeConfig == null || localeConfig.length == 0 ? [SentoraLocaleConfig(title: "English", locale: Locale("en", "US"))] : localeConfig,
+        this.prefDefaultVals = prefDefaultVals ?? {},
         assert(
             dbConfig == null ||
             (
@@ -88,37 +108,29 @@ abstract class BaseApp extends StatefulWidget {
                     notificationConfig["tasks"] is List<NotificationTaskConfig>
                 )
             )
-        ),
-        assert(
-          localeConfig == null ||
-          (
-            localeConfig["supportedLocales"] != null && localeConfig["supportedLocales"] is Iterable<Locale> && (localeConfig["supportedLocales"] as Iterable<Locale>).length > 0
-          )
-        );
-
-  State<StatefulWidget> createState() => new _BaseAppState();
-
-  /*@override
-  State<StatefulWidget> createState() {
-    _baseAppState = ;
-    return _baseAppState;
+        ) {
+    ConstantsBase.localeConfig = this.localeConfig;
+    if(!this.prefDefaultVals.containsKey(ConstantsBase.localeKey)) {
+      this.prefDefaultVals[ConstantsBase.localeKey] = "en";
+    }
+    ConstantsBase.prefDefaultVals = this.prefDefaultVals;
   }
 
-  void setState(Function f) {
-    _baseAppState.setState(f);
-  }*/
+  State<StatefulWidget> createState() => new _BaseAppState();
 }
 
 class _BaseAppState extends ReceiveShareState<BaseApp> {
+  bool appLoaded = false;
+  StreamSubscription localeChangedSubscription;
+  AppTranslationsDelegate _localeOverrideDelegate;
+
   @override
   void initState() {
     ConstantsBase.setIsEmulator();
-    widget.beforeInitState();
-    if(widget.prefsLoaded != true) {
-      ConstantsBase.loadPrefs();
-    }
+    widget.beforeInitState(context);
     super.initState();
-    widget.initBaseModelClasses();
+    _localeOverrideDelegate = AppTranslationsDelegate(newLocale: Locale(ConstantsBase.getKeyValue(ConstantsBase.localeKey)));
+    widget.initBaseModelClasses(context);
     if(widget.dbConfig != null) {
       DBHelperBase.init(widget.dbConfig["databaseFileName"], widget.dbConfig["databaseVersion"], widget.dbConfig["versionFunctions"]);
     }
@@ -137,10 +149,6 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
       });
     }
 
-    if(widget.localeConfig != null) {
-      ConstantsBase.localeExists = true;
-    }
-
     if(widget.shareConfig != null && widget.shareConfig["enableReceiveShare"] == true) {
       enableShareReceiving();
     }
@@ -150,7 +158,19 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
     if(widget.adsConfig != null && widget.adsConfig["adsDisabled"] != true) {
       AppAds.init(widget.adsConfig);
     }
-    widget.afterInitState();
+    widget.afterInitState(context);
+    localeChangedSubscription  = ConstantsBase.eventBus.on<LocaleChangedEvent>().listen((event){
+      if(mounted) {
+        setState(() {
+          _localeOverrideDelegate = AppTranslationsDelegate(newLocale: event.locale);
+        });
+      }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      setState((){appLoaded=true;});
+      widget.afterAppRender(context);
+    });
   }
 
   @override
@@ -161,13 +181,14 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
     if(widget.notificationConfig != null) {
       BaseNotification.dispose();
     }
+    localeChangedSubscription.cancel();
     ConstantsBase.eventBus.destroy();
     if(widget.adsConfig != null && widget.adsConfig["adsDisabled"] != true) {
       AppAds.dispose();
     }
-    widget.beforeDispose();
+    widget.beforeDispose(context);
     super.dispose();
-    widget.afterDispose();
+    widget.afterDispose(context);
   }
 
   @override
@@ -178,16 +199,10 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      supportedLocales: widget.localeConfig != null ? widget.localeConfig["supportedLocales"] : [const Locale('tr', 'TR')],
-      localizationsDelegates: widget.localeConfig != null ? [
-        // THIS CLASS WILL BE ADDED LATER
-        // A class which loads the translations from JSON files
-        AppLocalizationsBase.delegate,
-        // Built-in localization of basic text for Material widgets
-        GlobalMaterialLocalizations.delegate,
-        // Built-in localization for text direction LTR/RTL
-        GlobalWidgetsLocalizations.delegate,
-      ] : [
+      locale: Locale(ConstantsBase.getKeyValue(ConstantsBase.localeKey)),
+      supportedLocales: widget.localeConfig.map((cfg){ return cfg.locale; }),
+      localizationsDelegates: [
+        _localeOverrideDelegate,
         // Built-in localization of basic text for Material widgets
         GlobalMaterialLocalizations.delegate,
         // Built-in localization for text direction LTR/RTL
@@ -214,12 +229,12 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
         // from the list (English, in this case).
         return supportedLocales.first;
       },
-      home:  widget.getMainPage()
+      home: widget.getMainPage()
     );
   }
 
   @override
   void receiveShare(Share shared) {
-    widget.receiveShare(shared);
+    widget.receiveShare(context, shared);
   }
 }

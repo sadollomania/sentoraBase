@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sentora_base/lang/AppTranslations.dart';
 import 'package:sentora_base/model/BaseModel.dart';
-import 'package:sentora_base/model/FormFieldValueChangedEvent.dart';
+import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/DateFieldType.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/datepicker/SentoraDatePicker.dart';
 import 'package:sentora_base/widgets/datepicker/SentoraDatePickerTheme.dart';
-import 'package:sentora_base/widgets/datepicker/SentoraI18nModel.dart';
 import 'package:sentora_base/widgets/form/field/BaseField.dart';
 
 class DateField extends BaseField {
@@ -46,8 +45,8 @@ class DateField extends BaseField {
               FocusScope.of(context).nextFocus();
             }*/
           },
-          currentTime: kayit.get(fieldType.name) ?? DateTime.now(),
-          locale: LocaleType.tr
+          currentTime: realValue ?? DateTime.now(),
+          locale: SentoraDatePicker.convertLocaleToLocaleType(AppTranslations.of(context).locale)
       );
     }
   );

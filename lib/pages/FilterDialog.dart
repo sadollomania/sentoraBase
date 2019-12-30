@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:sentora_base/model/BaseModel.dart';
-import 'package:sentora_base/model/FilterChangedEvent.dart';
+import 'package:sentora_base/events/FilterChangedEvent.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/MenuButton.dart';
-import 'package:sentora_base/model/FilterValueChangedEvent.dart';
+import 'package:sentora_base/events/FilterValueChangedEvent.dart';
 
 class FilterDialog extends StatefulWidget {
   final Map<String, dynamic> filterMap;
@@ -118,8 +118,9 @@ class _FilterDialogState extends State<FilterDialog> {
             title: "İptal",
             fontSize: 20,
             iconData: Icons.cancel,
-            onPressed: () {
-              NavigatorBase.pop();
+            onPressed: () async{
+              await NavigatorBase.pop();
+              return;
             },
           ),
         ),
@@ -131,9 +132,10 @@ class _FilterDialogState extends State<FilterDialog> {
             fontSize: 20,
             title: "Filtrele",
             iconData: Icons.filter_list,
-            onPressed: () {
+            onPressed: () async {
               ConstantsBase.eventBus.fire(FilterChangedEvent(filterMap, baseModelPageId));
-              NavigatorBase.pop();
+              await NavigatorBase.pop();
+              return;
             },
           ),
         ),

@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sentora_base/model/AppBarActionHolder.dart';
 import 'package:sentora_base/model/BaseModel.dart';
-import 'package:sentora_base/model/FormFieldValueChangedEvent.dart';
+import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/ForeignKeyFieldType.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/pages/BaseModelPage.dart';
@@ -38,29 +37,31 @@ class ForeignField extends BaseField {
             return Container(
                 height: ConstantsBase.getMaxHeight(context) * 0.8,
                 child: BaseModelPage(
-                  widgetModelName: fieldType.foreignKeyModelName,
-                  pageTitle: fieldType.fieldLabel + " Seçme",
+                  modelName: fieldType.foreignKeyModelName,
+                  pageTitle: (_) => fieldType.fieldLabel + " Seçme",
                   pageSize: 6,
-                  appBarActions: <AppBarActionHolder>[
+                  topActions: (_) => <AppBarActionHolder>[
                     AppBarActionHolder(
                       caption: 'Sonraki',
                       color: ConstantsBase.defaultButtonColor,
                       icon: Icons.navigate_next,
-                      onTap: (context, selectedKayit, baseModelPageId, scaffoldKey) {
-                        NavigatorBase.pop(true);
+                      onTap: (stateData) async{
+                        await NavigatorBase.pop(true);
+                        return;
                       },
                     ),
                     AppBarActionHolder(
                       caption: 'Seç',
                       color: ConstantsBase.defaultButtonColor,
                       icon: Icons.done,
-                      onTap: (context, selectedKayit, baseModelPageId, scaffoldKey) {
-                        if(selectedKayit != null) {
-                          ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, selectedKayit.getCombinedTitleValue(), selectedKayit));
-                          NavigatorBase.pop(true);
+                      onTap: (stateData) async{
+                        if(stateData.tag["selectedKayit"] != null) {
+                          ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, stateData.tag["selectedKayit"].getCombinedTitleValue(), stateData.tag["selectedKayit"]));
+                          await NavigatorBase.pop(true);
                         } else {
                           ConstantsBase.showSnackBarShort(scaffoldKey, "Kayıt Seçiniz!!");
                         }
+                        return;
                       }
                     )
                   ],

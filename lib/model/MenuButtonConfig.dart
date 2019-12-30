@@ -6,7 +6,7 @@ class MenuButtonConfig {
   final IconData iconData;
   final Image image;
   final Widget navPage;
-  final void Function(BuildContext context, GlobalKey<ScaffoldState> scaffoldKey) onPressed;
+  final Future<void> Function(BuildContext context, GlobalKey<ScaffoldState> scaffoldKey) onPressed;
   final int iconFlex;
   final int textFlex;
   final Color iconColor;
