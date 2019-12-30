@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sentora_base/model/BaseModel.dart';
-import 'package:sentora_base/model/FormFieldValueChangedEvent.dart';
+import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/BooleanFieldType.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
@@ -48,14 +48,16 @@ class BooleanField extends BaseField {
                               style: TextStyle(color: Colors.blue, fontSize: 16),
                             ),
                             onPressed: (){},
-                          ),
-                          IconButton(
-                              icon: Icon(Icons.navigate_next),
-                              onPressed: () {
-                                NavigatorBase.pop(true);
-                              }
-                          )
-                        ],
+                          )]
+                          ..addAll(lastField ? [] : [
+                            IconButton(
+                                icon: Icon(Icons.navigate_next),
+                                onPressed: () async{
+                                  await NavigatorBase.pop(true);
+                                  return;
+                                }
+                            )
+                          ]),
                       ),
                     ),
                     fieldType.isNullable(kayit) ?
@@ -64,10 +66,11 @@ class BooleanField extends BaseField {
                       child: ListTile(
                         leading: Icon(Icons.indeterminate_check_box),
                         selected: realValue == null,
-                        title: Center(child: Text(BooleanFieldType.NULL_CHECKED)),
-                        onTap: (){
+                        title: Center(child: Text("-")),
+                        onTap: () async{
                           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, null, null));
-                          NavigatorBase.pop(true);
+                          await NavigatorBase.pop(true);
+                          return;
                         },
                       ),
                     ) :
@@ -79,10 +82,11 @@ class BooleanField extends BaseField {
                       child: ListTile(
                         leading: Icon(Icons.check_box),
                         selected: realValue == true,
-                        title: Center(child: Text(BooleanFieldType.CHECKED)),
-                        onTap: (){
+                        title: Center(child: Text(ConstantsBase.translate(builder, "evet"))),
+                        onTap: () async{
                           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, null, true));
-                          NavigatorBase.pop(true);
+                          await NavigatorBase.pop(true);
+                          return;
                         },
                       ),
                     ),
@@ -91,10 +95,11 @@ class BooleanField extends BaseField {
                       child: ListTile(
                         leading: Icon(Icons.check_box_outline_blank),
                         selected: realValue == false,
-                        title: Center(child: Text(BooleanFieldType.NOT_CHECKED)),
-                        onTap: (){
+                        title: Center(child: Text(ConstantsBase.translate(builder, "hayir"))),
+                        onTap: () async{
                           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, null, false));
-                          NavigatorBase.pop(true);
+                          await NavigatorBase.pop(true);
+                          return;
                         },
                       ),
                     )

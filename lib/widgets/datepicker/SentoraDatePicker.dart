@@ -8,6 +8,15 @@ typedef DateChangedCallback(DateTime time);
 typedef String StringAtIndexCallBack(int index);
 
 class SentoraDatePicker {
+  static LocaleType convertLocaleToLocaleType(Locale locale) {
+    switch(locale.languageCode) {
+      case "tr":
+        return LocaleType.tr;
+      default:
+        return LocaleType.en;
+    }
+  }
+
   ///
   /// Display date picker bottom sheet.
   ///

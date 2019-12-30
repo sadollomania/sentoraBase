@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:sentora_base/model/BaseModel.dart';
-import 'package:sentora_base/model/ModelDuzenlemeEvent.dart';
+import 'package:sentora_base/events/ModelDuzenlemeEvent.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
+import 'package:sentora_base/widgets/SntIconButton.dart';
 import 'package:sqflite/sqflite.dart';
 
 class BaseModelDuzenleme extends StatefulWidget {
@@ -81,20 +81,21 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child: IconSlideAction(
+                  child: SntIconButton(
                     caption: 'Kaydet',
                     color: ConstantsBase.defaultButtonColor,
                     icon: Icons.save,
-                    onTap: () {
+                    onTap: () async{
                       _formKey.currentState.save();
                       if (_formKey.currentState.validate()) {
                         ConstantsBase.showSnackBarShort(_scaffoldKey, "Bilgiler Kaydediliyor");
                         if(kayit.get("ID") == null) {
                           kayit.set("ID", ConstantsBase.getRandomUUID());
-                          BaseModel.insert(kayit).then((_){
+                          await BaseModel.insert(kayit).then((_) async{
                             ConstantsBase.showSnackBarShort(widget.baseModelPageScaffoldKey, kayit.singleTitle + " Eklendi");
-                            NavigatorBase.pop();
+                            await NavigatorBase.pop();
                             ConstantsBase.eventBus.fire(ModelDuzenlemeEvent(baseModelPageId));
+                            return;
                           }).catchError((e){
                             debugPrint(e.toString());
                             kayit.set("ID", null);
@@ -103,12 +104,15 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                             } else {
                               ConstantsBase.showSnackBarLong(_scaffoldKey, e.toString());
                             }
+                            return;
                           });
+                          return;
                         } else {
-                          BaseModel.update(kayit).then((_){
+                          await BaseModel.update(kayit).then((_) async{
                             ConstantsBase.showSnackBarShort(widget.baseModelPageScaffoldKey, kayit.singleTitle + " Güncellendi");
-                            NavigatorBase.pop();
+                            await NavigatorBase.pop();
                             ConstantsBase.eventBus.fire(ModelDuzenlemeEvent(baseModelPageId));
+                            return;
                           }).catchError((e){
                             debugPrint(e.toString());
                             if(e is DatabaseException) {
@@ -116,9 +120,11 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                             } else {
                               ConstantsBase.showSnackBarLong(_scaffoldKey, e.toString());
                             }
+                            return;
                           });
                         }
                       }
+                      return;
                     })
                 )
               ])

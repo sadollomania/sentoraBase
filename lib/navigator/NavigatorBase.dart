@@ -18,14 +18,15 @@ class NavigatorBase {
     }
   }
 
-  static void pop([bool result]) {
+  static Future<bool> pop([bool result]) {
     if(navigatorKey.currentState == null
         || navigatorKey.currentState.context == null) {
-      Future.delayed(Duration(milliseconds: 500), () {
-        pop(result);
+      return Future.delayed(Duration(milliseconds: 500), () {
+        return pop(result);
       });
     } else {
-      navigatorKey.currentState.pop(result);
+      bool retVal = navigatorKey.currentState.pop(result);
+      return Future.value(retVal);
     }
   }
 }

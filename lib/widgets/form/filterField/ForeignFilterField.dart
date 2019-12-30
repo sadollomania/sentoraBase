@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sentora_base/model/AppBarActionHolder.dart';
 import 'package:sentora_base/model/BaseModel.dart';
-import 'package:sentora_base/model/FilterValueChangedEvent.dart';
-import 'package:sentora_base/model/FormFieldValueChangedEvent.dart';
+import 'package:sentora_base/events/FilterValueChangedEvent.dart';
+import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/ForeignKeyFieldType.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/pages/BaseModelPage.dart';
@@ -34,19 +34,20 @@ class ForeignFilterField extends BaseFilterField {
             return Container(
                 height: ConstantsBase.getMaxHeight(context) * 0.8,
                 child: BaseModelPage(
-                  widgetModelName: fieldType.foreignKeyModelName,
-                  pageTitle: fieldType.fieldLabel + " Seçme",
+                  modelName: fieldType.foreignKeyModelName,
+                  pageTitle: (_) => fieldType.fieldLabel + " Seçme",
                   pageSize: 6,
-                  appBarActions: <AppBarActionHolder>[
+                    topActions: (_) => <AppBarActionHolder>[
                     AppBarActionHolder(
                     caption: 'Seç',
                       color: ConstantsBase.defaultButtonColor,
                       icon: Icons.done,
-                      onTap: (context, selectedKayit, baseModelPageId, scaffoldKey) {
-                        ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, selectedKayit.getCombinedTitleValue(), selectedKayit));
-                        filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = selectedKayit;
-                        NavigatorBase.pop(true);
+                      onTap: (stateData) async{
+                        ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, stateData.tag["selectedKayit"].getCombinedTitleValue(), stateData.tag["selectedKayit"]));
+                        filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = stateData.tag["selectedKayit"];
+                        await NavigatorBase.pop(true);
                         ConstantsBase.eventBus.fire(FilterValueChangedEvent());
+                        return;
                       },
                     )]
                 )

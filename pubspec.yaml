@@ -8,6 +8,7 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
+  #country_icons: ^1.1.1
   event_bus: ^1.1.0
   file_picker: ^1.4.0+1
   flutter_reorderable_list: ^0.1.3

@@ -1,162 +1,64 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:sentora_base/events/FilterChangedEvent.dart';
+import 'package:sentora_base/events/ModelDuzenlemeEvent.dart';
+import 'package:sentora_base/events/SortChangedEvent.dart';
+import 'package:sentora_base/events/UpdatePageStateEvent.dart';
 import 'package:sentora_base/model/AppBarActionHolder.dart';
 import 'package:sentora_base/model/BaseModel.dart';
+import 'package:sentora_base/model/StateData.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/pages/BaseModelDuzenleme.dart';
+import 'package:sentora_base/pages/BasePage.dart';
 import 'package:sentora_base/pages/FilterDialog.dart';
 import 'package:sentora_base/pages/SortDialog.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
+import 'package:sentora_base/widgets/SntIconButton.dart';
 
-import 'package:sentora_base/model/ModelDuzenlemeEvent.dart';
-import 'package:sentora_base/model/SortChangedEvent.dart';
-import 'package:sentora_base/model/FilterChangedEvent.dart';
 import 'package:sqflite/sqflite.dart';
 
-class BaseModelPage extends StatefulWidget {
-  final String widgetModelName;
-  final String pageTitle;
-  final String getListQuery;
-  final Row Function(BaseModel selectedKayit) constructButtonsRow;
-  final int pageSize;
-  final List<AppBarActionHolder> appBarActions;
-  final bool addButtonExists;
-  final bool editButtonExists;
-  final bool deleteButtonExists;
-  final String orderBy;
+class BaseModelPage extends BasePage {
+  final String modelName;
 
-  BaseModelPage({
-    @required this.widgetModelName,
-    this.pageTitle,
-    this.getListQuery,
-    this.constructButtonsRow,
-    this.pageSize,
-    this.appBarActions,
-    this.addButtonExists = false,
-    this.editButtonExists = false,
-    this.deleteButtonExists = false,
-    this.orderBy,
-  }) :
-      assert(widgetModelName != null);
-  /*assert((pageTitle == null && getListQuery == null && constructButtonsRow == null) ||
-      (pageTitle != null && getListQuery != null && constructButtonsRow != null));*/
+  final String Function(StateData stateData) addButtonTitle;
+  final String Function(StateData stateData) editButtonTitle;
+  final String Function(StateData stateData) deleteButtonTitle;
+  final List<AppBarActionHolder> Function(StateData) topActions;
 
-  @override
-  State<StatefulWidget> createState() => new _BaseModelPageState(modelName: this.widgetModelName, pageTitle: pageTitle, getListQuery: getListQuery, constructButtonsRow: constructButtonsRow, pageSize : pageSize, appBarActions : appBarActions, orderBy: orderBy);
-}
-
-class _BaseModelPageState extends State<BaseModelPage> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-  String pageTitle;
-  String getListQuery;
-  String modelName;
-  Row Function(BaseModel selectedKayit) constructButtonsRow;
-  BaseModel ornekKayit;
-  BaseModel _selectedKayit;
-  int pageSize;
-  int currentPage = 1;
-  int totalCount = 0;
-  int lastPage = 1;
-  String orderBy;
-  String baseModelPageId = ConstantsBase.getRandomUUID();
-  Map<String, dynamic> filterMap;
-  List<BaseModel> currentListData;
-  StreamSubscription modelDuzenlemeSubscription;
-  StreamSubscription sortChangedSubscription;
-  StreamSubscription filterChangedSubscription;
-  SlidableController slidableController = SlidableController();
-  List<Expanded> expandedAppBarActions = List<Expanded>();
-
-  _BaseModelPageState({
-    @required this.modelName,
-    @required this.pageTitle,
-    @required this.getListQuery,
-    @required this.constructButtonsRow,
-    @required pageSize,
-    List<AppBarActionHolder> appBarActions,
-    String orderBy,
-  }) :
-        this.ornekKayit = BaseModel.createNewObject(modelName),
-        this.pageSize = pageSize ?? ConstantsBase.pageSize {
-    this.orderBy = orderBy ?? ornekKayit.defaultOrderBy;
-    if(appBarActions != null) {
-      appBarActions.forEach((appBarAction){
-        expandedAppBarActions.add(Expanded(
-          child: IconSlideAction(
-            caption: appBarAction.caption,
-            color: appBarAction.color,
-            icon: appBarAction.icon,
-            onTap: (){
-              appBarAction.onTap(context, _selectedKayit, baseModelPageId, _scaffoldKey);
-            }
-          )
-        ));
-      });
-    }
-  }
-
-  void initState() {
-    super.initState();
-    modelDuzenlemeSubscription = ConstantsBase.eventBus.on<ModelDuzenlemeEvent>().listen((event){
-      if(event.baseModelPageId == baseModelPageId) {
-        refreshData();
-      }
-    });
-    sortChangedSubscription = ConstantsBase.eventBus.on<SortChangedEvent>().listen((event){
-      if(event.baseModelPageId == baseModelPageId) {
-        refreshData(orderByPrm: event.newOrderBy);
-      }
-    });
-    filterChangedSubscription = ConstantsBase.eventBus.on<FilterChangedEvent>().listen((event){
-      if(event.baseModelPageId == baseModelPageId) {
-        refreshData(filterMapPrm: event.filterMap);
-      }
-    });
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => refreshData());
-  }
-
-  void dispose() {
-    modelDuzenlemeSubscription.cancel();
-    sortChangedSubscription.cancel();
-    filterChangedSubscription.cancel();
-    super.dispose();
-  }
-
-  void _showDialog(BaseModel kayit) {
+  static void _showDialog(StateData stateData, BaseModel kayit) {
     showDialog(
-      context: context,
+      context: stateData.context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Emin Misiniz?"),
-          content: Text(ornekKayit.singleTitle + " " + kayit.getCombinedTitleValue() + " Silinecektir!"),
+          content: Text(stateData.tag["ornekKayit"].singleTitle + " " + kayit.getCombinedTitleValue() + " Silinecektir!"),
           actions: <Widget>[
             FlatButton(
               child: Text("İptal"),
-              onPressed: () {
-                NavigatorBase.pop();
+              onPressed: () async{
+                await NavigatorBase.pop();
               },
             ),
             FlatButton(
               child: Text("Sil"),
-              onPressed: () {
-                BaseModel.delete(kayit).then((_){
-                  NavigatorBase.pop();
-                  setState(() {
-                    _selectedKayit = null;
-                  });
-                  ConstantsBase.eventBus.fire(ModelDuzenlemeEvent(baseModelPageId));
-                }).catchError((e){
+              onPressed: () async{
+                await BaseModel.delete(kayit).then((_) async{
+                  await NavigatorBase.pop();
+                  stateData.tag["selectedKayit"] = null;
+                  ConstantsBase.eventBus.fire(UpdatePageStateEvent(stateData.pageId));
+                  ConstantsBase.eventBus.fire(ModelDuzenlemeEvent(stateData.pageId));
+                  return;
+                }).catchError((e) async{
                   debugPrint(e.toString());
-                  NavigatorBase.pop();
+                  await NavigatorBase.pop();
                   if(e is DatabaseException) {
-                    ConstantsBase.showSnackBarLong(_scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e));
+                    ConstantsBase.showSnackBarLong(stateData.scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e));
                   } else {
-                    ConstantsBase.showSnackBarLong(_scaffoldKey, e.toString());
+                    ConstantsBase.showSnackBarLong(stateData.scaffoldKey, e.toString());
                   }
+                  return;
                 });
+                return;
               },
             ),
           ],
@@ -165,269 +67,317 @@ class _BaseModelPageState extends State<BaseModelPage> {
     );
   }
 
-  void dataLoaded(map, compCurrentPage, compOrderBy, compFilterMap) {
+  static Future<void> showSortPopup(StateData stateData) {
+    return showDialog(
+      context: stateData.context,
+      builder: (_) {
+        return SortDialog(ornekKayit: stateData.tag["ornekKayit"],orderBy: stateData.tag["orderBy"],baseModelPageId: stateData.pageId,);
+      }
+    );
+  }
+
+  static Future<void> showFilterPopup(StateData stateData) {
+    return showDialog(
+      context: stateData.context,
+      builder: (_) {
+        return FilterDialog(ornekKayit: stateData.tag["ornekKayit"],filterMap: stateData.tag["filterMap"],baseModelPageId: stateData.pageId,scaffoldKey: stateData.scaffoldKey,);
+      }
+    );
+  }
+
+  static Future<void> dataLoaded(StateData stateData, map, compCurrentPage, compOrderBy, compFilterMap) async{
     int dataCnt = ConstantsBase.getTotalCountFormGetList(map);
     List<BaseModel> listData = ConstantsBase.getDataFormGetList(map);
     bool selectedKayitExists = false;
-    if(_selectedKayit != null){
+    if(stateData.tag["selectedKayit"] != null){
       for(int i = 0, len = listData.length; i < len; ++i) {
-        if(listData[i].get("ID") == _selectedKayit.get("ID")) {
+        if(listData[i].get("ID") == stateData.tag["selectedKayit"].get("ID")) {
           selectedKayitExists = true;
           break;
         }
       }
     }
-    int compLastPage = ((dataCnt * 1.0) / pageSize).ceil();
+    int compLastPage = ((dataCnt * 1.0) / stateData.tag["pageSize"]).ceil();
     if(compLastPage == 0) {
       compLastPage = 1;
     }
     if(compCurrentPage > compLastPage) {
-      refreshData(currentPagePrm: compLastPage, orderByPrm: compOrderBy, filterMapPrm: compFilterMap);
+      await refreshData(stateData, currentPagePrm: compLastPage, orderByPrm: compOrderBy, filterMapPrm: compFilterMap);
       return;
     }
 
-    setState(() {
-      currentListData = listData;
-      totalCount = dataCnt;
-      lastPage = compLastPage;
-      currentPage = compCurrentPage;
-      orderBy = compOrderBy;
-      filterMap = compFilterMap;
-      _selectedKayit = selectedKayitExists ? _selectedKayit : null;
-    });
+    stateData.tag["currentListData"] = listData;
+    stateData.tag["totalCount"] = dataCnt;
+    stateData.tag["lastPage"] = compLastPage;
+    stateData.tag["currentPage"] = compCurrentPage;
+    stateData.tag["orderBy"] = compOrderBy;
+    stateData.tag["filterMap"] = compFilterMap;
+    stateData.tag["selectedKayit"] = selectedKayitExists ? stateData.tag["selectedKayit"] : null;
+
+    ConstantsBase.eventBus.fire(UpdatePageStateEvent(stateData.pageId));
+    return;
   }
 
-  void refreshData({int currentPagePrm, String orderByPrm, Map<String, dynamic> filterMapPrm}) {
-    int compCurrentPage = currentPagePrm ?? currentPage;
-    String compOrderBy = orderByPrm ?? orderBy;
-    Map<String, dynamic> compFilterMap = filterMapPrm ?? filterMap;
+  static Future<void> refreshData(StateData stateData, {int currentPagePrm, String orderByPrm, Map<String, dynamic> filterMapPrm}) async{
+    int compCurrentPage = currentPagePrm ?? stateData.tag["currentPage"];
+    String compOrderBy = orderByPrm ?? stateData.tag["orderBy"];
+    Map<String, dynamic> compFilterMap = filterMapPrm ?? stateData.tag["filterMap"];
 
-    BaseModel.getList(ornekKayit, rawQuery: getListQuery, pageSize: pageSize, currentPage: compCurrentPage, orderBy: compOrderBy, filterMap: compFilterMap).then((map){
-      dataLoaded(map, compCurrentPage, compOrderBy, compFilterMap);
-    });
+    var map = await BaseModel.getList(stateData.tag["ornekKayit"], rawQuery: stateData.tag["getLisQuery"], pageSize: stateData.tag["pageSize"], currentPage: compCurrentPage, orderBy: compOrderBy, filterMap: compFilterMap);
+    return dataLoaded(stateData, map, compCurrentPage, compOrderBy, compFilterMap);
   }
 
-  void showSortPopup() {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return SortDialog(ornekKayit: ornekKayit,orderBy: orderBy,baseModelPageId: baseModelPageId,);
-      }
-    );
-  }
-
-  void showFilterPopup() {
-    showDialog(
-        context: context,
-        builder: (_) {
-          return FilterDialog(ornekKayit: ornekKayit,filterMap: filterMap,baseModelPageId: baseModelPageId,scaffoldKey: _scaffoldKey,);
+  BaseModelPage({
+    @required this.modelName,
+    String Function(StateData stateData) pageTitle,
+    String getListQuery,
+    String orderBy,
+    int pageSize,
+    this.addButtonTitle,
+    this.editButtonTitle,
+    this.deleteButtonTitle,
+    this.topActions,
+  })
+  : assert(modelName != null),
+  super(
+    pageTitle: pageTitle ?? (_) => BaseModel.createNewObject(modelName).pageTitle,
+    initialTag : (_) => {
+      "getLisQuery" : getListQuery,
+      "modelName" : modelName,
+      "ornekKayit" : BaseModel.createNewObject(modelName),
+      "selectedKayit" : null,
+      "pageSize" : pageSize ?? ConstantsBase.pageSize,
+      "currentPage" : 1,
+      "totalCount" : 0,
+      "lastPage" : 1,
+      "orderBy" : orderBy ?? BaseModel.createNewObject(modelName).defaultOrderBy,
+      "filterMap" : null,
+      "currentListData" : null,
+    },
+    initStateFunction : (StateData stateData) {
+      stateData.tag["modelDuzenlemeSubscription"] = ConstantsBase.eventBus.on<ModelDuzenlemeEvent>().listen((event){
+        if(event.pageId == stateData.pageId) {
+          refreshData(stateData);
         }
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: ConstantsBase.defaultButtonColor,
-      child: SafeArea(
-        child: Scaffold(
-            key: _scaffoldKey,
-            appBar: AppBar(
-              title: Text(pageTitle ?? ornekKayit.pageTitle,),
-              centerTitle: true,
-              bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(50.0),
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(width: 1.0, color: Colors.blue.shade300),
-                      ),
-                    ),
-                    child: Row(
-                        children: []
-                          ..addAll(widget.addButtonExists ? [
-                            Expanded(
-                              child: IconSlideAction(
-                                caption: 'Ekle',
-                                color: Colors.blue,
-                                icon: Icons.add,
-                                onTap: () {
-                                  NavigatorBase.push(BaseModelDuzenleme(widgetKayit : _selectedKayit, widgetModelName: modelName,baseModelPageId: baseModelPageId,baseModelPageScaffoldKey: _scaffoldKey,));
-                                },
-                              ),
-                            )
-                          ] : [])
-                          ..addAll(expandedAppBarActions)
-                          ..addAll([
-                            Expanded(
-                              child: IconSlideAction(
-                                caption: 'Filtrele',
-                                color: filterMap != null && filterMap.length > 0 ? ConstantsBase.greenAccentShade100Color : ConstantsBase.defaultButtonColor,
-                                icon: Icons.filter_list,
-                                onTap: () {
-                                  showFilterPopup();
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              child: IconSlideAction(
-                                caption: 'Sırala',
-                                color: orderBy != null && orderBy.isNotEmpty ? ConstantsBase.greenAccentShade100Color : ConstantsBase.defaultButtonColor,
-                                icon: Icons.sort_by_alpha,
-                                onTap: () {
-                                  showSortPopup();
-                                },
-                              ),
-                            ),
-                          ])
-                    ),
-                  )
+      });
+      stateData.tag["sortChangedSubscription"] = ConstantsBase.eventBus.on<SortChangedEvent>().listen((event){
+        if(event.pageId == stateData.pageId) {
+          refreshData(stateData, orderByPrm: event.orderBy);
+        }
+      });
+      stateData.tag["filterChangedSubscription"] = ConstantsBase.eventBus.on<FilterChangedEvent>().listen((event){
+        if(event.pageId == stateData.pageId) {
+          refreshData(stateData, filterMapPrm: event.filterMap);
+        }
+      });
+    },
+    afterRender : (StateData stateData) {
+      refreshData(stateData);
+    },
+    disposeFunction : (StateData stateData) {
+      stateData.tag["modelDuzenlemeSubscription"].cancel();
+      stateData.tag["sortChangedSubscription"].cancel();
+      stateData.tag["filterChangedSubscription"].cancel();
+    },
+    topBar : (StateData stateData) {
+      return PreferredSize(
+          preferredSize: Size.fromHeight(50.0),
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(width: 1.0, color: Colors.blue.shade300),
               ),
             ),
-            body: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Expanded(
-                      child:
-                      currentListData == null ?
-                      Center(child: CircularProgressIndicator()) :
-                      ListView(
-                        children: currentListData.asMap().entries.map((entry) => Container(
-                          decoration: BoxDecoration(
-                            //border: Border.all(width: 1),
-                            color: _selectedKayit != null && _selectedKayit.get("ID") == entry.value.get("ID") ? Colors.yellow : ( entry.value.listBgColor != null ? entry.value.listBgColor(entry.value) : Colors.white ),
-                          ),
-                          child: Slidable(
-                            actionPane: SlidableDrawerActionPane(),
-                            controller: slidableController,
-                            actionExtentRatio: 0.25,
-                            child: Card(
-                                color: entry.key % 2 == 0 ? Colors.white : ConstantsBase.greenAccentShade100Color,
-                                elevation: 5.0,
-                                child: ListTile(
-                                  selected: _selectedKayit != null && _selectedKayit.get("ID") == entry.value.get("ID"),
-                                  onLongPress: () {
-                                    debugPrint("Long Pressed");
-                                  },
-                                  onTap: () {
-                                    if(_selectedKayit != null && _selectedKayit.get("ID") == entry.value.get("ID")) {
-                                      setState(() {
-                                        _selectedKayit = null;
-                                      });
-                                    } else {
-                                      setState(() {
-                                        _selectedKayit = entry.value;
-                                      });
-                                    }
-                                  },
-                                  title: entry.value.getListTileTitleWidget(),
-                                  subtitle: entry.value.getListTileSubTitleWidget(),
-                                  leading: entry.value.getTileLeadingWidget(),
-                                  trailing: entry.value.getTileTrailingWidget(),
-                                )
-                            ),
-                            secondaryActions: []
-                              ..addAll(widget.editButtonExists ? [
-                                Card(
-                                    child: IconSlideAction(
-                                      caption: 'Düzenle',
-                                      color: Colors.black45,
-                                      icon: Icons.edit,
-                                      onTap: () {
-                                        NavigatorBase.push(BaseModelDuzenleme(widgetKayit : entry.value, widgetModelName: modelName,baseModelPageId: baseModelPageId,baseModelPageScaffoldKey: _scaffoldKey));
-                                      },
-                                    )
-                                )
-                              ] : [])
-                              ..addAll(widget.deleteButtonExists ? [
-                                Card(
-                                  child: IconSlideAction(
-                                    caption: 'Sil',
-                                    color: Colors.red,
-                                    icon: Icons.delete,
-                                    onTap: () => _showDialog(entry.value),
-                                  ),
-                                )
-                              ] : []),
-                          ),
-                        )).toList(),
-                      )
-                  ),
-                ],
-              ),
-            ),
-            bottomNavigationBar: Container(
-              height: 60,
-              child: BottomAppBar(
-                shape: CircularNotchedRectangle(),
-                notchMargin: 4.0,
-                child: new Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
+            child: Row(
+                children: []
+                  ..addAll(addButtonTitle != null ? [
                     Expanded(
-                      flex: 1,
-                      child: IconSlideAction(
-                          color: currentPage == 1 ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
-                          icon: Icons.first_page,
-                          onTap: () {
-                            if(currentPage > 1) {
-                              refreshData(currentPagePrm: 1);
-                            }
-                          }
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: IconSlideAction(
-                          color: currentPage == 1 ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
-                          icon: Icons.arrow_back_ios,
-                          onTap: () {
-                            if(currentPage > 1) {
-                              refreshData(currentPagePrm: currentPage - 1);
-                            }
-                          }
-                      ),
-                    ),
-                    Expanded(
-                        flex: 3,
-                        child: Center(
-                          child: Text(totalCount.toString() + " kayıt - " + currentPage.toString() + " / " + lastPage.toString(), style: TextStyle(fontSize: 18),),
-                        )
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: IconSlideAction(
-                          color: currentPage >= lastPage ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
-                          icon: Icons.arrow_forward_ios,
-                          onTap: () {
-                            if(currentPage != lastPage) {
-                              refreshData(currentPagePrm: currentPage + 1);
-                            }
-                          }
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: IconSlideAction(
-                          color: currentPage >= lastPage ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
-                          icon: Icons.last_page,
-                          onTap: () {
-                            if(currentPage != lastPage) {
-                              refreshData(currentPagePrm: lastPage);
-                            }
-                          }
+                      child: SntIconButton(
+                        caption: addButtonTitle(stateData),
+                        color: Colors.blue,
+                        icon: Icons.add,
+                        onTap: () async {
+                          await NavigatorBase.push(BaseModelDuzenleme(widgetKayit : stateData.tag["selectedKayit"], widgetModelName: modelName,baseModelPageId: stateData.pageId,baseModelPageScaffoldKey: stateData.scaffoldKey,));
+                          return;
+                        },
                       ),
                     )
-                  ],
+                  ] : [])
+                  ..addAll(topActions == null ? [] : topActions(stateData).map((action){
+                    return Expanded(
+                      child: SntIconButton(
+                        caption: action.caption,
+                        color: action.color,
+                        icon: action.icon,
+                        onTap: () => action.onTap(stateData),
+                      ),
+                    );
+                  }))
+                  ..addAll([
+                    Expanded(
+                      child: SntIconButton(
+                        caption: 'Filtrele',
+                        color: stateData.tag["filterMap"] != null && stateData.tag["filterMap"].length > 0 ? ConstantsBase.greenAccentShade100Color : ConstantsBase.defaultButtonColor,
+                        icon: Icons.filter_list,
+                        onTap: () async{
+                          return await showFilterPopup(stateData);
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: SntIconButton(
+                        caption: 'Sırala',
+                        color: stateData.tag["orderBy"] != null && stateData.tag["orderBy"].isNotEmpty ? ConstantsBase.greenAccentShade100Color : ConstantsBase.defaultButtonColor,
+                        icon: Icons.sort_by_alpha,
+                        onTap: () async{
+                          return await showSortPopup(stateData);
+                        },
+                      ),
+                    ),
+                  ])
+            ),
+          )
+      );
+    },
+    body : (StateData stateData) {
+      return Container(
+        padding: EdgeInsets.all(8.0),
+        child: stateData.tag["currentListData"] == null ? Center(child: CircularProgressIndicator()) :
+          ListView(
+            children: stateData.tag["currentListData"].asMap().entries.map<Widget>((entry) => Container(
+              decoration: BoxDecoration(
+                //border: Border.all(width: 1),
+                color: stateData.tag["selectedKayit"] != null && stateData.tag["selectedKayit"].get("ID") == entry.value.get("ID") ? Colors.yellow : ( entry.value.listBgColor != null ? entry.value.listBgColor(entry.value) : Colors.white ),
+              ),
+              child: Slidable(
+                actionPane: SlidableDrawerActionPane(),
+                controller: SlidableController(),
+                actionExtentRatio: 0.25,
+                child: Card(
+                    color: entry.key % 2 == 0 ? Colors.white : ConstantsBase.greenAccentShade100Color,
+                    elevation: 5.0,
+                    child: ListTile(
+                      selected: stateData.tag["selectedKayit"] != null && stateData.tag["selectedKayit"].get("ID") == entry.value.get("ID"),
+                      onLongPress: () {
+                        debugPrint("Long Pressed");
+                      },
+                      onTap: () {
+                        if(stateData.tag["selectedKayit"] != null && stateData.tag["selectedKayit"].get("ID") == entry.value.get("ID")) {
+                          stateData.tag["selectedKayit"] = null;
+                          ConstantsBase.eventBus.fire(UpdatePageStateEvent(stateData.pageId));
+                        } else {
+                          stateData.tag["selectedKayit"] = entry.value;
+                          ConstantsBase.eventBus.fire(UpdatePageStateEvent(stateData.pageId));
+                        }
+                      },
+                      title: entry.value.getListTileTitleWidget(),
+                      subtitle: entry.value.getListTileSubTitleWidget(),
+                      leading: entry.value.getTileLeadingWidget(),
+                      trailing: entry.value.getTileTrailingWidget(),
+                    )
+                ),
+                secondaryActions: []
+                  ..addAll(editButtonTitle != null ? [
+                    Card(
+                        child: IconSlideAction(
+                          caption: editButtonTitle(stateData),
+                          color: Colors.black45,
+                          icon: Icons.edit,
+                          onTap: () {
+                            NavigatorBase.push(BaseModelDuzenleme(widgetKayit : entry.value, widgetModelName: modelName,baseModelPageId: stateData.pageId,baseModelPageScaffoldKey: stateData.scaffoldKey));
+                          },
+                        )
+                    )
+                  ] : [])
+                  ..addAll(deleteButtonTitle != null ? [
+                    Card(
+                      child: IconSlideAction(
+                        caption: deleteButtonTitle(stateData),
+                        color: Colors.red,
+                        icon: Icons.delete,
+                        onTap: () => _showDialog(stateData, entry.value),
+                      ),
+                    )
+                  ] : []),
+              ),
+            )).toList()
+          ),
+        );
+    },
+    bottomBar : (StateData stateData) {
+      return Container(
+        height: 60,
+        child: BottomAppBar(
+          shape: CircularNotchedRectangle(),
+          notchMargin: 4.0,
+          child: new Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: SntIconButton(
+                    color: stateData.tag["currentPage"] == 1 ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
+                    icon: Icons.first_page,
+                    onTap: () async{
+                      if(stateData.tag["currentPage"] > 1) {
+                        await refreshData(stateData, currentPagePrm: 1);
+                      }
+                      return;
+                    }
                 ),
               ),
-            )),
-      ),
-    );
-  }
+              Expanded(
+                flex: 1,
+                child: SntIconButton(
+                    color: stateData.tag["currentPage"] == 1 ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
+                    icon: Icons.arrow_back_ios,
+                    onTap: () async {
+                      if(stateData.tag["currentPage"] > 1) {
+                        await refreshData(stateData, currentPagePrm: stateData.tag["currentPage"] - 1);
+                      }
+                      return;
+                    }
+                ),
+              ),
+              Expanded(
+                  flex: 3,
+                  child: Center(
+                    child: Text(stateData.tag["totalCount"].toString() + " kayıt - " + stateData.tag["currentPage"].toString() + " / " + stateData.tag["lastPage"].toString(), style: TextStyle(fontSize: 18),),
+                  )
+              ),
+              Expanded(
+                flex: 1,
+                child: SntIconButton(
+                    color: stateData.tag["currentPage"] >= stateData.tag["lastPage"] ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
+                    icon: Icons.arrow_forward_ios,
+                    onTap: () async {
+                      if(stateData.tag["currentPage"] != stateData.tag["lastPage"]) {
+                        await refreshData(stateData, currentPagePrm: stateData.tag["currentPage"] + 1);
+                      }
+                      return;
+                    }
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: SntIconButton(
+                    color: stateData.tag["currentPage"] >= stateData.tag["lastPage"] ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
+                    icon: Icons.last_page,
+                    onTap: () async {
+                      if(stateData.tag["currentPage"] != stateData.tag["lastPage"]) {
+                        await refreshData(stateData, currentPagePrm: stateData.tag["lastPage"]);
+                      }
+                      return;
+                    }
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    }
+  );
 }

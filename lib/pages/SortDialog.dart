@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sentora_base/data/DBHelperBase.dart';
 import 'package:sentora_base/model/BaseModel.dart';
-import 'package:sentora_base/model/SortChangedEvent.dart';
+import 'package:sentora_base/events/SortChangedEvent.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/MenuButton.dart';
@@ -128,11 +128,12 @@ class _SortDialogState extends State<SortDialog> {
                     child: MenuButton(
                       iconData: enabled ? Icons.done_outline : Icons.do_not_disturb,
                       buttonColor: enabled ? Colors.greenAccent : ConstantsBase.defaultDisabledColor,
-                      onPressed: (){
+                      onPressed: () async{
                         setState(() {
                           enabledList[i] = !enabled;
                           sortListsProperly();
                         });
+                        return;
                       },
                     ),
                   ),
@@ -142,10 +143,11 @@ class _SortDialogState extends State<SortDialog> {
                     child: MenuButton(
                       iconData: direction == "ASC" ? Icons.arrow_upward : Icons.arrow_downward,
                       buttonColor: Colors.white,
-                      onPressed: (){
+                      onPressed: () async{
                         setState(() {
                           directionList[i] = direction == "ASC" ? "DESC" : "ASC";
                         });
+                        return;
                       },
                     ),
                   ),
@@ -155,10 +157,11 @@ class _SortDialogState extends State<SortDialog> {
                     child: MenuButton(
                       iconData: nullsOrder == DBHelperBase.nullsFirst ? Icons.minimize : (nullsOrder == DBHelperBase.nullsLast ? Icons.maximize : Icons.do_not_disturb),
                       buttonColor: Colors.white,
-                      onPressed: (){
+                      onPressed: () async{
                         setState(() {
                           nullsOrderList[i] = nullsOrder == DBHelperBase.nullsFirst ? DBHelperBase.nullsLast : (nullsOrder == DBHelperBase.nullsLast ? DBHelperBase.nullsNone : DBHelperBase.nullsFirst);
                         });
+                        return;
                       },
                     ),
                   ),
@@ -209,8 +212,9 @@ class _SortDialogState extends State<SortDialog> {
             title: "İptal",
             fontSize: 20,
             iconData: Icons.cancel,
-            onPressed: () {
-              NavigatorBase.pop();
+            onPressed: () async {
+              await NavigatorBase.pop();
+              return;
             },
           ),
         ),
@@ -222,7 +226,7 @@ class _SortDialogState extends State<SortDialog> {
             fontSize: 20,
             title: "Sırala",
             iconData: Icons.sort_by_alpha,
-            onPressed: () {
+            onPressed: () async {
               String newOrderBy = "";
               for(int i = 0, len = listOrder.length; i < len; ++i) {
                 if(enabledList[i]) {
@@ -235,7 +239,8 @@ class _SortDialogState extends State<SortDialog> {
               }
               newOrderBy = newOrderBy.length == 0 ? newOrderBy : newOrderBy.substring(1);
               ConstantsBase.eventBus.fire(SortChangedEvent(newOrderBy, baseModelPageId));
-              NavigatorBase.pop();
+              await NavigatorBase.pop();
+              return;
             },
           ),
         ),

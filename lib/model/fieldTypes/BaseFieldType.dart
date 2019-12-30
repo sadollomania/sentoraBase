@@ -69,7 +69,7 @@ abstract class BaseFieldType {
           title: filterModeTitle,
           fontSize: ConstantsBase.filterButtonFontSize,
           buttonColor: filterMap[name + "-" + filterMode] != null ? Colors.greenAccent : ConstantsBase.defaultDisabledColor,
-          onPressed: (){},
+          onPressed: (){return;},
         ),
       ));
       retList.add(SizedBox(width:2));

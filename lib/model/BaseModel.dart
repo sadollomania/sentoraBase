@@ -114,12 +114,12 @@ class BaseModel {
   }
 
   BaseModelPage createBaseModelPage() {
-    return BaseModelPage(widgetModelName: modelName,addButtonExists: true,editButtonExists: true,deleteButtonExists: true,);
+    return BaseModelPage(modelName: modelName,addButtonTitle: (_) => "Ekle",editButtonTitle: (_) => "Düzenle",deleteButtonTitle: (_) => "Sil",);
   }
 
-  BaseModelPage createBaseModelQueryPage(String pageTitle, String getListQuery, Row Function(BaseModel selectedKayit) constructButtonsRow) {
-    return BaseModelPage(widgetModelName: modelName, pageTitle: pageTitle, getListQuery: getListQuery, constructButtonsRow: constructButtonsRow,);
-  }
+  /*BaseModelPage createBaseModelQueryPage(String pageTitle, String getListQuery, Row Function(BaseModel selectedKayit) constructButtonsRow) {
+    return BaseModelPage(modelName: modelName, pageTitle: (_) => pageTitle, getListQuery: getListQuery, constructButtonsRow: constructButtonsRow,);
+  }*/
 
   List<BaseFieldType> _constructFields() {
     List<BaseFieldType> allFieldTypes = List<BaseFieldType>();

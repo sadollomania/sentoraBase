@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:sentora_base/utils/ConstantsBase.dart';
 
-class MenuButton extends StatelessWidget {
+class MenuButton extends StatefulWidget {
   MenuButton({
     @required this.onPressed,
     this.title,
@@ -19,18 +19,20 @@ class MenuButton extends StatelessWidget {
     this.enabledColor = ConstantsBase.defaultEnabledColor,
     this.iconFlex = ConstantsBase.defaultMenuButtonIconFlex,
     this.textFlex = ConstantsBase.defaultMenuButtonTextFlex,
-    this.labelWidth
+    this.labelWidth,
+    double height,
   }) : this.iconColor = iconColor ?? ConstantsBase.defaultIconColor,
-  this.fontSize = fontSize ?? 30,
-  assert(title != null || iconData != null || image != null),
-  assert(iconData == null || image == null),
-  assert(iconFlex != null),
-  assert(textFlex != null);
+        this.fontSize = fontSize ?? 30,
+        this.height = height ?? 40,
+        assert(title != null || iconData != null || image != null),
+        assert(iconData == null || image == null),
+        assert(iconFlex != null),
+        assert(textFlex != null);
 
   final String title;
   final IconData iconData;
   final Image image;
-  final GestureTapCallback onPressed;
+  final Future<void> Function() onPressed;
   final bool disabled;
   final double fontSize;
   final EdgeInsetsGeometry edgeInsetsGeometry;
@@ -42,71 +44,100 @@ class MenuButton extends StatelessWidget {
   final int iconFlex;
   final int textFlex;
   final double labelWidth;
+  final double height;
+
+  @override
+  State<StatefulWidget> createState() => _MenuButtonState();
+}
+
+class _MenuButtonState extends State<MenuButton> {
+  bool running = false;
 
   @override
   Widget build(BuildContext context) {
-    Widget iconImageWidget, textWidget, combinedWidget;
-    if(iconData != null) {
-      iconImageWidget = LayoutBuilder(builder: (context, constraint){
-        return Icon(
-          iconData,
-          size: min(constraint.biggest.width, constraint.biggest.height),
-          color: iconColor,
-        );
-      });
+    Widget  textWidget;
+    List<Widget> rowWidgetList = List<Widget>();
+    if(running) {
+      rowWidgetList.add(CircularProgressIndicator());
+      rowWidgetList.add(SizedBox(width: 2,));
     }
 
-    if(image != null) {
-      iconImageWidget = LayoutBuilder(builder: (context, constraint) {
-
-        return Container(
-          width: image.width ?? 50,
-          height: image.height ?? 50,
-          child: image,
-        );
-      });
+    if(widget.iconData != null) {
+      rowWidgetList.add(
+        Expanded(
+          flex: widget.iconFlex,
+          child: LayoutBuilder(
+              builder: (context, constraint){
+              return Icon(
+                widget.iconData,
+                size: min(constraint.biggest.width, constraint.biggest.height),
+                color: widget.iconColor,
+              );
+            }
+          )
+        )
+      );
     }
 
-    if(title != null) {
-      Text tmpTextWidget = Text(title, style: TextStyle(fontSize: fontSize), overflow: TextOverflow.ellipsis,);
-      if(labelWidth != null) {
+    if(widget.image != null) {
+      rowWidgetList.add(
+        Expanded(
+          flex: widget.iconFlex,
+          child: LayoutBuilder(
+            builder: (context, constraint) {
+              return Container(
+                width: widget.image.width ?? 50,
+                height: widget.image.height ?? 50,
+                child: widget.image,
+              );
+            }
+          )
+        )
+      );
+    }
+
+    if(widget.title != null) {
+      Text tmpTextWidget = Text(widget.title, style: TextStyle(fontSize: widget.fontSize), overflow: TextOverflow.ellipsis,);
+      if(widget.labelWidth != null) {
         textWidget = SizedBox(
-          width: labelWidth,
+          width: widget.labelWidth,
           child: tmpTextWidget,
         );
+      } else {
+        textWidget = tmpTextWidget;
       }
-      textWidget = tmpTextWidget;
-    }
 
-    if(iconImageWidget != null && textWidget != null) {
-      combinedWidget = Row(
-          children: <Widget>[
-            Expanded(
-              flex: iconFlex,
-              child: iconImageWidget,
-            ),
-            SizedBox(width: 2,),
-            Expanded(
-              flex: textFlex,
-              child: Center(
-                child: textWidget,
-              ),
-            ),
-          ]
+      rowWidgetList.add(
+        Expanded(
+          flex: widget.textFlex,
+          child: Center(
+            child: textWidget,
+          ),
+        )
       );
-    } else if(iconImageWidget != null) {
-      combinedWidget = iconImageWidget;
-    } else {
-      combinedWidget = textWidget;
     }
 
     return RaisedButton(
-        padding: edgeInsetsGeometry,
-        color: buttonColor,
-        child: combinedWidget, // Text(title, style: TextStyle(fontSize: fontSize)),
-        textColor: disabled ? disabledColor : enabledColor,
-        onPressed: disabled ? null : onPressed,
+        padding: widget.edgeInsetsGeometry,
+        color: widget.buttonColor,
+        child: Container(height: widget.height,child:Row( crossAxisAlignment: CrossAxisAlignment.stretch, children: rowWidgetList )), // Text(title, style: TextStyle(fontSize: fontSize)),
+        textColor: widget.disabled || running ? widget.disabledColor : widget.enabledColor,
+        onPressed: widget.disabled || running ? null : () async{
+          if(mounted) {
+            setState(() {
+              running = true;
+            });
+          }
+          await widget.onPressed();
+          if(mounted) {
+            setState(() {
+              running = false;
+            });
+          }
+          return;
+        },
         shape: RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(circularRadius)));
+            borderRadius: new BorderRadius.circular(widget.circularRadius)));
   }
+
 }

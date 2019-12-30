@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sentora_base/model/FilterValueChangedEvent.dart';
-import 'package:sentora_base/model/FormFieldValueChangedEvent.dart';
+import 'package:sentora_base/events/FilterValueChangedEvent.dart';
+import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/DateFieldType.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/datepicker/SentoraDatePicker.dart';

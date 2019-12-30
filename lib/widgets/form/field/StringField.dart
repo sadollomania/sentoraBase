@@ -1,18 +1,20 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sentora_base/model/BaseModel.dart';
-import 'package:sentora_base/model/FormFieldValueChangedEvent.dart';
+import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/StringFieldType.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/form/field/BaseField.dart';
 
 class StringField extends BaseField {
+  final String Function(String value) extraValidatorFunc;
+
   StringField({
     @required BuildContext context,
     @required StringFieldType fieldType,
     @required BaseModel kayit,
     @required bool lastField,
     @required GlobalKey<ScaffoldState> scaffoldKey,
+    this.extraValidatorFunc,
   }) : super(
     context: context,
     kayit: kayit,
@@ -39,7 +41,11 @@ class StringField extends BaseField {
       } else if (fieldType.maxLength != -1 && textValue.length > fieldType.maxLength) {
         return 'En fazla ' + fieldType.minLength.toString() + ' uzunluğunda yazı giriniz!';
       } else {
-        return null;
+        if(extraValidatorFunc != null) {
+          return extraValidatorFunc(textValue);
+        } else {
+          return null;
+        }
       }
     }
   );
