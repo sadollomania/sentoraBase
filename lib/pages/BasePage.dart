@@ -135,7 +135,14 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
         bottom: widget.topBar == null ? PreferredSize(preferredSize: Size.fromHeight(0), child: Container(height: 0,),) : widget.topBar(stateData)
       ),
       body: SafeArea(child:widget.body(stateData),),
-      bottomNavigationBar: widget.bottomBar == null ? Container(height: 0,) : widget.bottomBar(stateData)
+      bottomNavigationBar: widget.bottomBar == null ? Container(height: 0,) : BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        notchMargin: 4.0,
+        child: Container(
+          height: 60,
+          child: widget.bottomBar(stateData),
+        )
+      )
     );
     if(widget.popText != null) {
       retWidget = WillPopScope(

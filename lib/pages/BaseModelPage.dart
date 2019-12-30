@@ -306,77 +306,70 @@ class BaseModelPage extends BasePage {
         );
     },
     bottomBar : (StateData stateData) {
-      return Container(
-        height: 60,
-        child: BottomAppBar(
-          shape: CircularNotchedRectangle(),
-          notchMargin: 4.0,
-          child: new Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Expanded(
-                flex: 1,
-                child: SntIconButton(
-                    color: stateData.tag["currentPage"] == 1 ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
-                    icon: Icons.first_page,
-                    onTap: () async{
-                      if(stateData.tag["currentPage"] > 1) {
-                        await refreshData(stateData, currentPagePrm: 1);
-                      }
-                      return;
-                    }
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: SntIconButton(
-                    color: stateData.tag["currentPage"] == 1 ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
-                    icon: Icons.arrow_back_ios,
-                    onTap: () async {
-                      if(stateData.tag["currentPage"] > 1) {
-                        await refreshData(stateData, currentPagePrm: stateData.tag["currentPage"] - 1);
-                      }
-                      return;
-                    }
-                ),
-              ),
-              Expanded(
-                  flex: 3,
-                  child: Center(
-                    child: Text(stateData.tag["totalCount"].toString() + " kayıt - " + stateData.tag["currentPage"].toString() + " / " + stateData.tag["lastPage"].toString(), style: TextStyle(fontSize: 18),),
-                  )
-              ),
-              Expanded(
-                flex: 1,
-                child: SntIconButton(
-                    color: stateData.tag["currentPage"] >= stateData.tag["lastPage"] ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
-                    icon: Icons.arrow_forward_ios,
-                    onTap: () async {
-                      if(stateData.tag["currentPage"] != stateData.tag["lastPage"]) {
-                        await refreshData(stateData, currentPagePrm: stateData.tag["currentPage"] + 1);
-                      }
-                      return;
-                    }
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: SntIconButton(
-                    color: stateData.tag["currentPage"] >= stateData.tag["lastPage"] ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
-                    icon: Icons.last_page,
-                    onTap: () async {
-                      if(stateData.tag["currentPage"] != stateData.tag["lastPage"]) {
-                        await refreshData(stateData, currentPagePrm: stateData.tag["lastPage"]);
-                      }
-                      return;
-                    }
-                ),
-              )
-            ],
+      return Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: SntIconButton(
+                color: stateData.tag["currentPage"] == 1 ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
+                icon: Icons.first_page,
+                onTap: () async{
+                  if(stateData.tag["currentPage"] > 1) {
+                    await refreshData(stateData, currentPagePrm: 1);
+                  }
+                  return;
+                }
+            ),
           ),
-        ),
+          Expanded(
+            flex: 1,
+            child: SntIconButton(
+                color: stateData.tag["currentPage"] == 1 ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
+                icon: Icons.arrow_back_ios,
+                onTap: () async {
+                  if(stateData.tag["currentPage"] > 1) {
+                    await refreshData(stateData, currentPagePrm: stateData.tag["currentPage"] - 1);
+                  }
+                  return;
+                }
+            ),
+          ),
+          Expanded(
+              flex: 3,
+              child: Center(
+                child: Text(stateData.tag["totalCount"].toString() + " kayıt - " + stateData.tag["currentPage"].toString() + " / " + stateData.tag["lastPage"].toString(), style: TextStyle(fontSize: 18),),
+              )
+          ),
+          Expanded(
+            flex: 1,
+            child: SntIconButton(
+                color: stateData.tag["currentPage"] >= stateData.tag["lastPage"] ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
+                icon: Icons.arrow_forward_ios,
+                onTap: () async {
+                  if(stateData.tag["currentPage"] != stateData.tag["lastPage"]) {
+                    await refreshData(stateData, currentPagePrm: stateData.tag["currentPage"] + 1);
+                  }
+                  return;
+                }
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: SntIconButton(
+                color: stateData.tag["currentPage"] >= stateData.tag["lastPage"] ? ConstantsBase.defaultDisabledColor : ConstantsBase.defaultButtonColor,
+                icon: Icons.last_page,
+                onTap: () async {
+                  if(stateData.tag["currentPage"] != stateData.tag["lastPage"]) {
+                    await refreshData(stateData, currentPagePrm: stateData.tag["lastPage"]);
+                  }
+                  return;
+                }
+            ),
+          )
+        ],
       );
     }
   );
