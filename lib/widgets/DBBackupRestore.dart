@@ -59,7 +59,7 @@ class _DBBackupRestoreState extends State<DBBackupRestore> {
           SizedBox(width: 10,),
           SntIconButton(
               caption: widget.backupStr(context),
-              color: Colors.white,
+              color: ConstantsBase.TRANSPARENT_COLOR,
               icon: Icons.file_download,
               onTap: () async{
                 String backupPath = await DBHelperBase.instance.backupDB();
@@ -69,7 +69,7 @@ class _DBBackupRestoreState extends State<DBBackupRestore> {
           SizedBox(width: 10,),
           SntIconButton(
               caption: widget.restoreStr(context),
-              color: Colors.white,
+              color: ConstantsBase.TRANSPARENT_COLOR,
               icon: Icons.file_upload,
               onTap: () async{
                await _openFileExplorerForDBRestore(context);

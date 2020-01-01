@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:devicelocale/devicelocale.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intro_slider/slide_object.dart';
 import 'package:sentora_base/ads/AppAds.dart';
 import 'package:sentora_base/data/DBHelperBase.dart';
 import 'package:sentora_base/events/LocaleChangedEvent.dart';
+import 'package:sentora_base/intro/IntroPage.dart';
 import 'package:sentora_base/lang/AppTranslationsDelegate.dart';
 import 'package:sentora_base/lang/SentoraLocaleConfig.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
@@ -17,16 +20,26 @@ import 'package:share/receive_share_state.dart';
 import 'package:share/share.dart';
 
 abstract class BaseApp extends StatefulWidget {
-  static Future<Null> defaultBeforeRun() {
+  static Future<Null> defaultEmptyFutureNull() {
     return Future.value(null);
   }
 
-  void runAppBase() {
-    beforeRun().then((_){
-      ConstantsBase.loadPrefs().then((_) {
-        runApp(this);
-      });
-    });
+  void runAppBase() async{
+    await beforeRun();
+    await ConstantsBase.loadPrefs();
+    String currLocale = ConstantsBase.getKeyValue(ConstantsBase.localeKey);
+    if(currLocale == null || currLocale.isEmpty) {
+      String baseSystemLocale = await Devicelocale.currentLocale;
+      String loweredSystemLocale = baseSystemLocale.toLowerCase();
+      String systemLocale = loweredSystemLocale.replaceAll("-", "_");
+      if(systemLocale == "tr_tr" || systemLocale == "tr") {
+        await ConstantsBase.setKeyValue(ConstantsBase.localeKey, "tr");
+      } else {
+        await ConstantsBase.setKeyValue(ConstantsBase.localeKey, "en");
+      }
+    }
+    await afterLoadPreferencesBeforeRun();
+    runApp(this);
   }
 
   final String appTitle;
@@ -37,8 +50,10 @@ abstract class BaseApp extends StatefulWidget {
   final Map<String, dynamic> bgTaskConfig;
   final Map<String, dynamic> shareConfig;
   final Future<Null> Function() beforeRun;
+  final Future<Null> Function() afterLoadPreferencesBeforeRun;
   final List<SentoraLocaleConfig> localeConfig;
   final Map<String, String> prefDefaultVals;
+  final List<Slide> Function(BuildContext context) introSlides;
 
   void initBaseModelClasses(BuildContext context);
   void beforeInitState(BuildContext context);
@@ -58,9 +73,12 @@ abstract class BaseApp extends StatefulWidget {
     this.bgTaskConfig,
     this.shareConfig,
     Map<String, String> prefDefaultVals,
-    Future<Null> Function() beforeRun
+    Future<Null> Function() beforeRun,
+    Future<Null> Function() afterLoadPreferencesBeforeRun,
+    this.introSlides,
   }) :
-      this.beforeRun = beforeRun ?? defaultBeforeRun,
+      this.beforeRun = beforeRun ?? defaultEmptyFutureNull,
+        this.afterLoadPreferencesBeforeRun = afterLoadPreferencesBeforeRun ?? defaultEmptyFutureNull,
         this.localeConfig = localeConfig == null || localeConfig.length == 0 ? [SentoraLocaleConfig(title: "English", locale: Locale("en", "US"))] : localeConfig,
         this.prefDefaultVals = prefDefaultVals ?? {},
         assert(
@@ -110,8 +128,8 @@ abstract class BaseApp extends StatefulWidget {
             )
         ) {
     ConstantsBase.localeConfig = this.localeConfig;
-    if(!this.prefDefaultVals.containsKey(ConstantsBase.localeKey)) {
-      this.prefDefaultVals[ConstantsBase.localeKey] = "en";
+    if(!this.prefDefaultVals.containsKey(ConstantsBase.introShownKey)) {
+      this.prefDefaultVals[ConstantsBase.introShownKey] = "0";
     }
     ConstantsBase.prefDefaultVals = this.prefDefaultVals;
   }
@@ -166,11 +184,19 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
         });
       }
     });
+    ConstantsBase.introSlides = widget.introSlides;
 
     WidgetsBinding.instance.addPostFrameCallback((_){
-      setState((){appLoaded=true;});
+      setState((){
+        appLoaded=true;
+      });
       widget.afterAppRender(context);
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 
   @override
@@ -199,7 +225,7 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      locale: Locale(ConstantsBase.getKeyValue(ConstantsBase.localeKey)),
+      locale: ConstantsBase.getKeyValue(ConstantsBase.localeKey) != null ? Locale(ConstantsBase.getKeyValue(ConstantsBase.localeKey)) : null,
       supportedLocales: widget.localeConfig.map((cfg){ return cfg.locale; }),
       localizationsDelegates: [
         _localeOverrideDelegate,
@@ -229,7 +255,10 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
         // from the list (English, in this case).
         return supportedLocales.first;
       },
-      home: widget.getMainPage()
+      home: ConstantsBase.getKeyValue(ConstantsBase.introShownKey) == "0" && widget.introSlides != null ? IntroPage(
+        slides: widget.introSlides,
+        mainPage: widget.getMainPage(),
+      ) : widget.getMainPage()
     );
   }
 

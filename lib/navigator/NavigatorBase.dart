@@ -18,6 +18,19 @@ class NavigatorBase {
     }
   }
 
+  static Future pushReplacement(Widget widget) async {
+    if(navigatorKey.currentState == null
+        || navigatorKey.currentState.context == null) {
+      return Future.delayed(Duration(milliseconds: 500), () {
+        return pushReplacement(widget);
+      });
+    } else {
+      return navigatorKey.currentState.pushReplacement(MaterialPageRoute<Null>(builder: (BuildContext context) {
+        return widget;
+      }));
+    }
+  }
+
   static Future<bool> pop([bool result]) {
     if(navigatorKey.currentState == null
         || navigatorKey.currentState.context == null) {

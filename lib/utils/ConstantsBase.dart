@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intro_slider/slide_object.dart';
 import 'package:sentora_base/events/UpdatePageStateEvent.dart';
 import 'package:sentora_base/lang/AppTranslations.dart';
 import 'package:sentora_base/lang/SentoraLocaleConfig.dart';
@@ -25,7 +26,10 @@ enum SNACKBAR_DURATION{
 }
 
 class ConstantsBase {
+  static List<Slide> Function(BuildContext context) introSlides;
+  static const Color TRANSPARENT_COLOR = Color(0x00ffffff);
   static List<SentoraLocaleConfig> localeConfig;
+  static const String introShownKey = "intro_shown";
   static const String localeKey = "sentora_selected_locale";
   static int pageSize = 8;
   static final String dataTag = "data";

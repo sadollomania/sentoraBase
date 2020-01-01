@@ -9,7 +9,9 @@ environment:
 
 dependencies:
   #country_icons: ^1.1.1
+  devicelocale: ^0.2.1
   event_bus: ^1.1.0
+  intro_slider: ^2.2.8
   file_picker: ^1.4.0+1
   flutter_reorderable_list: ^0.1.3
   flutter_slidable: ^0.5.4
