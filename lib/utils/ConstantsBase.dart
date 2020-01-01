@@ -27,7 +27,7 @@ enum SNACKBAR_DURATION{
 
 class ConstantsBase {
   static List<Slide> Function(BuildContext context) introSlides;
-  static const Color TRANSPARENT_COLOR = Color(0x00ffffff);
+  static Color transparentColor = Color(0x00ffffff);
   static List<SentoraLocaleConfig> localeConfig;
   static const String introShownKey = "intro_shown";
   static const String localeKey = "sentora_selected_locale";

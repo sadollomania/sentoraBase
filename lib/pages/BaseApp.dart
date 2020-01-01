@@ -220,6 +220,7 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       navigatorKey: NavigatorBase.navigatorKey,
       title: widget.appTitle,
       theme: ThemeData(
