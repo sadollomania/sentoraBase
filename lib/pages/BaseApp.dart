@@ -54,6 +54,9 @@ abstract class BaseApp extends StatefulWidget {
   final List<SentoraLocaleConfig> localeConfig;
   final Map<String, String> prefDefaultVals;
   final List<Slide> Function(BuildContext context) introSlides;
+  final Color introTopBarColor;
+  final Color introBottomBarColor;
+
 
   void initBaseModelClasses(BuildContext context);
   void beforeInitState(BuildContext context);
@@ -76,6 +79,8 @@ abstract class BaseApp extends StatefulWidget {
     Future<Null> Function() beforeRun,
     Future<Null> Function() afterLoadPreferencesBeforeRun,
     this.introSlides,
+    this.introTopBarColor,
+    this.introBottomBarColor,
   }) :
       this.beforeRun = beforeRun ?? defaultEmptyFutureNull,
         this.afterLoadPreferencesBeforeRun = afterLoadPreferencesBeforeRun ?? defaultEmptyFutureNull,
@@ -259,6 +264,8 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
       home: ConstantsBase.getKeyValue(ConstantsBase.introShownKey) == "0" && widget.introSlides != null ? IntroPage(
         slides: widget.introSlides,
         mainPage: widget.getMainPage(),
+        topBarColor : widget.introTopBarColor,
+        bottomBarColor: widget.introBottomBarColor,
       ) : widget.getMainPage()
     );
   }
