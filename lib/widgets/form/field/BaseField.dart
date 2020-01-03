@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
+import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/form/baseField/SentoraFieldBase.dart';
 
 class BaseField extends SentoraFieldBase{
@@ -47,7 +48,7 @@ class BaseField extends SentoraFieldBase{
         if (fieldType.isNullable(kayit)) {
           return null;
         } else {
-          return fieldType.fieldLabel + ' Boş Bırakılamaz';
+          return fieldType.fieldLabel + ' ' + ConstantsBase.translate("bos_birakilamaz");
         }
       } else {
         return extraValidator(textValue, realValue);

@@ -35,11 +35,11 @@ class ForeignFilterField extends BaseFilterField {
                 height: ConstantsBase.getMaxHeight(context) * 0.8,
                 child: BaseModelPage(
                   modelName: fieldType.foreignKeyModelName,
-                  pageTitle: (_) => fieldType.fieldLabel + " Seçme",
+                  pageTitle: (_) => fieldType.fieldLabel + " " + ConstantsBase.translate("secme"),
                   pageSize: 6,
                     topActions: (_) => <AppBarActionHolder>[
                     AppBarActionHolder(
-                    caption: 'Seç',
+                    caption: ConstantsBase.translate("sec"),
                       color: ConstantsBase.defaultButtonColor,
                       icon: Icons.done,
                       onTap: (stateData) async{

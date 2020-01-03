@@ -36,10 +36,10 @@ abstract class BaseFieldType {
         assert(name != null && name.isNotEmpty),
         assert((nullable == null && nullableFn != null) || (nullable != null && nullableFn == null)) {
     if(name.contains("&") || name.contains(".")) {
-      throw new Exception("Field Adı & ya da . işareti bulunduramaz!");
+      throw new Exception(ConstantsBase.translate("field_adi_bulunduramaz"));
     }
     if(name.endsWith("-eq") || name.endsWith("-qt") || name.endsWith("-lt") || name.endsWith("-like")) {
-      throw new Exception("Field Adı '-eq','-qt','-lt','-like' ile bitemez!");
+      throw new Exception(ConstantsBase.translate("field_adi_ile_bitemez"));
     }
     if(getFilterModes().length != getFilterModeTitles().length) {
       throw new Exception("getFilterModes() ile getFilterModeTitles() uzunlukları aynı olmalı.");

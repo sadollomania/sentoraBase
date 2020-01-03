@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
-import 'package:sentora_base/widgets/form/field/DateField.dart';
-import 'package:sentora_base/widgets/form/filterField/DateFilterField.dart';
+import 'package:sentora_base/widgets/form/field/TimeField.dart';
+import 'package:sentora_base/widgets/form/filterField/TimeFilterField.dart';
 
-class DateFieldType extends BaseFieldType {
-  DateFieldType({
+class TimeFieldType extends BaseFieldType {
+  static final double datePickerHeight = 210;
+  static final DateTime defaultMinTime = DateTime(2000, 1, 1);
+  static final DateTime defaultMaxTime = DateTime(2199, 12, 31);
+
+  TimeFieldType({
     @required String fieldLabel,
     @required String fieldHint,
     @required String name,
@@ -20,7 +24,7 @@ class DateFieldType extends BaseFieldType {
 
   @override
   List<String> getFilterModes() {
-    return List<String>.from(["dateeq","dategt","datelt"]);
+    return List<String>.from(["timeeq","timegt","timelt"]);
   }
 
   @override
@@ -30,7 +34,7 @@ class DateFieldType extends BaseFieldType {
 
   @override
   Widget constructFilterField(BuildContext context, Map<String, dynamic> filterMap, int filterIndex, GlobalKey<ScaffoldState> scaffoldKey) {
-    return DateFilterField(
+    return TimeFilterField(
       context: context,
       fieldType: this,
       filterIndex: filterIndex,
@@ -41,7 +45,7 @@ class DateFieldType extends BaseFieldType {
 
   @override
   Widget constructFormField(BuildContext context, BaseModel kayit, bool lastField, GlobalKey<ScaffoldState> scaffoldKey) {
-    return DateField(
+    return TimeField(
       context: context,
       fieldType: this,
       kayit: kayit,

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:sentora_base/events/LocaleChangedEvent.dart';
 import 'package:sentora_base/events/UpdatePageStateEvent.dart';
 import 'package:sentora_base/model/StateData.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
@@ -24,6 +25,7 @@ abstract class BasePage extends StatefulWidget {
   final void Function(StateData stateData) disposeFunction;
   final void Function(StateData stateData) afterRender;
   final int tabLength;
+  final void Function(StateData stateData) localeChanged;
 
   BasePage({
     @required this.pageTitle,
@@ -43,6 +45,7 @@ abstract class BasePage extends StatefulWidget {
     this.disposeFunction,
     this.afterRender,
     this.tabLength,
+    this.localeChanged,
   }) :
     assert(pageTitle != null)
     , assert(body != null)
@@ -58,6 +61,7 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
   final String _pageId = ConstantsBase.getRandomUUID();
   StateData stateData;
   StreamSubscription updateStateSubscription;
+  StreamSubscription localeChangedSubscription;
 
   Future<bool> _willPopCallback(BuildContext context) async {
     return await showDialog(
@@ -106,6 +110,13 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
         }
       }
     });
+    if(widget.localeChanged != null) {
+      localeChangedSubscription = ConstantsBase.eventBus.on<LocaleChangedEvent>().listen((event){
+        if(mounted) {
+          widget.localeChanged(stateData);
+        }
+      });
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) => widget.afterRender?.call(stateData));
   }
 
@@ -120,6 +131,7 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
   @override
   void dispose() {
     updateStateSubscription.cancel();
+    localeChangedSubscription?.cancel();
     widget.disposeFunction?.call(stateData);
     super.dispose();
   }

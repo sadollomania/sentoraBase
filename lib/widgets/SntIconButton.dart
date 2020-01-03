@@ -99,20 +99,20 @@ class _SntIconButtonState extends State<SntIconButton> {
           }
         },
         child: Container(
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[]
-                ..addAll(
-                  running ? [CircularProgressIndicator()] : []
-                )
-                ..add(Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: widgets,
-                )),
-            ),
+          child: Stack(
+            children: <Widget>[
+              Container(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: widgets,
+                  ),
+                ),
+              )
+            ]
+            ..addAll(running ? [Container(child: Center(child: CircularProgressIndicator(),),)] : []),
           ),
-        )
+        ),
     );
 
     return GestureDetector(

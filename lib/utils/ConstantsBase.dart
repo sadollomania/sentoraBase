@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intro_slider/slide_object.dart';
 import 'package:sentora_base/events/UpdatePageStateEvent.dart';
-import 'package:sentora_base/lang/AppTranslations.dart';
+import 'package:sentora_base/lang/LangBase.dart';
 import 'package:sentora_base/lang/SentoraLocaleConfig.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sqflite/sqflite.dart';
@@ -26,6 +26,31 @@ enum SNACKBAR_DURATION{
 }
 
 class ConstantsBase {
+  static final double datePickerHeight = 210;
+  static final DateTime defaultMinTime = DateTime(2000, 1, 1);
+  static final DateTime defaultMaxTime = DateTime(2199, 12, 31);
+
+  static Map<String, dynamic> _localisedValues = Map<String, dynamic>();
+  static Future loadLocalizedValues() async{
+    String languageCode = ConstantsBase.getKeyValue(ConstantsBase.localeKey);
+    String jsonContentApp = await rootBundle.loadString("lang/$languageCode.json");
+    Map<String, dynamic> baseVals = LangBase.getLocaleVals(languageCode);
+    Map<String, dynamic> appVals = json.decode(jsonContentApp);
+
+    Iterable<String> baseKeys = baseVals.keys;
+    Iterable<String> appKeys = appVals.keys;
+    appKeys.forEach((appKey){
+      if(baseKeys.contains(appKey)) {
+        debugPrint("appKey overrides baseKey : " + appKey);
+        debugPrint("baseKeyValue : " + baseVals[appKey].toString());
+        debugPrint("appKeyValue : " + appVals[appKey].toString());
+      }
+    });
+    _localisedValues.clear();
+    _localisedValues..addAll(baseVals)..addAll(appVals);
+  }
+
+
   static List<Slide> Function(BuildContext context) introSlides;
   static Color transparentColor = Color(0x00ffffff);
   static List<SentoraLocaleConfig> localeConfig;
@@ -113,8 +138,8 @@ class ConstantsBase {
     }
   }
 
-  static String translate(BuildContext context, String key) {
-    return AppTranslations.of(context).translate(key);
+  static String translate(String key) {
+    return _localisedValues[key] ?? "key : " + key;
   }
 
   static void showToast(BuildContext context, String text) {

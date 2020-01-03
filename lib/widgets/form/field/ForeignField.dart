@@ -38,11 +38,11 @@ class ForeignField extends BaseField {
                 height: ConstantsBase.getMaxHeight(context) * 0.8,
                 child: BaseModelPage(
                   modelName: fieldType.foreignKeyModelName,
-                  pageTitle: (_) => fieldType.fieldLabel + " Seçme",
+                  pageTitle: (_) => fieldType.fieldLabel + " " + ConstantsBase.translate("secme"),
                   pageSize: 6,
                   topActions: (_) => <AppBarActionHolder>[
                     AppBarActionHolder(
-                      caption: 'Sonraki',
+                      caption: ConstantsBase.translate("sonraki"),
                       color: ConstantsBase.defaultButtonColor,
                       icon: Icons.navigate_next,
                       onTap: (stateData) async{
@@ -51,7 +51,7 @@ class ForeignField extends BaseField {
                       },
                     ),
                     AppBarActionHolder(
-                      caption: 'Seç',
+                      caption: ConstantsBase.translate("sec"),
                       color: ConstantsBase.defaultButtonColor,
                       icon: Icons.done,
                       onTap: (stateData) async{
@@ -59,7 +59,7 @@ class ForeignField extends BaseField {
                           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, stateData.tag["selectedKayit"].getCombinedTitleValue(), stateData.tag["selectedKayit"]));
                           await NavigatorBase.pop(true);
                         } else {
-                          ConstantsBase.showSnackBarShort(scaffoldKey, "Kayıt Seçiniz!!");
+                          ConstantsBase.showSnackBarShort(scaffoldKey, ConstantsBase.translate("kayit_seciniz"));
                         }
                         return;
                       }

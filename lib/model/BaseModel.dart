@@ -7,6 +7,7 @@ import 'package:sentora_base/model/fieldTypes/ForeignKeyFieldType.dart';
 import 'package:sentora_base/model/fieldTypes/IntFieldType.dart';
 import 'package:sentora_base/model/fieldTypes/RealFieldType.dart';
 import 'package:sentora_base/model/fieldTypes/StringFieldType.dart';
+import 'package:sentora_base/model/fieldTypes/TimeFieldType.dart';
 import 'package:sentora_base/pages/BaseModelPage.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sqflite/sqflite.dart';
@@ -50,6 +51,21 @@ class BaseModel {
   Color Function(BaseModel baseModel) listBgColor;
 
   Map<String, dynamic> _fieldValues = Map<String, dynamic>();
+
+  static void clearInitBaseModelClasses() {
+    _modelTableNames.clear();
+    _modelFieldTypes.clear();
+    _modelTitleFields.clear();
+    _modelLeadingFunctions.clear();
+    _modelTrailingFunctions.clear();
+    _modelSubTitleFields.clear();
+    _modelPageTitles.clear();
+    _modelSingleTitles.clear();
+    _modelMultiColumnUniqueConstraints.clear();
+    _modelListBgColors.clear();
+    _modelDefaultOrderBys.clear();
+    _models.clear();
+  }
 
   BaseModel({
     @required this.modelName,
@@ -114,7 +130,7 @@ class BaseModel {
   }
 
   BaseModelPage createBaseModelPage() {
-    return BaseModelPage(modelName: modelName,addButtonTitle: (_) => "Ekle",editButtonTitle: (_) => "Düzenle",deleteButtonTitle: (_) => "Sil",);
+    return BaseModelPage(modelName: modelName,addButtonTitle: (_) => ConstantsBase.translate("ekle"),editButtonTitle: (_) => ConstantsBase.translate("duzenle"),deleteButtonTitle: (_) => ConstantsBase.translate("sil"),);
   }
 
   /*BaseModelPage createBaseModelQueryPage(String pageTitle, String getListQuery, Row Function(BaseModel selectedKayit) constructButtonsRow) {
@@ -123,11 +139,11 @@ class BaseModel {
 
   List<BaseFieldType> _constructFields() {
     List<BaseFieldType> allFieldTypes = List<BaseFieldType>();
-    allFieldTypes.add(StringFieldType(fieldLabel:"ID", fieldHint:"Kayıt No", name:"ID", nullable: false, filterable: false));
-    allFieldTypes.add(DateFieldType(fieldLabel:"Kyt.Trh.", fieldHint:"Kayıt Tarihi", name:"INSDATE", nullable: false));
-    allFieldTypes.add(StringFieldType(fieldLabel:"Kyt.Eden", fieldHint:"Kayıt Eden", name:"INSBY", nullable: false, sortable: false, filterable: false));
-    allFieldTypes.add(DateFieldType(fieldLabel:"Gün.Trh.", fieldHint:"Güncelleme Tarihi", name:"UPDDATE", nullable: false));
-    allFieldTypes.add(StringFieldType(fieldLabel:"Gün.Yapan", fieldHint:"Güncelleme Yapan", name:"UPDBY", nullable: false, sortable: false, filterable: false));
+    allFieldTypes.add(StringFieldType(fieldLabel:"ID", fieldHint:ConstantsBase.translate("kayit_no"), name:"ID", nullable: false, filterable: false));
+    allFieldTypes.add(DateFieldType(fieldLabel:ConstantsBase.translate("kayit_tarihi"), fieldHint:ConstantsBase.translate("kayit_tarihi_hint"), name:"INSDATE", nullable: false));
+    allFieldTypes.add(StringFieldType(fieldLabel:ConstantsBase.translate("kayit_eden"), fieldHint:ConstantsBase.translate("kayit_eden_hint"), name:"INSBY", nullable: false, sortable: false, filterable: false));
+    allFieldTypes.add(DateFieldType(fieldLabel:ConstantsBase.translate("guncelleme_tarihi"), fieldHint:ConstantsBase.translate("guncelleme_tarihi_hint"), name:"UPDDATE", nullable: false));
+    allFieldTypes.add(StringFieldType(fieldLabel:ConstantsBase.translate("guncelleme_yapan"), fieldHint:ConstantsBase.translate("guncelleme_yapan_hint"), name:"UPDBY", nullable: false, sortable: false, filterable: false));
     allFieldTypes.addAll(fieldTypes);
     return allFieldTypes;
   }
@@ -142,6 +158,12 @@ class BaseModel {
       } else if(fieldType.runtimeType == DateFieldType) {
         if(_fieldValues[fieldType.name] != null) {
           retVals[fieldType.name] = ConstantsBase.dateTimeFormat.format(_fieldValues[fieldType.name]);
+        } else {
+          retVals[fieldType.name] = null;
+        }
+      } else if(fieldType.runtimeType == TimeFieldType) {
+        if(_fieldValues[fieldType.name] != null) {
+          retVals[fieldType.name] = ConstantsBase.timeFormat.format(_fieldValues[fieldType.name]);
         } else {
           retVals[fieldType.name] = null;
         }
@@ -174,6 +196,12 @@ class BaseModel {
       } else if(fieldType.runtimeType == DateFieldType) {
         if(map[fieldType.name] != null) {
           set(fieldType.name, ConstantsBase.dateTimeFormat.parse(map[fieldType.name]));
+        } else {
+          set(fieldType.name, null);
+        }
+      } else if(fieldType.runtimeType == TimeFieldType) {
+        if(map[fieldType.name] != null) {
+          set(fieldType.name, ConstantsBase.timeFormat.parse(map[fieldType.name]));
         } else {
           set(fieldType.name, null);
         }
@@ -214,7 +242,7 @@ class BaseModel {
     allFieldTypes.forEach((fieldType){
       ++index;
       str += fieldType.name;
-      if(fieldType.runtimeType == StringFieldType || fieldType.runtimeType == DateFieldType || fieldType.runtimeType == ForeignKeyFieldType) {
+      if(fieldType.runtimeType == StringFieldType || fieldType.runtimeType == DateFieldType || fieldType.runtimeType == TimeFieldType || fieldType.runtimeType == ForeignKeyFieldType) {
         str += " TEXT";
       } else if(fieldType.runtimeType == IntFieldType || fieldType.runtimeType == BooleanFieldType) {
         str += " INTEGER";
@@ -370,6 +398,18 @@ class BaseModel {
             where += " substr(" + fieldName + ",1,10) < ? ";
             whereArgVal = ConstantsBase.dateFormat.format(val);
             break;
+          case "timeeq":
+            where += " substr(" + fieldName + ",1,10) = ? ";
+            whereArgVal = ConstantsBase.timeFormat.format(val);
+            break;
+          case "timegt":
+            where += " substr(" + fieldName + ",1,10) > ? ";
+            whereArgVal = ConstantsBase.timeFormat.format(val);
+            break;
+          case "timelt":
+            where += " substr(" + fieldName + ",1,10) < ? ";
+            whereArgVal = ConstantsBase.timeFormat.format(val);
+            break;
           case "inteq":
           case "realeq":
             where += fieldName + " = ? ";
@@ -498,7 +538,7 @@ class BaseModel {
     }
 
     String errorMsg = e.toString();
-    String defaultRetStr = "Detaylandırılmamış Hata ( BaseModel ) : " + errorMsg;
+    String defaultRetStr = ConstantsBase.translate("detaylandirilmamis_hata") + errorMsg;
     String retStr = "";
     if(errorMsg.contains("UNIQUE") || errorMsg.contains("unique")) { //TODO eğer burda çoklu kolon varsa ne olur bak
       int tableNameIndex = errorMsg.indexOf(tableName);
@@ -510,11 +550,11 @@ class BaseModel {
         if(fieldType == null) {
           retStr = defaultRetStr;
         } else {
-          retStr = singleTitle + " tablosunda " + fieldType.fieldLabel + " kolonunda -> \"" + getValueByPath(fieldType.name, convertToStr: true) + "\" değerinde kayıt zaten mevcut";
+          retStr = singleTitle + " " + ConstantsBase.translate("tablosunda") + " " + fieldType.fieldLabel + " " + ConstantsBase.translate("kolonunda") + " -> \"" + getValueByPath(fieldType.name, convertToStr: true) + "\" " + ConstantsBase.translate("degerinde_kayit_zaten_mevcut");
         }
       }
     } else if(errorMsg.contains("FOREIGN KEY")) {
-      retStr = "Kullanımda olan kaydı silemezsiniz!";
+      retStr = ConstantsBase.translate("kullanimda_olan_kaydi_silemezsiniz");
     } else {
       retStr = defaultRetStr;
     }
@@ -618,9 +658,9 @@ class BaseModel {
     } else if(objVal.runtimeType == bool) {
       bool objBoolVal = objVal as bool;
       if(objBoolVal) {
-        return "Evet";
+        return ConstantsBase.translate("evet");
       } else {
-        return "Hayır";
+        return ConstantsBase.translate("hayir");
       }
     } else {
       return objVal == null ? "" : objVal.toString();

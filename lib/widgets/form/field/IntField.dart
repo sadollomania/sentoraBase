@@ -39,15 +39,15 @@ class IntField extends BaseField {
     },
     extraValidator : (textValue, realValue) {
       if(int.tryParse(textValue) == null) {
-        return 'Tam sayı giriniz!';
+        return ConstantsBase.translate("tam_sayi_giriniz");
       } else {
         String newStr = fieldType.signed ? textValue.replaceAll("-", "") : textValue;
         if(fieldType.length != -1  && newStr.length != fieldType.length) {
-          return fieldType.length.toString() + ' uzunluğunda tam sayı giriniz!';
+          return fieldType.length.toString() + " " + ConstantsBase.translate("uzunlugunda_tam_sayi_giriniz");
         } else if(fieldType.minLength != -1  && newStr.length < fieldType.minLength) {
-          return 'En az ' + fieldType.minLength.toString() + ' uzunluğunda tam sayı giriniz!';
+          return ConstantsBase.translate("en_az") + " " + fieldType.minLength.toString() + " " + ConstantsBase.translate("uzunlugunda_tam_sayi_giriniz");
         } else if(fieldType.maxLength != -1  && newStr.length > fieldType.maxLength) {
-          return 'En fazla ' + fieldType.minLength.toString() + ' uzunluğunda tam sayı giriniz!';
+          return ConstantsBase.translate("en_fazla") + " " + fieldType.minLength.toString() + " " + ConstantsBase.translate("uzunlugunda_tam_sayi_giriniz");
         } else {
           return null;
         }

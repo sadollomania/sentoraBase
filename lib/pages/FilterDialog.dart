@@ -99,7 +99,7 @@ class _FilterDialogState extends State<FilterDialog> {
     });
 
     return AlertDialog(
-      title: Text(widget.ornekKayit.singleTitle + " Filtreleme"),
+      title: Text(widget.ornekKayit.singleTitle + " " + ConstantsBase.translate("filtreleme")),
       content: Container(
         height: ConstantsBase.getMaxHeight(context) * 0.8,
         width: ConstantsBase.getMaxWidth(context) * 0.8,
@@ -115,8 +115,9 @@ class _FilterDialogState extends State<FilterDialog> {
           width: ConstantsBase.getMaxWidth(context) * 0.4 - ( 24 + 24 + 10 + 2 ) / 2, //(alertdialog edges + sizedbox between + 2 px) / 2
           height: 50,
           child: MenuButton(
-            title: "İptal",
+            title: ConstantsBase.translate("iptal"),
             fontSize: 20,
+            iconColor: ConstantsBase.yellowShade500Color,
             iconData: Icons.cancel,
             onPressed: () async{
               await NavigatorBase.pop();
@@ -130,7 +131,8 @@ class _FilterDialogState extends State<FilterDialog> {
           height: 50,
           child: MenuButton(
             fontSize: 20,
-            title: "Filtrele",
+            iconColor: ConstantsBase.yellowShade500Color,
+            title: ConstantsBase.translate("filtrele"),
             iconData: Icons.filter_list,
             onPressed: () async {
               ConstantsBase.eventBus.fire(FilterChangedEvent(filterMap, baseModelPageId));

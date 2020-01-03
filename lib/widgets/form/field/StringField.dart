@@ -35,11 +35,11 @@ class StringField extends BaseField {
     },
     extraValidator : (textValue, realValue) {
       if (fieldType.length != -1 && textValue.length != fieldType.length) {
-        return fieldType.length.toString() + ' uzunluğunda bir yazı giriniz!';
+        return fieldType.length.toString() + " " + ConstantsBase.translate("uzunlugunda_yazi_giriniz");
       } else if (fieldType.minLength != -1 && textValue.length < fieldType.minLength) {
-        return 'En az ' + fieldType.minLength.toString() + ' uzunluğunda yazı giriniz!';
+        return ConstantsBase.translate("en_az") + " " + fieldType.minLength.toString() + " " + ConstantsBase.translate("uzunlugunda_yazi_giriniz");
       } else if (fieldType.maxLength != -1 && textValue.length > fieldType.maxLength) {
-        return 'En fazla ' + fieldType.minLength.toString() + ' uzunluğunda yazı giriniz!';
+        return ConstantsBase.translate("en_fazla") + " " + fieldType.minLength.toString() + " " + ConstantsBase.translate("uzunlugunda_yazi_giriniz");
       } else {
         if(extraValidatorFunc != null) {
           return extraValidatorFunc(textValue);

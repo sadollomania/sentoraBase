@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/datepicker/SentoraDateModel.dart';
 import 'package:sentora_base/widgets/datepicker/SentoraI18nModel.dart';
 import 'package:sentora_base/widgets/datepicker/SentoraDatePickerTheme.dart';
@@ -8,8 +9,8 @@ typedef DateChangedCallback(DateTime time);
 typedef String StringAtIndexCallBack(int index);
 
 class SentoraDatePicker {
-  static LocaleType convertLocaleToLocaleType(Locale locale) {
-    switch(locale.languageCode) {
+  static LocaleType convertLocaleToLocaleType() {
+    switch(ConstantsBase.getKeyValue(ConstantsBase.localeKey)) {
       case "tr":
         return LocaleType.tr;
       default:

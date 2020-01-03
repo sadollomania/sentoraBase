@@ -3,13 +3,11 @@ import 'dart:async';
 import 'package:devicelocale/devicelocale.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intro_slider/slide_object.dart';
 import 'package:sentora_base/ads/AppAds.dart';
 import 'package:sentora_base/data/DBHelperBase.dart';
 import 'package:sentora_base/events/LocaleChangedEvent.dart';
 import 'package:sentora_base/intro/IntroPage.dart';
-import 'package:sentora_base/lang/AppTranslationsDelegate.dart';
 import 'package:sentora_base/lang/SentoraLocaleConfig.dart';
 import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/notification/BaseNotification.dart';
@@ -38,6 +36,7 @@ abstract class BaseApp extends StatefulWidget {
         await ConstantsBase.setKeyValue(ConstantsBase.localeKey, "en");
       }
     }
+    await ConstantsBase.loadLocalizedValues();
     await afterLoadPreferencesBeforeRun();
     runApp(this);
   }
@@ -145,14 +144,12 @@ abstract class BaseApp extends StatefulWidget {
 class _BaseAppState extends ReceiveShareState<BaseApp> {
   bool appLoaded = false;
   StreamSubscription localeChangedSubscription;
-  AppTranslationsDelegate _localeOverrideDelegate;
 
   @override
   void initState() {
     ConstantsBase.setIsEmulator();
     widget.beforeInitState(context);
     super.initState();
-    _localeOverrideDelegate = AppTranslationsDelegate(newLocale: Locale(ConstantsBase.getKeyValue(ConstantsBase.localeKey)));
     widget.initBaseModelClasses(context);
     if(widget.dbConfig != null) {
       DBHelperBase.init(widget.dbConfig["databaseFileName"], widget.dbConfig["databaseVersion"], widget.dbConfig["versionFunctions"]);
@@ -184,9 +181,7 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
     widget.afterInitState(context);
     localeChangedSubscription  = ConstantsBase.eventBus.on<LocaleChangedEvent>().listen((event){
       if(mounted) {
-        setState(() {
-          _localeOverrideDelegate = AppTranslationsDelegate(newLocale: event.locale);
-        });
+        setState(() {});
       }
     });
     ConstantsBase.introSlides = widget.introSlides;
@@ -231,36 +226,6 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      locale: ConstantsBase.getKeyValue(ConstantsBase.localeKey) != null ? Locale(ConstantsBase.getKeyValue(ConstantsBase.localeKey)) : null,
-      supportedLocales: widget.localeConfig.map((cfg){ return cfg.locale; }),
-      localizationsDelegates: [
-        _localeOverrideDelegate,
-        // Built-in localization of basic text for Material widgets
-        GlobalMaterialLocalizations.delegate,
-        // Built-in localization for text direction LTR/RTL
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      localeResolutionCallback: (locale, supportedLocales) {
-        if (locale == null) {
-          debugPrint("*language locale is null!!!");
-          if(supportedLocales == null || supportedLocales.length == 0) {
-            return Locale('en', 'US');
-          } else {
-            return supportedLocales.first;
-          }
-        }
-
-        // Check if the current device locale is supported
-        for (var supportedLocale in supportedLocales) {
-          if (supportedLocale.languageCode == locale.languageCode &&
-              supportedLocale.countryCode == locale.countryCode) {
-            return supportedLocale;
-          }
-        }
-        // If the locale of the device is not supported, use the first one
-        // from the list (English, in this case).
-        return supportedLocales.first;
-      },
       home: ConstantsBase.getKeyValue(ConstantsBase.introShownKey) == "0" && widget.introSlides != null ? IntroPage(
         slides: widget.introSlides,
         mainPage: widget.getMainPage(),

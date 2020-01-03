@@ -63,7 +63,7 @@ class BooleanFilterField extends BaseFilterField {
                       child: ListTile(
                         leading: Icon(Icons.check_box),
                         selected: realValue == true,
-                        title: Center(child: Text(ConstantsBase.translate(builder, "evet"))),
+                        title: Center(child: Text(ConstantsBase.translate("evet"))),
                         onTap: () async{
                           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, null, true));
                           filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = true;
@@ -78,7 +78,7 @@ class BooleanFilterField extends BaseFilterField {
                       child: ListTile(
                         leading: Icon(Icons.check_box_outline_blank),
                         selected: realValue == false,
-                        title: Center(child: Text(ConstantsBase.translate(builder, "hayir"))),
+                        title: Center(child: Text(ConstantsBase.translate("hayir"))),
                         onTap: () async{
                           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, null, false));
                           filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = false;

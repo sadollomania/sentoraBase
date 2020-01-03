@@ -39,16 +39,16 @@ class RealField extends BaseField {
       },
       extraValidator : (textValue, realValue) {
         if(ConstantsBase.tryParseDouble(textValue) == null) {
-          return 'Ondalıklı sayı giriniz!';
+          return ConstantsBase.translate("ondalikli_sayi_giriniz");
         } else {
           String newStr = fieldType.signed ? textValue.replaceAll("-", "") : textValue;
           String intPart = newStr.contains(".") ? newStr.split(".")[0] : newStr;
           if(fieldType.length != -1  && intPart.length != fieldType.length) {
-            return 'Noktadan önce ' + fieldType.length.toString() + ' uzunluğunda ondalıklı sayı giriniz!';
+            return ConstantsBase.translate("noktadan_once") + " " + fieldType.length.toString() + " " + ConstantsBase.translate("uzunlugunda_ondalikli_sayi_giriniz");
           } else if(fieldType.minLength != -1  && intPart.length < fieldType.minLength) {
-            return 'Noktadan önce En az ' + fieldType.minLength.toString() + ' uzunluğunda ondalıklı sayı giriniz!';
+            return ConstantsBase.translate("noktadan_once") + " " + ConstantsBase.translate("en_az") + " " + fieldType.minLength.toString() + " " + ConstantsBase.translate("uzunlugunda_ondalikli_sayi_giriniz");
           } else if(fieldType.maxLength != -1  && intPart.length > fieldType.maxLength) {
-            return 'Noktadan önce En fazla ' + fieldType.minLength.toString() + ' uzunluğunda ondalıklı sayı giriniz!';
+            return ConstantsBase.translate("noktadan_once") + " " + ConstantsBase.translate("en_fazla") + " " + fieldType.minLength.toString() + " " + ConstantsBase.translate("uzunlugunda_ondalikli_sayi_giriniz");
           } else {
             return null;
           }

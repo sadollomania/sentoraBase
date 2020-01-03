@@ -172,12 +172,12 @@ class _SortDialogState extends State<SortDialog> {
     }
 
     return AlertDialog(
-      title: Text(widget.ornekKayit.singleTitle + " Sıralama"),
+      title: Text(widget.ornekKayit.singleTitle + " " + ConstantsBase.translate("siralama")),
       content: Container(
         height: ConstantsBase.getMaxHeight(context) * 0.8,
         width: ConstantsBase.getMaxWidth(context) * 0.8,
         child: ReorderableListView(
-          header: Text("Sıralama için uzun basılı tutun\nSıralamaya katılsın mı\nSıralama Yönü\nBoş Olanların sıralama yeri",maxLines: 4,),
+          header: Text(ConstantsBase.translate("sort_dialog_description"),maxLines: 4,),
           padding: EdgeInsets.only(top: 20.0),
           children: _children,
           onReorder: (oldIndex, newIndex) {
@@ -209,8 +209,9 @@ class _SortDialogState extends State<SortDialog> {
           width: ConstantsBase.getMaxWidth(context) * 0.4 - ( 24 + 24 + 10 + 2 ) / 2, //(alertdialog edges + sizedbox between + 2 px) / 2
           height: 50,
           child: MenuButton(
-            title: "İptal",
+            title: ConstantsBase.translate("iptal"),
             fontSize: 20,
+            iconColor: ConstantsBase.yellowShade500Color,
             iconData: Icons.cancel,
             onPressed: () async {
               await NavigatorBase.pop();
@@ -224,7 +225,8 @@ class _SortDialogState extends State<SortDialog> {
           height: 50,
           child: MenuButton(
             fontSize: 20,
-            title: "Sırala",
+            iconColor: ConstantsBase.yellowShade500Color,
+            title: ConstantsBase.translate("sirala"),
             iconData: Icons.sort_by_alpha,
             onPressed: () async {
               String newOrderBy = "";

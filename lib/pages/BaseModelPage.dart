@@ -30,17 +30,17 @@ class BaseModelPage extends BasePage {
       context: stateData.context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Emin Misiniz?"),
-          content: Text(stateData.tag["ornekKayit"].singleTitle + " " + kayit.getCombinedTitleValue() + " Silinecektir!"),
+          title: Text(ConstantsBase.translate("emin_misiniz") + "?"),
+          content: Text(stateData.tag["ornekKayit"].singleTitle + " " + kayit.getCombinedTitleValue() + " " + ConstantsBase.translate("silinecektir") + "!"),
           actions: <Widget>[
             FlatButton(
-              child: Text("İptal"),
+              child: Text(ConstantsBase.translate("iptal")),
               onPressed: () async{
                 await NavigatorBase.pop();
               },
             ),
             FlatButton(
-              child: Text("Sil"),
+              child: Text(ConstantsBase.translate("sil")),
               onPressed: () async{
                 await BaseModel.delete(kayit).then((_) async{
                   await NavigatorBase.pop();
@@ -140,7 +140,7 @@ class BaseModelPage extends BasePage {
   })
   : assert(modelName != null),
   super(
-    pageTitle: pageTitle ?? (_) => BaseModel.createNewObject(modelName).pageTitle,
+    pageTitle: pageTitle ?? (stateData){ return BaseModel.createNewObject(modelName).pageTitle; },
     initialTag : (_) => {
       "getLisQuery" : getListQuery,
       "modelName" : modelName,
@@ -217,7 +217,7 @@ class BaseModelPage extends BasePage {
                   ..addAll([
                     Expanded(
                       child: SntIconButton(
-                        caption: 'Filtrele',
+                        caption: ConstantsBase.translate("filtrele"),
                         color: stateData.tag["filterMap"] != null && stateData.tag["filterMap"].length > 0 ? ConstantsBase.greenAccentShade100Color : ConstantsBase.defaultButtonColor,
                         icon: Icons.filter_list,
                         onTap: () async{
@@ -227,7 +227,7 @@ class BaseModelPage extends BasePage {
                     ),
                     Expanded(
                       child: SntIconButton(
-                        caption: 'Sırala',
+                        caption: ConstantsBase.translate("sirala"),
                         color: stateData.tag["orderBy"] != null && stateData.tag["orderBy"].isNotEmpty ? ConstantsBase.greenAccentShade100Color : ConstantsBase.defaultButtonColor,
                         icon: Icons.sort_by_alpha,
                         onTap: () async{
@@ -340,7 +340,7 @@ class BaseModelPage extends BasePage {
           Expanded(
               flex: 3,
               child: Center(
-                child: Text(stateData.tag["totalCount"].toString() + " kayıt - " + stateData.tag["currentPage"].toString() + " / " + stateData.tag["lastPage"].toString(), style: TextStyle(fontSize: 18),),
+                child: Text(stateData.tag["totalCount"].toString() + " " + ConstantsBase.translate("kayit") + " - " + stateData.tag["currentPage"].toString() + " / " + stateData.tag["lastPage"].toString(), style: TextStyle(fontSize: 18),),
               )
           ),
           Expanded(

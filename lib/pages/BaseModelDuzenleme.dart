@@ -67,7 +67,7 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(kayit.singleTitle + (kayit.get("ID") == null ? " Ekleme" : " Düzenleme")),
+        title: Text(kayit.singleTitle + (kayit.get("ID") == null ? " " + ConstantsBase.translate("ekleme") : " " + ConstantsBase.translate("duzenleme") )),
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(50.0),
@@ -82,17 +82,17 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
               children: <Widget>[
                 Expanded(
                   child: SntIconButton(
-                    caption: 'Kaydet',
+                    caption: ConstantsBase.translate("kaydet"),
                     color: ConstantsBase.defaultButtonColor,
                     icon: Icons.save,
                     onTap: () async{
                       _formKey.currentState.save();
                       if (_formKey.currentState.validate()) {
-                        ConstantsBase.showSnackBarShort(_scaffoldKey, "Bilgiler Kaydediliyor");
+                        ConstantsBase.showSnackBarShort(_scaffoldKey, ConstantsBase.translate("bilgiler_kaydediliyor"));
                         if(kayit.get("ID") == null) {
                           kayit.set("ID", ConstantsBase.getRandomUUID());
                           await BaseModel.insert(kayit).then((_) async{
-                            ConstantsBase.showSnackBarShort(widget.baseModelPageScaffoldKey, kayit.singleTitle + " Eklendi");
+                            ConstantsBase.showSnackBarShort(widget.baseModelPageScaffoldKey, kayit.singleTitle + " " + ConstantsBase.translate("eklendi"));
                             await NavigatorBase.pop();
                             ConstantsBase.eventBus.fire(ModelDuzenlemeEvent(baseModelPageId));
                             return;
@@ -109,7 +109,7 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                           return;
                         } else {
                           await BaseModel.update(kayit).then((_) async{
-                            ConstantsBase.showSnackBarShort(widget.baseModelPageScaffoldKey, kayit.singleTitle + " Güncellendi");
+                            ConstantsBase.showSnackBarShort(widget.baseModelPageScaffoldKey, kayit.singleTitle + " " + ConstantsBase.translate("guncellendi"));
                             await NavigatorBase.pop();
                             ConstantsBase.eventBus.fire(ModelDuzenlemeEvent(baseModelPageId));
                             return;

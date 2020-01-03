@@ -36,8 +36,9 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                       setState(() {
                         selectedLng = newValue;
                       });
-                      await ConstantsBase.setKeyValue(ConstantsBase.localeKey, selectedLng);
-                      ConstantsBase.eventBus.fire(LocaleChangedEvent(Locale(selectedLng)));
+                      await ConstantsBase.setKeyValue(ConstantsBase.localeKey, newValue);
+                      await ConstantsBase.loadLocalizedValues();
+                      ConstantsBase.eventBus.fire(LocaleChangedEvent(Locale(newValue)));
                       return;
                     },
                     items : ConstantsBase.localeConfig.map<DropdownMenuItem<String>>((SentoraLocaleConfig cfg){

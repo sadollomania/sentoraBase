@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:sentora_base/events/FilterValueChangedEvent.dart';
 import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
-import 'package:sentora_base/model/fieldTypes/DateFieldType.dart';
+import 'package:sentora_base/model/fieldTypes/TimeFieldType.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/datepicker/SentoraDatePicker.dart';
 import 'package:sentora_base/widgets/datepicker/SentoraDatePickerTheme.dart';
 import 'package:sentora_base/widgets/form/filterField/BaseFilterField.dart';
 
-class DateFilterField extends BaseFilterField {
-  DateFilterField({
+class TimeFilterField extends BaseFilterField {
+  TimeFilterField({
     @required BuildContext context,
-    @required DateFieldType fieldType,
+    @required TimeFieldType fieldType,
     @required int filterIndex,
     @required Map<String, dynamic> filterMap,
     @required GlobalKey<ScaffoldState> scaffoldKey,
@@ -25,16 +25,14 @@ class DateFilterField extends BaseFilterField {
     },
     scaffoldKey : scaffoldKey,
     onTapReplacementFunc: (String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey){
-      return SentoraDatePicker.showDatePicker(context,
+      return SentoraDatePicker.showTimePicker(context,
           theme: SentoraDatePickerTheme(
             containerHeight: ConstantsBase.datePickerHeight,
             title: fieldType.fieldLabel,
           ),
           showTitleActions: true,
-          minTime: ConstantsBase.defaultMinTime,
-          maxTime: ConstantsBase.defaultMaxTime,
           onConfirm: (date) {
-            ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, ConstantsBase.dateFormat.format(date), date));
+            ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, ConstantsBase.timeFormat.format(date), date));
             filterMap[fieldType.name + "-" + fieldType.getFilterModes()[filterIndex]] = date;
             ConstantsBase.eventBus.fire(FilterValueChangedEvent());
             return true;

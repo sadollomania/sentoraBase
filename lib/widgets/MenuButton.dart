@@ -57,11 +57,6 @@ class _MenuButtonState extends State<MenuButton> {
   Widget build(BuildContext context) {
     Widget  textWidget;
     List<Widget> rowWidgetList = List<Widget>();
-    if(running) {
-      rowWidgetList.add(CircularProgressIndicator());
-      rowWidgetList.add(SizedBox(width: 2,));
-    }
-
     if(widget.iconData != null) {
       rowWidgetList.add(
         Expanded(
@@ -120,7 +115,20 @@ class _MenuButtonState extends State<MenuButton> {
     return RaisedButton(
         padding: widget.edgeInsetsGeometry,
         color: widget.buttonColor,
-        child: Container(height: widget.height,child:Row( crossAxisAlignment: CrossAxisAlignment.stretch, children: rowWidgetList )), // Text(title, style: TextStyle(fontSize: fontSize)),
+        child: Container(
+          height: widget.height,
+          child: Stack(
+            children: <Widget>[
+              Container(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: rowWidgetList
+                ),
+              )
+            ]
+            ..addAll(running ? [Container(child: Center(child: CircularProgressIndicator(),),)] : []),
+          ),
+        ), // Text(title, style: TextStyle(fontSize: fontSize)),
         textColor: widget.disabled || running ? widget.disabledColor : widget.enabledColor,
         onPressed: widget.disabled || running ? null : () async{
           if(mounted) {
