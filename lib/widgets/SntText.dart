@@ -9,7 +9,7 @@ class SntText extends AutoSizeText {
       }
       return _autoSizeGroups[groupId];
    }
-   static AutoSizeGroup clearGroups() {
+   static void clearGroups() {
       _autoSizeGroups.clear();
    }
 
