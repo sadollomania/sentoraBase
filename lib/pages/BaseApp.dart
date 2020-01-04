@@ -14,6 +14,7 @@ import 'package:sentora_base/notification/BaseNotification.dart';
 import 'package:sentora_base/notification/NotificationTaskConfig.dart';
 import 'package:sentora_base/notification/ReceivedNotification.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
+import 'package:sentora_base/widgets/SntText.dart';
 import 'package:share/receive_share_state.dart';
 import 'package:share/share.dart';
 
@@ -215,6 +216,7 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
     widget.beforeDispose(context);
     super.dispose();
     widget.afterDispose(context);
+    SntText.clearGroups();
   }
 
   @override
