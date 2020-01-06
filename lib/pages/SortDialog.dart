@@ -177,7 +177,7 @@ class _SortDialogState extends State<SortDialog> {
         height: ConstantsBase.getMaxHeight(context) * 0.8,
         width: ConstantsBase.getMaxWidth(context) * 0.8,
         child: ReorderableListView(
-          header: Text(ConstantsBase.translate("sort_dialog_description"),maxLines: 4,),
+          header: Padding(padding: EdgeInsets.fromLTRB(0,0,0,10),child: Text(ConstantsBase.translate("sort_dialog_description"),maxLines: 4,),),
           padding: EdgeInsets.only(top: 20.0),
           children: _children,
           onReorder: (oldIndex, newIndex) {

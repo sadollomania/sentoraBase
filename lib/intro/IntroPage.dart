@@ -92,7 +92,7 @@ class _IntroPageState extends State<IntroPage> {
           // Dot indicator
           colorDot: Color(0x33D02090),
           colorActiveDot: ConstantsBase.yellowShade500Color,
-          sizeDot: 13.0,
+          sizeDot: 8.0,
 
           // Show or hide status bar
           shouldHideStatusBar: false,
