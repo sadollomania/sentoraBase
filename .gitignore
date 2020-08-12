@@ -5,3 +5,12 @@
 .pub/
 
 build/
+.idea/codeStyles/Project.xml
+.idea/codeStyles/Project.xml
+.idea/libraries/Dart_SDK.xml
+.idea/libraries/Flutter_Plugins.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/sentoraBase.iml
+.idea/vcs.xml
+.idea/workspace.xml
