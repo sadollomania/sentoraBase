@@ -29,8 +29,9 @@ class DBBackupRestore extends StatefulWidget{
 class _DBBackupRestoreState extends State<DBBackupRestore> {
   Future<void> _openFileExplorerForDBRestore(BuildContext context) async {
     try {
-      String _path = await FilePicker.getFilePath(type: FileType.ANY, fileExtension: "");
-      if(null != _path) {
+      FilePickerResult result = await FilePicker.platform.pickFiles(type: FileType.any, allowMultiple: false,);
+      if(null != result && null != result.paths && result.paths.isNotEmpty) {
+        String _path = result.paths.first;
         await DBHelperBase.instance.restoreDB(_path);
         await DBHelperBase.instance.getDb();
         await widget.afterRestoreDb?.call(context);

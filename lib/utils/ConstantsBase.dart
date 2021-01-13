@@ -30,6 +30,8 @@ class ConstantsBase {
   static final DateTime defaultMinTime = DateTime(2000, 1, 1);
   static final DateTime defaultMaxTime = DateTime(2199, 12, 31);
 
+  static bool bannerEnabled = false;
+  static Row unityBannerAd;
   static Map<String, dynamic> _localisedValues = Map<String, dynamic>();
   static Future loadLocalizedValues() async{
     String languageCode = ConstantsBase.getKeyValue(ConstantsBase.localeKey);
@@ -50,6 +52,13 @@ class ConstantsBase {
     _localisedValues..addAll(baseVals)..addAll(appVals);
   }
 
+  static Widget wrapWidgetWithBanner(Widget body) {
+    if(ConstantsBase.bannerEnabled) {
+      return Container(child:Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [Expanded(flex:1,child:body), ConstantsBase.unityBannerAd],));
+    } else {
+      return body;
+    }
+  }
 
   static List<Slide> Function(BuildContext context) introSlides;
   static Color transparentColor = Color(0x00ffffff);
@@ -301,7 +310,7 @@ class ConstantsBase {
   static List<TextInputFormatter> getNumberTextInputFormatters({bool signed, bool decimal}) {
     assert(signed != null && decimal != null);
     List<TextInputFormatter> textInputFormatters = List<TextInputFormatter>();
-    textInputFormatters.add(WhitelistingTextInputFormatter(RegExp((signed ? "-?" : "") + "(0|[1-9]\\d*)" + (decimal ? "[\\.\\,]?\\d?" : ""))));
+    textInputFormatters.add(FilteringTextInputFormatter.allow(RegExp((signed ? "-?" : "") + "(0|[1-9]\\d*)" + (decimal ? "[\\.\\,]?\\d?" : ""))));
     return textInputFormatters;
   }
 

@@ -477,7 +477,6 @@ class DateTimePickerModel extends CommonPickerModel {
 
   @override
   void setLeftIndex(int index) {
-    // TODO: implement setLeftIndex
     super.setLeftIndex(index);
 
     DateTime time = currentTime.add(Duration(days: index));
@@ -492,7 +491,6 @@ class DateTimePickerModel extends CommonPickerModel {
 
   @override
   void setMiddleIndex(int index) {
-    // TODO: implement setMiddleIndex
     super.setMiddleIndex(index);
     DateTime time = currentTime.add(Duration(days: _currentLeftIndex));
     if (isAtSameDay(minTime, time) && index == 0) {

@@ -131,7 +131,7 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
           )
         )
       ),
-      body: SingleChildScrollView(
+      body: ConstantsBase.wrapWidgetWithBanner(SingleChildScrollView(
         padding: EdgeInsets.all(8.0),
         child: Form(
           key: _formKey,
@@ -140,7 +140,7 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
             children: getFormItems(),
           )
         ),
-      )
+      ))
     );
   }
 }

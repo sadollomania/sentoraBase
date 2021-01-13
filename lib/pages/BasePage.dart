@@ -8,7 +8,7 @@ import 'package:sentora_base/navigator/NavigatorBase.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 
 abstract class BasePage extends StatefulWidget {
-  final String Function(StateData stateData) pageTitle;
+  final dynamic Function(StateData stateData) pageTitle;
   final Widget Function(StateData stateData) body;
 
   final dynamic Function(StateData stateData) initialTag;
@@ -142,11 +142,11 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
     Widget scaffoldWidget = Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(widget.pageTitle(stateData)),
+        title: widget.pageTitle(stateData) is Widget ? widget.pageTitle(stateData) : Text(widget.pageTitle(stateData)),
         centerTitle: true,
         bottom: widget.topBar == null ? PreferredSize(preferredSize: Size.fromHeight(0), child: Container(height: 0,),) : widget.topBar(stateData)
       ),
-      body: SafeArea(child:widget.body(stateData),),
+      body: SafeArea(child:ConstantsBase.wrapWidgetWithBanner(widget.body(stateData)),),
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(),
         notchMargin: 4.0,

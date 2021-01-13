@@ -90,8 +90,7 @@ class _FilterDialogState extends State<FilterDialog> {
                 children: fieldType.constructFilterFields(context, filterMap, widget.scaffoldKey)
             ),
           ),
-          tapHeaderToExpand: true,
-          hasIcon: true,
+          theme: ExpandableThemeData(hasIcon: true, tapHeaderToExpand: true),
         ));
         filterWidgetList.add(SizedBox(height: 10,));
         //filterWidgetList.addAll(fieldType.constructFilterFields(context));

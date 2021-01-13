@@ -97,8 +97,9 @@ class DBHelperBase {
 
   static Future<void> openFileExplorerForDBRestore(BuildContext context) async {
     try {
-      String _path = await FilePicker.getFilePath(type: FileType.ANY, fileExtension: "");
-      if(null != _path) {
+      FilePickerResult result = await FilePicker.platform.pickFiles(type: FileType.any, allowMultiple: false,);
+      if(null != result && null != result.paths && result.paths.isNotEmpty) {
+        String _path = result.paths.first;
         await instance.restoreDB(_path);
         await instance.getDb();
       }

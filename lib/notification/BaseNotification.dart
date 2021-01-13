@@ -6,10 +6,10 @@ import 'package:sentora_base/notification/ReceivedNotification.dart';
 import 'package:synchronized/synchronized.dart';
 
 class BaseNotification {
-  static RepeatInterval intervalEveryMinute = RepeatInterval.EveryMinute;
-  static RepeatInterval intervalHourly = RepeatInterval.Hourly;
-  static RepeatInterval intervalDaily = RepeatInterval.Daily;
-  static RepeatInterval intervalWeekly = RepeatInterval.Weekly;
+  static RepeatInterval intervalEveryMinute = RepeatInterval.everyMinute;
+  static RepeatInterval intervalHourly = RepeatInterval.hourly;
+  static RepeatInterval intervalDaily = RepeatInterval.daily;
+  static RepeatInterval intervalWeekly = RepeatInterval.weekly;
   static Lock lock = Lock();
 
   static Time contructNotificationTime(int hour, int minute, int second) {
@@ -24,9 +24,10 @@ class BaseNotification {
 
   static AndroidNotificationDetails andDetails = AndroidNotificationDetails(
       'TR_COM_SENTORA_NOTIFICATION_ID', 'TR_COM_SENTORA_NOTIFICATION_NAME', 'TR_COM_SENTORA_NOTIFICATION_CHANNEL',
-      importance: Importance.Max, priority: Priority.High, ticker: 'ticker');
+      importance: Importance.max, priority: Priority.high, ticker: 'ticker');
   static IOSNotificationDetails iosDetails = IOSNotificationDetails();
-  static NotificationDetails nDetails = NotificationDetails(andDetails, iosDetails);
+  static MacOSNotificationDetails macOSDetails = MacOSNotificationDetails();
+  static NotificationDetails nDetails = NotificationDetails(android: andDetails, iOS: iosDetails, macOS: macOSDetails);
 
   //TODO android/app/src/main/res/drawable/app_icon.png eklenmeli. !! Bunu assert ile var mı diye bakabilirsin.
   /// Android icin
@@ -58,7 +59,8 @@ class BaseNotification {
             onDidReceiveLocalNotification: (int id, String title, String body, String payload) async {
               _didReceiveLocalNotificationController.add(ReceivedNotification(id: id, title: title, body: body, payload: payload));
             });
-        var initializationSettings = InitializationSettings(initializationSettingsAndroid, initializationSettingsIOS);
+        var initializationSettingsMacOS = MacOSInitializationSettings();
+        var initializationSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOS, macOS: initializationSettingsMacOS);
         await _flutterLocalNotificationsPlugin.initialize(
             initializationSettings,
             onSelectNotification: (String payload) async {
@@ -97,14 +99,16 @@ class BaseNotification {
     await _flutterLocalNotificationsPlugin.cancel(id);
     if(interval != null) {
       switch(interval) {
-        case RepeatInterval.EveryMinute:
-        case RepeatInterval.Hourly:
-        case RepeatInterval.Weekly:
+        case RepeatInterval.everyMinute:
+        case RepeatInterval.hourly:
+        case RepeatInterval.weekly:
           await _flutterLocalNotificationsPlugin.periodicallyShow(id, title, body, interval, nDetails, payload: payload);
           break;
-        case RepeatInterval.Daily:
+        case RepeatInterval.daily:
           if(time != null) {
-            await _flutterLocalNotificationsPlugin.showDailyAtTime(id, title, body, time, nDetails, payload: payload);
+            DateTime now = DateTime.now();
+            DateTime dt = DateTime(now.year, now.month, now.day, time.hour, time.minute, time.second);
+            await _flutterLocalNotificationsPlugin.zonedSchedule(id, title, body, dt, nDetails, payload: payload, androidAllowWhileIdle: true, uiLocalNotificationDateInterpretation: null, matchDateTimeComponents: DateTimeComponents.time);
           } else {
             await _flutterLocalNotificationsPlugin.periodicallyShow(id, title, body, interval, nDetails, payload: payload);
           }
@@ -117,7 +121,7 @@ class BaseNotification {
         if(dt.isBefore(now)) {
           dt.add(Duration(days: 1));
         }
-        await _flutterLocalNotificationsPlugin.schedule(id, title, body, dt, nDetails, payload: payload, androidAllowWhileIdle: true);
+        await _flutterLocalNotificationsPlugin.zonedSchedule(id, title, body, dt, nDetails, uiLocalNotificationDateInterpretation: null, androidAllowWhileIdle: true, payload: payload);
       } else {
         await _flutterLocalNotificationsPlugin.show(id, title, body, nDetails, payload: payload);
       }
@@ -131,7 +135,7 @@ class BaseNotification {
     }
 
     await _flutterLocalNotificationsPlugin.cancel(id);
-    await _flutterLocalNotificationsPlugin.schedule(id, title, body, scheduledDate, nDetails, payload: payload, androidAllowWhileIdle: true);
+    await _flutterLocalNotificationsPlugin.zonedSchedule(id, title, body, scheduledDate, nDetails, uiLocalNotificationDateInterpretation: null, androidAllowWhileIdle: true, payload: payload);
   }
 
   static Future<void> cancelNotification(int id) async {

@@ -23,6 +23,7 @@ class ImageField extends StatefulWidget{
 }
 
 class ImageFieldState extends State<ImageField> {
+  ImagePicker ip = ImagePicker();
   File image;
   Image tmpImg;
 
@@ -37,8 +38,9 @@ class ImageFieldState extends State<ImageField> {
   }
 
   void _filePicker() async{
-    File img = await ImagePicker.pickImage(source:ImageSource.gallery);
-    if(img != null) {
+    PickedFile pf = await ip.getImage(source: ImageSource.gallery);
+    if(pf != null && pf.path != null) {
+      File img = File(pf.path);
       setState(() {
         image = img;
         tmpImg = Image.file(image, fit:BoxFit.scaleDown);
@@ -48,8 +50,9 @@ class ImageFieldState extends State<ImageField> {
   }
 
   void _cameraPicker() async{
-    File img = await ImagePicker.pickImage(source:ImageSource.camera);
-    if(img != null) {
+    PickedFile pf = await ip.getImage(source: ImageSource.camera);
+    if(pf != null && pf.path != null) {
+      File img = File(pf.path);
       setState(() {
         image = img;
         tmpImg = Image.file(image, fit:BoxFit.scaleDown);

@@ -1,84 +1,85 @@
 import 'package:flutter/material.dart';
 //import 'package:sentora_base/ads/AdMobAds.dart';
-import 'package:sentora_base/ads/UnityAds.dart';
+import 'package:sentora_base/ads/UnityAdsSentora.dart';
 
 class AppAds {
   static String _type;
   static bool _disabled;
 
-  static void init(adsConfig){
+  static void init(adsConfig) {
     _type = adsConfig["type"];
     _disabled = adsConfig["adsDisabled"];
-    switch(_type) {
+    switch (_type) {
       /*case "AdMob":
         AdMobAds.init(adsConfig["adsAppId"], bannerUnitId: adsConfig["adsBannerUnitId"], screenUnitId: adsConfig["adsScreenUnitId"], rewardUnitId: adsConfig["adsRewardUnitId"]);
         break;*/
       case "UnityAds":
-        UnityAds.init(adsConfig["androidId"], adsConfig["iosId"], adsConfig["testMode"], adsConfig["bannerPlacementId"], adsConfig["screenPlacementId"], adsConfig["videoPlacementId"], adsConfig["minInterval"]);
+        UnityAdsSentora.init(adsConfig["androidId"], adsConfig["iosId"], adsConfig["testMode"], adsConfig["bannerPlacementId"], adsConfig["screenPlacementId"],
+            adsConfig["videoPlacementId"], adsConfig["minInterval"]);
         break;
     }
   }
 
-  static void showBanner() {
-    if(_disabled) {
+  /*static void showBanner() {
+    if (_disabled) {
       debugPrint("Apps are Disabled from config.");
       return;
     }
 
-    switch(_type) {
+    switch (_type) {
       /*case "AdMob":
         AdMobAds.showBanner();
         break;*/
       case "UnityAds":
-        UnityAds.showBanner();
+        UnityAdsSentora.showBanner();
         break;
     }
-  }
+  }*/
 
   static void showScreen() {
-    if(_disabled) {
+    if (_disabled) {
       debugPrint("Apps are Disabled from config.");
       return;
     }
 
-    switch(_type) {
+    switch (_type) {
       /*case "AdMob":
         AdMobAds.showScreen();
         break;*/
       case "UnityAds":
-        UnityAds.showScreen();
+        UnityAdsSentora.showScreen();
         break;
     }
   }
 
   static void showVideo() {
-    if(_disabled) {
+    if (_disabled) {
       debugPrint("Apps are Disabled from config.");
       return;
     }
 
-    switch(_type) {
+    switch (_type) {
       /*case "AdMob":
         AdMobAds.showVideo();
         break;*/
       case "UnityAds":
-        UnityAds.showVideo();
+        UnityAdsSentora.showVideo();
         break;
     }
   }
 
-  static void dispose(){
-    if(_disabled) {
+  static void dispose() {
+    if (_disabled) {
       debugPrint("Apps are Disabled from config.");
       return;
     }
 
-    switch(_type) {
+    switch (_type) {
       /*case "AdMob":
         AdMobAds.dispose();
         break;*/
       case "UnityAds":
-        UnityAds.dispose();
+        UnityAdsSentora.dispose();
         break;
     }
   }

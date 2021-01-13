@@ -17,6 +17,7 @@ import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/SntText.dart';
 import 'package:share/receive_share_state.dart';
 import 'package:share/share.dart';
+import 'package:unity_ads_plugin/ad/unity_banner_ad.dart';
 
 abstract class BaseApp extends StatefulWidget {
   static Future<Null> defaultEmptyFutureNull() {
@@ -133,6 +134,10 @@ abstract class BaseApp extends StatefulWidget {
             )
         ) {
     ConstantsBase.localeConfig = this.localeConfig;
+    ConstantsBase.bannerEnabled = adsConfig != null && adsConfig["adsDisabled"] != true && adsConfig["bannerEnabled"] == true;
+    if(ConstantsBase.bannerEnabled) {
+      ConstantsBase.unityBannerAd = Row(mainAxisAlignment: MainAxisAlignment.center, children:[UnityBannerAd(placementId: "banner",)]);
+    }
     if(!this.prefDefaultVals.containsKey(ConstantsBase.introShownKey)) {
       this.prefDefaultVals[ConstantsBase.introShownKey] = "0";
     }
