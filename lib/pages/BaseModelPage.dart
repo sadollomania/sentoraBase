@@ -33,13 +33,13 @@ class BaseModelPage extends BasePage {
           title: Text(ConstantsBase.translate("emin_misiniz") + "?"),
           content: Text(stateData.tag["ornekKayit"].singleTitle + " " + kayit.getCombinedTitleValue() + " " + ConstantsBase.translate("silinecektir") + "!"),
           actions: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text(ConstantsBase.translate("iptal")),
               onPressed: () async{
                 await NavigatorBase.pop();
               },
             ),
-            FlatButton(
+            TextButton(
               child: Text(ConstantsBase.translate("sil")),
               onPressed: () async{
                 await BaseModel.delete(kayit).then((_) async{

@@ -64,7 +64,7 @@ class _DBBackupRestoreState extends State<DBBackupRestore> {
               icon: Icons.file_download,
               onTap: () async{
                 String backupPath = await DBHelperBase.instance.backupDB();
-                Scaffold.of(context).showSnackBar(SnackBar(content: Text(widget.dbBackedUpStr(context) + " : " + backupPath),));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.dbBackedUpStr(context) + " : " + backupPath),));
               }
           ),
           SizedBox(width: 10,),

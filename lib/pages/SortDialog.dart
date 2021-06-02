@@ -22,11 +22,11 @@ class SortDialog extends StatefulWidget {
 }
 
 class _SortDialogState extends State<SortDialog> {
-  List<String> listOrder = List<String>();
-  List<String> listTitles = List<String>();
-  List<bool> enabledList = List<bool>();
-  List<String> directionList = List<String>();
-  List<String> nullsOrderList = List<String>();
+  List<String> listOrder = [];
+  List<String> listTitles = [];
+  List<bool> enabledList = [];
+  List<String> directionList = [];
+  List<String> nullsOrderList = [];
   String baseModelPageId;
 
   _SortDialogState({
@@ -74,11 +74,11 @@ class _SortDialogState extends State<SortDialog> {
   }
 
   void sortListsProperly() {
-    List<String> newListOrder = List<String>();
-    List<bool> newEnabledList = List<bool>();
-    List<String> newDirectionList = List<String>();
-    List<String> newTitlesList = List<String>();
-    List<String> newNullsOrderList = List<String>();
+    List<String> newListOrder = [];
+    List<bool> newEnabledList = [];
+    List<String> newDirectionList = [];
+    List<String> newTitlesList = [];
+    List<String> newNullsOrderList = [];
 
     for(int i = 0, len = listOrder.length; i < len; ++i) {
       if(enabledList[i]) {
@@ -109,7 +109,7 @@ class _SortDialogState extends State<SortDialog> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _children = List<Widget>();
+    List<Widget> _children = [];
     for(int i = 0, len = listOrder.length; i < len; ++i) {
       String fieldName = listOrder[i];
       String fieldLabel = listTitles[i];

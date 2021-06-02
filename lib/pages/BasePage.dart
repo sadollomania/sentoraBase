@@ -71,14 +71,14 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
           title: Text(widget.popTitle(stateData)),
           content: Text(widget.popText(stateData)),
           actions: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text(widget.popCancelTitle(stateData)),
               onPressed: () async{
                 await NavigatorBase.pop(false);
                 return;
               },
             ),
-            FlatButton(
+            TextButton(
               child: Text(widget.popOkTitle(stateData)),
               onPressed: () async{
                 await NavigatorBase.pop(true);

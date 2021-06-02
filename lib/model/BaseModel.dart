@@ -14,7 +14,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sentora_base/data/DBHelperBase.dart';
 
 class BaseModel {
-  static List<String> _models = List<String>();
+  static List<String> _models = [];
   static Map<String, String> _modelTableNames = Map<String, String>();
   static Map<String, List<BaseFieldType>> _modelFieldTypes = Map<String, List<BaseFieldType>>();
   static Map<String, List<String>> _modelTitleFields = Map<String, List<String>>();
@@ -138,7 +138,7 @@ class BaseModel {
   }*/
 
   List<BaseFieldType> _constructFields() {
-    List<BaseFieldType> allFieldTypes = List<BaseFieldType>();
+    List<BaseFieldType> allFieldTypes = [];
     allFieldTypes.add(StringFieldType(fieldLabel:"ID", fieldHint:ConstantsBase.translate("kayit_no"), name:"ID", nullable: false, filterable: false));
     allFieldTypes.add(DateFieldType(fieldLabel:ConstantsBase.translate("kayit_tarihi"), fieldHint:ConstantsBase.translate("kayit_tarihi_hint"), name:"INSDATE", nullable: false));
     allFieldTypes.add(StringFieldType(fieldLabel:ConstantsBase.translate("kayit_eden"), fieldHint:ConstantsBase.translate("kayit_eden_hint"), name:"INSBY", nullable: false, sortable: false, filterable: false));
@@ -226,7 +226,7 @@ class BaseModel {
   }
 
   List<String> _createDbFkIndexes() {
-    List<String> statements = List<String>();
+    List<String> statements = [];
     allFieldTypes.forEach((fieldType){
       if(fieldType.runtimeType == ForeignKeyFieldType) {
         String indexScript = "CREATE INDEX FK_IND_" + tableName + "_" + fieldType.name + " ON " + tableName + "(" + fieldType.name + ");";
@@ -355,7 +355,7 @@ class BaseModel {
     Map<String, dynamic> retMap = Map<String, dynamic>();
     final Database db = dbParam ?? await DBHelperBase.instance.getDb();
     String where;
-    List<dynamic> whereArgs = List<dynamic>();
+    List<dynamic> whereArgs = [];
     if(filterMap != null && filterMap.length > 0) {
       String str;
       dynamic val;
@@ -491,7 +491,7 @@ class BaseModel {
         maps = await db.rawQuery(pagedQuery, whereArgs);
       }
     }
-    List<BaseModel> retList = List<BaseModel>();
+    List<BaseModel> retList = [];
     for(int i = 0, len = maps.length; i < len; ++i) {
       BaseModel newObj = BaseModel.createNewObject(modelName);
       await newObj._fromMap(maps[i]);
@@ -603,7 +603,7 @@ class BaseModel {
       currentModel = currentModel.get(currentFieldName) as BaseModel;
     }
     fieldTitle += " " + findFieldByName(currentModel, path[i]).fieldLabel;
-    List<String> retStrList = List<String>();
+    List<String> retStrList = [];
     retStrList.add(fieldTitle.substring(1));
     dynamic objVal = currentModel.get(path[i]);
     String fieldValue = _convertObjValToStr(objVal);

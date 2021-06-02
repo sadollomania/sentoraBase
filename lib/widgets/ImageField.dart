@@ -38,6 +38,7 @@ class ImageFieldState extends State<ImageField> {
   }
 
   void _filePicker() async{
+    //File pf = await ImagePicker.pickImage(source: ImageSource.gallery);
     PickedFile pf = await ip.getImage(source: ImageSource.gallery);
     if(pf != null && pf.path != null) {
       File img = File(pf.path);
@@ -50,6 +51,7 @@ class ImageFieldState extends State<ImageField> {
   }
 
   void _cameraPicker() async{
+    //File pf = await ImagePicker.pickVideo(source: ImageSource.camera);
     PickedFile pf = await ip.getImage(source: ImageSource.camera);
     if(pf != null && pf.path != null) {
       File img = File(pf.path);

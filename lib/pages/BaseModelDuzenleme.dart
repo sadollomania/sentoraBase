@@ -53,7 +53,7 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
   }
 
   List<Widget> getFormItems() {
-    List<Widget> retWidgets = List<Widget>();
+    List<Widget> retWidgets = [];
     for(int i = 0, len = kayit.fieldTypes.length; i < len; ++i) {
       BaseFieldType fieldType = kayit.fieldTypes[i];
       retWidgets.add(fieldType.constructFormField(context, kayit, i == len - 1, _scaffoldKey));

@@ -33,11 +33,11 @@ abstract class ButtonNavPage extends BasePage {
     initialTag : (stateData) => {
       "screenWidthRatio" : screenWidthRatio,
       "loadState" : 0,
-      "loadStateHeaders" : List<String>(),
+      "loadStateHeaders" : [],
     },
     initStateFunction : initStateFunction,
     didChangeDependenciesFunction : (stateData) {
-      stateData.tag["loadStateHeaders"] = loadStateHeaders?.call(stateData) ?? List<String>();
+      stateData.tag["loadStateHeaders"] = loadStateHeaders?.call(stateData) ?? [];
       loadHeadersInitStateFunction?.call(stateData);
     },/*
     afterRender : (stateData) {
@@ -56,7 +56,7 @@ abstract class ButtonNavPage extends BasePage {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: menuConfig(stateData).map<List<Widget>>((menuButtonConfig){
-                      List<Widget> retList = List<Widget>();
+                      List<Widget> retList = [];
                       retList.add(
                         MenuButton(
                           title : menuButtonConfig.title,

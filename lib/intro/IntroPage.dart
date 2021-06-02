@@ -95,7 +95,7 @@ class _IntroPageState extends State<IntroPage> {
           sizeDot: 8.0,
 
           // Show or hide status bar
-          shouldHideStatusBar: false,
+          hideStatusBar: false,
           backgroundColorAllSlides: Colors.grey,
         )
       ),

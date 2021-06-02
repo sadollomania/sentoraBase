@@ -26,6 +26,8 @@ enum SNACKBAR_DURATION{
 }
 
 class ConstantsBase {
+  static bool isWeb = false;
+
   static final double datePickerHeight = 210;
   static final DateTime defaultMinTime = DateTime(2000, 1, 1);
   static final DateTime defaultMaxTime = DateTime(2199, 12, 31);
@@ -191,7 +193,7 @@ class ConstantsBase {
         compDuration = duration ?? const Duration(seconds: 3);
         break;
     }
-    return _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(text), duration: compDuration,));
+    return ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(SnackBar(content: Text(text), duration: compDuration,));
   }
 
   static SizedBox createSizedBoxWithBgColor({double width, double height, Color color}) {
@@ -309,7 +311,7 @@ class ConstantsBase {
 
   static List<TextInputFormatter> getNumberTextInputFormatters({bool signed, bool decimal}) {
     assert(signed != null && decimal != null);
-    List<TextInputFormatter> textInputFormatters = List<TextInputFormatter>();
+    List<TextInputFormatter> textInputFormatters = [];
     textInputFormatters.add(FilteringTextInputFormatter.allow(RegExp((signed ? "-?" : "") + "(0|[1-9]\\d*)" + (decimal ? "[\\.\\,]?\\d?" : ""))));
     return textInputFormatters;
   }

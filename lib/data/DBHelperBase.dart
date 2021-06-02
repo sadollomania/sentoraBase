@@ -28,8 +28,12 @@ class DBHelperBase {
   bool _didInit = false;
 
   Future<String> _getDBPath() async {
-    String dbFolder = await getDatabasesPath();
-    return join(dbFolder, databaseFileName);
+    if(ConstantsBase.isWeb) {
+      return inMemoryDatabasePath;
+    } else {
+      String dbFolder = await getDatabasesPath();
+      return join(dbFolder, databaseFileName);
+    }
   }
 
   Future _init() async {

@@ -56,7 +56,7 @@ class _MenuButtonState extends State<MenuButton> {
   @override
   Widget build(BuildContext context) {
     Widget  textWidget;
-    List<Widget> rowWidgetList = List<Widget>();
+    List<Widget> rowWidgetList = [];
     if(widget.iconData != null) {
       rowWidgetList.add(
         Expanded(
@@ -112,9 +112,16 @@ class _MenuButtonState extends State<MenuButton> {
       );
     }
 
-    return RaisedButton(
-        padding: widget.edgeInsetsGeometry,
-        color: widget.buttonColor,
+    return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          padding: widget.edgeInsetsGeometry,
+          primary: widget.buttonColor,
+          textStyle: TextStyle(
+            color: widget.disabled || running ? widget.disabledColor : widget.enabledColor,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: new BorderRadius.circular(widget.circularRadius))
+        ),
         child: Container(
           height: widget.height,
           child: Stack(
@@ -129,7 +136,6 @@ class _MenuButtonState extends State<MenuButton> {
             ..addAll(running ? [Container(child: Center(child: CircularProgressIndicator(),),)] : []),
           ),
         ), // Text(title, style: TextStyle(fontSize: fontSize)),
-        textColor: widget.disabled || running ? widget.disabledColor : widget.enabledColor,
         onPressed: widget.disabled || running ? null : () async{
           if(mounted) {
             setState(() {
@@ -143,9 +149,7 @@ class _MenuButtonState extends State<MenuButton> {
             });
           }
           return;
-        },
-        shape: RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(widget.circularRadius)));
+        });
   }
 
 }

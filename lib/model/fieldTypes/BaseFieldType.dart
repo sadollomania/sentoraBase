@@ -48,7 +48,7 @@ abstract class BaseFieldType {
 
   List<Widget> constructFilterFields(BuildContext context, Map<String, dynamic> filterMap, GlobalKey<ScaffoldState> scaffoldKey) {
     List<String> filterModes = getFilterModes();
-    List<Widget> retList = List<Widget>();
+    List<Widget> retList = [];
     for(int i = 0, len = filterModes.length; i < len; ++i) {
       retList.add(constructFilterField(context, filterMap, i, scaffoldKey));
     }
@@ -58,7 +58,7 @@ abstract class BaseFieldType {
   List<Widget> constructFilterButtons(BuildContext context, Map<String, dynamic> filterMap) {
     List<String> filterModes = getFilterModes();
     List<String> filterModeTitles = getFilterModeTitles();
-    List<Widget> retList = List<Widget>();
+    List<Widget> retList = [];
     for(int i = 0, len = filterModes.length; i < len; ++i) {
       String filterMode = filterModes[i];
       String filterModeTitle = filterModeTitles[i];

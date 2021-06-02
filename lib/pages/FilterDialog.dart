@@ -62,7 +62,7 @@ class _FilterDialogState extends State<FilterDialog> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> filterWidgetList = List<Widget>();
+    List<Widget> filterWidgetList = [];
     widget.ornekKayit.allFieldTypes.forEach((fieldType){
       if(fieldType.filterable) {
         filterWidgetList.add(ExpandablePanel(

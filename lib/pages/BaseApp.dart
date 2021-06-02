@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:devicelocale/devicelocale.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:intro_slider/slide_object.dart';
@@ -25,17 +26,22 @@ abstract class BaseApp extends StatefulWidget {
   }
 
   void runAppBase() async{
+    ConstantsBase.isWeb = kIsWeb;
     await beforeRun();
     await ConstantsBase.loadPrefs();
     String currLocale = ConstantsBase.getKeyValue(ConstantsBase.localeKey);
     if(currLocale == null || currLocale.isEmpty) {
-      String baseSystemLocale = await Devicelocale.currentLocale;
-      String loweredSystemLocale = baseSystemLocale.toLowerCase();
-      String systemLocale = loweredSystemLocale.replaceAll("-", "_");
-      if(systemLocale == "tr_tr" || systemLocale == "tr") {
+      if(ConstantsBase.isWeb) {
         await ConstantsBase.setKeyValue(ConstantsBase.localeKey, "tr");
       } else {
-        await ConstantsBase.setKeyValue(ConstantsBase.localeKey, "en");
+        String baseSystemLocale = await Devicelocale.currentLocale;
+        String loweredSystemLocale = baseSystemLocale.toLowerCase();
+        String systemLocale = loweredSystemLocale.replaceAll("-", "_");
+        if(systemLocale == "tr_tr" || systemLocale == "tr") {
+          await ConstantsBase.setKeyValue(ConstantsBase.localeKey, "tr");
+        } else {
+          await ConstantsBase.setKeyValue(ConstantsBase.localeKey, "en");
+        }
       }
     }
     await ConstantsBase.loadLocalizedValues();
@@ -175,13 +181,13 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
       });
     }
 
-    if(widget.shareConfig != null && widget.shareConfig["enableReceiveShare"] == true) {
+    if(widget.shareConfig != null && widget.shareConfig["enableReceiveShare"] == true && !ConstantsBase.isWeb) {
       enableShareReceiving();
     }
 
     ConstantsBase.eventBus = EventBus();
 
-    if(widget.adsConfig != null && widget.adsConfig["adsDisabled"] != true) {
+    if(widget.adsConfig != null && widget.adsConfig["adsDisabled"] != true && !ConstantsBase.isWeb) {
       AppAds.init(widget.adsConfig);
     }
     widget.afterInitState(context);
