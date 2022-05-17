@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
 import 'package:sentora_base/widgets/form/field/TimeField.dart';
@@ -11,13 +10,13 @@ class TimeFieldType extends BaseFieldType {
   static final DateTime defaultMaxTime = DateTime(2199, 12, 31);
 
   TimeFieldType({
-    @required String fieldLabel,
-    @required String fieldHint,
-    @required String name,
-    bool nullable,
-    DateTime defaultValue,
+    required String fieldLabel,
+    required String fieldHint,
+    required String name,
+    bool? nullable,
+    DateTime? defaultValue,
     bool unique = false,
-    bool Function(BaseModel baseModel) nullableFn,
+    bool Function(BaseModel baseModel)? nullableFn,
     bool sortable = true,
     bool filterable = true,
   }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, unique: unique, defaultValue: defaultValue, nullableFn : nullableFn, sortable : sortable, filterable : filterable);

@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/TimeFieldType.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
-import 'package:sentora_base/widgets/datepicker/SentoraDatePicker.dart';
-import 'package:sentora_base/widgets/datepicker/SentoraDatePickerTheme.dart';
 import 'package:sentora_base/widgets/form/field/BaseField.dart';
 
 class TimeField extends BaseField {
   TimeField({
-    @required BuildContext context,
-    @required TimeFieldType fieldType,
-    @required BaseModel kayit,
-    @required bool lastField,
-    @required GlobalKey<ScaffoldState> scaffoldKey,
+    required BuildContext context,
+    required TimeFieldType fieldType,
+    required BaseModel kayit,
+    required bool lastField,
+    required GlobalKey<ScaffoldState> scaffoldKey,
   }) : super(
     context: context,
     kayit: kayit,
@@ -29,10 +28,10 @@ class TimeField extends BaseField {
     },
     scaffoldKey : scaffoldKey,
     onTapReplacementFunc: (String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey,){
-      return SentoraDatePicker.showTimePicker(context,
-        theme: SentoraDatePickerTheme(
+      return DatePicker.showTimePicker(context,
+        theme: DatePickerTheme(
           containerHeight: ConstantsBase.datePickerHeight,
-          title: fieldType.fieldLabel,
+          //title: fieldType.fieldLabel,
         ),
         onConfirm: (date) {
           ConstantsBase.eventBus.fire(FormFieldValueChangedEvent(sentoraFieldBaseStateUid, ConstantsBase.timeFormat.format(date), date));
@@ -42,7 +41,7 @@ class TimeField extends BaseField {
             }*/
         },
         currentTime: realValue ?? DateTime.now(),
-        locale: SentoraDatePicker.convertLocaleToLocaleType()
+        locale: ConstantsBase.convertLocaleToLocaleType()
       );
     }
   );

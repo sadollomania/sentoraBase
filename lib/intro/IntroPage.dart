@@ -6,12 +6,12 @@ import 'package:sentora_base/utils/ConstantsBase.dart';
 
 class IntroPage extends StatefulWidget {
   final List<Slide> Function(BuildContext context) slides;
-  final Widget mainPage;
-  final Color topBarColor;
-  final Color bottomBarColor;
+  final Widget? mainPage;
+  final Color? topBarColor;
+  final Color? bottomBarColor;
 
   IntroPage({
-    @required this.slides,
+    required this.slides,
     this.topBarColor,
     this.bottomBarColor,
     this.mainPage,
@@ -32,7 +32,7 @@ class _IntroPageState extends State<IntroPage> {
     if(widget.mainPage == null) {
       NavigatorBase.pop();
     } else {
-      NavigatorBase.pushReplacement(widget.mainPage);
+      NavigatorBase.pushReplacement(widget.mainPage!);
     }
   }
 
@@ -77,8 +77,10 @@ class _IntroPageState extends State<IntroPage> {
 
           // Skip button
           renderSkipBtn: this.renderSkipBtn(),
-          colorSkipBtn: Color(0x33000000),
-          highlightColorSkipBtn: Color(0xff000000),
+          skipButtonStyle: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Color(0x33000000)),
+            overlayColor: MaterialStateProperty.all<Color>(Color(0xff000000)),
+          ),
 
           // Next button
           renderNextBtn: this.renderNextBtn(),
@@ -86,8 +88,10 @@ class _IntroPageState extends State<IntroPage> {
           // Done button
           renderDoneBtn: this.renderDoneBtn(),
           onDonePress: this.onDonePress,
-          colorDoneBtn: Color(0x33000000),
-          highlightColorDoneBtn: Color(0xff000000),
+          doneButtonStyle: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Color(0x33000000)),
+            overlayColor: MaterialStateProperty.all<Color>(Color(0xff000000)),
+          ),
 
           // Dot indicator
           colorDot: Color(0x33D02090),

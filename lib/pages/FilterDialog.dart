@@ -10,32 +10,30 @@ import 'package:sentora_base/widgets/MenuButton.dart';
 import 'package:sentora_base/events/FilterValueChangedEvent.dart';
 
 class FilterDialog extends StatefulWidget {
-  final Map<String, dynamic> filterMap;
+  final Map<String, dynamic>? filterMap;
   final BaseModel ornekKayit;
   final String baseModelPageId;
   final GlobalKey<ScaffoldState> scaffoldKey;
 
   FilterDialog({
-    @required this.filterMap,
-    @required this.ornekKayit,
-    @required this.baseModelPageId,
-    @required this.scaffoldKey,
-  }) :
-  assert(ornekKayit != null),
-  assert(baseModelPageId != null);
+    required this.filterMap,
+    required this.ornekKayit,
+    required this.baseModelPageId,
+    required this.scaffoldKey,
+  });
 
   @override
   _FilterDialogState createState() => new _FilterDialogState(widgetFilterMap: filterMap, baseModelPageId : baseModelPageId);
 }
 
 class _FilterDialogState extends State<FilterDialog> {
-  Map<String, dynamic> filterMap;
+  late Map<String, dynamic> filterMap;
   String baseModelPageId;
-  StreamSubscription filterValueChangedSubscription;
+  late StreamSubscription filterValueChangedSubscription;
 
   _FilterDialogState({
-    Map<String, dynamic> widgetFilterMap,
-    this.baseModelPageId,
+    Map<String, dynamic>? widgetFilterMap,
+    required this.baseModelPageId,
   }) {
     filterMap = Map<String, dynamic>();
     if(widgetFilterMap != null) {

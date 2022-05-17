@@ -7,33 +7,33 @@ import 'package:sentora_base/utils/ConstantsBase.dart';
 
 class SentoraFieldBase extends StatefulWidget {
   final String title;
-  final String hint;
-  final String textValue;
+  final String? hint;
+  final String? textValue;
   final dynamic realValue;
   final bool lastField;
   final bool readOnly;
-  final void Function(String textValue, dynamic realValue) onSaved;
-  final void Function(String sentoraFieldBaseStateUid, String textValue) onChanged;
-  final void Function(String str) onFieldSubmitted;
-  final String Function(String textValue, dynamic realValue) validator;
-  final TextInputType keyboardType;
+  final void Function(String? textValue, dynamic realValue)? onSaved;
+  final void Function(String sentoraFieldBaseStateUid, String textValue)? onChanged;
+  final void Function(String str)? onFieldSubmitted;
+  final String? Function(String? textValue, dynamic realValue)? validator;
+  final TextInputType? keyboardType;
   final bool suffixCheckboxExists;
-  final List<TextInputFormatter> inputFormatters;
-  final void Function() suffixClearButtonFunc;
-  final void Function() beforeInitState;
-  final void Function() beforeDispose;
+  final List<TextInputFormatter>? inputFormatters;
+  final void Function()? suffixClearButtonFunc;
+  final void Function()? beforeInitState;
+  final void Function()? beforeDispose;
   final GlobalKey<ScaffoldState> scaffoldKey;
-  final Future<dynamic> Function(String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey) onTapReplacementFunc;
+  final Future<dynamic> Function(String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey)? onTapReplacementFunc;
 
   SentoraFieldBase({
-    @required this.title,
+    required this.title,
     this.onSaved,
     this.textValue,
     this.realValue,
     this.hint,
-    bool lastField,
+    bool? lastField,
     this.onChanged,
-    bool suffixCheckboxExists,
+    bool? suffixCheckboxExists,
     this.onFieldSubmitted,
     this.validator,
     this.keyboardType,
@@ -41,7 +41,7 @@ class SentoraFieldBase extends StatefulWidget {
     this.beforeInitState,
     this.beforeDispose,
     this.onTapReplacementFunc,
-    this.scaffoldKey,
+    required this.scaffoldKey,
     this.inputFormatters,
   }) : this.lastField = lastField ?? true,
     this.readOnly = onTapReplacementFunc != null,
@@ -54,21 +54,21 @@ class SentoraFieldBase extends StatefulWidget {
 class _SentoraFieldBaseState extends State<SentoraFieldBase> {
   dynamic realValue;
   String sentoraFieldBaseStateUid = ConstantsBase.getRandomUUID();
-  TextEditingController tec;
-  FocusNode focusNode;
-  StreamSubscription valueChangeSubscription;
+  late TextEditingController tec;
+  late FocusNode focusNode;
+  late StreamSubscription valueChangeSubscription;
 
   void focusNodeListener() {
     if(focusNode.hasFocus) {
       focusNode.unfocus();
-      widget.onTapReplacementFunc(tec.text, realValue, sentoraFieldBaseStateUid, widget.scaffoldKey).then((val){
+      widget.onTapReplacementFunc!(tec.text, realValue, sentoraFieldBaseStateUid, widget.scaffoldKey).then((val){
         if(!widget.lastField && val != null && val != false) {
           List<FocusNode> focusNodeList = FocusScope.of(context).children.toList();
           int index = focusNodeList.indexOf(focusNode);
-          FocusNode newFocusNode;
+          FocusNode? newFocusNode;
           for(int i = index + 1; i < focusNodeList.length; ++i) {
             newFocusNode = focusNodeList[i];
-            if(newFocusNode.context.widget is EditableText) {
+            if(newFocusNode.context!.widget is EditableText) {
               break;
             }
           }
@@ -87,7 +87,7 @@ class _SentoraFieldBaseState extends State<SentoraFieldBase> {
       focusNode.addListener(focusNodeListener);
     }
     if(widget.beforeInitState != null) {
-      widget.beforeInitState();
+      widget.beforeInitState!();
     }
     valueChangeSubscription = ConstantsBase.eventBus.on<FormFieldValueChangedEvent>().listen((event){
       if(event.sentoraFieldBaseStateUid == sentoraFieldBaseStateUid) {
@@ -110,7 +110,7 @@ class _SentoraFieldBaseState extends State<SentoraFieldBase> {
     }
     focusNode.dispose();
     if(widget.beforeDispose != null) {
-      widget.beforeDispose();
+      widget.beforeDispose!();
     }
     super.dispose();
   }
@@ -130,18 +130,18 @@ class _SentoraFieldBaseState extends State<SentoraFieldBase> {
       ) : null),
       onSaved: (str) {
         if(widget.onSaved != null) {
-          widget.onSaved(str, realValue);
+          widget.onSaved!(str, realValue);
         }
       },
       onChanged : (textValue) {
         if(widget.onChanged != null) {
-          widget.onChanged(sentoraFieldBaseStateUid, textValue);
+          widget.onChanged!(sentoraFieldBaseStateUid, textValue);
         }
       },
       onFieldSubmitted: widget.onFieldSubmitted ?? (_){},
       validator: (str){
         if(widget.validator != null) {
-          return widget.validator(str, realValue);
+          return widget.validator!(str, realValue);
         } else {
           return null;
         }
@@ -161,7 +161,7 @@ class _SentoraFieldBaseState extends State<SentoraFieldBase> {
                   tec.text = "";
                   realValue = null;
                 });
-                widget.suffixClearButtonFunc();
+                widget.suffixClearButtonFunc!();
               }
           )
         ],

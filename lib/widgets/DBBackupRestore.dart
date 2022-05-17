@@ -6,7 +6,7 @@ import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/SntIconButton.dart';
 
 class DBBackupRestore extends StatefulWidget{
-  final Future<void> Function(BuildContext context) afterRestoreDb;
+  final Future<void> Function(BuildContext context)? afterRestoreDb;
   final String Function(BuildContext context) titleStr;
   final String Function(BuildContext context) backupStr;
   final String Function(BuildContext context) restoreStr;
@@ -14,11 +14,11 @@ class DBBackupRestore extends StatefulWidget{
   final String Function(BuildContext context) dbBackedUpStr;
 
   DBBackupRestore({
-    @required this.titleStr,
-    @required this.backupStr,
-    @required this.restoreStr,
-    @required this.dbRestoredStr,
-    @required this.dbBackedUpStr,
+    required this.titleStr,
+    required this.backupStr,
+    required this.restoreStr,
+    required this.dbRestoredStr,
+    required this.dbBackedUpStr,
     this.afterRestoreDb,
   });
 
@@ -29,9 +29,9 @@ class DBBackupRestore extends StatefulWidget{
 class _DBBackupRestoreState extends State<DBBackupRestore> {
   Future<void> _openFileExplorerForDBRestore(BuildContext context) async {
     try {
-      FilePickerResult result = await FilePicker.platform.pickFiles(type: FileType.any, allowMultiple: false,);
-      if(null != result && null != result.paths && result.paths.isNotEmpty) {
-        String _path = result.paths.first;
+      FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.any, allowMultiple: false,);
+      if(null != result && result.paths.isNotEmpty) {
+        String _path = result.paths.first!;
         await DBHelperBase.instance.restoreDB(_path);
         await DBHelperBase.instance.getDb();
         await widget.afterRestoreDb?.call(context);

@@ -9,20 +9,18 @@ abstract class ButtonNavPage extends BasePage {
   final double screenWidthRatio;
 
   ButtonNavPage({
-    @required String Function(StateData stateData) pageTitle,
-    @required List<MenuButtonConfig> Function(StateData stateData) menuConfig,
-    String Function(StateData stateData) popText,
-    String Function(StateData stateData) popTitle,
-    String Function(StateData stateData) popCancelTitle,
-    String Function(StateData stateData) popOkTitle,
-    List<String> Function(StateData stateData) loadStateHeaders,
-    void Function(StateData stateData) loadHeadersInitStateFunction,
-    void Function(StateData stateData) initStateFunction,
-    void Function(StateData stateData) disposeFunction,
+    required String Function(StateData stateData) pageTitle,
+    required List<MenuButtonConfig> Function(StateData stateData) menuConfig,
+    String Function(StateData stateData)? popText,
+    String Function(StateData stateData)? popTitle,
+    String Function(StateData stateData)? popCancelTitle,
+    String Function(StateData stateData)? popOkTitle,
+    List<String> Function(StateData stateData)? loadStateHeaders,
+    void Function(StateData stateData)? loadHeadersInitStateFunction,
+    void Function(StateData stateData)? initStateFunction,
+    void Function(StateData stateData)? disposeFunction,
     this.screenWidthRatio = 0.8,
   })  :
-  assert(menuConfig != null),
-  assert(screenWidthRatio != null),
   assert((loadStateHeaders == null && loadHeadersInitStateFunction == null) || (loadStateHeaders != null && loadHeadersInitStateFunction != null)),
   super(
     pageTitle : pageTitle,
@@ -68,9 +66,9 @@ abstract class ButtonNavPage extends BasePage {
                           fontSize: menuButtonConfig.fontSize,
                           onPressed: () async{
                             if(menuButtonConfig.onPressed != null) {
-                              await menuButtonConfig.onPressed(context, stateData.scaffoldKey);
+                              await menuButtonConfig.onPressed!(context, stateData.scaffoldKey);
                             } else {
-                              await NavigatorBase.push(menuButtonConfig.navPage);
+                              await NavigatorBase.push(menuButtonConfig.navPage!);
                             }
                             return;
                           }

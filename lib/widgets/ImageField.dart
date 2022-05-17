@@ -4,15 +4,15 @@ import 'dart:io';
 import 'dart:convert';
 
 class ImageField extends StatefulWidget{
-  final void Function(File) onSaved;
-  final String initialValue;
+  final void Function(File?) onSaved;
+  final String? initialValue;
   final double imgHeight;
   final String noImagePath;
 
   ImageField({
-    @required this.onSaved,
-    @required this.initialValue,
-    @required this.noImagePath,
+    required this.onSaved,
+    required this.initialValue,
+    required this.noImagePath,
     this.imgHeight = 200,
   });
 
@@ -24,14 +24,14 @@ class ImageField extends StatefulWidget{
 
 class ImageFieldState extends State<ImageField> {
   ImagePicker ip = ImagePicker();
-  File image;
-  Image tmpImg;
+  File? image;
+  Image? tmpImg;
 
   @override
   void initState() {
     super.initState();
     if(widget.initialValue != null) {
-      tmpImg = Image.memory(Base64Decoder().convert(widget.initialValue));
+      tmpImg = Image.memory(Base64Decoder().convert(widget.initialValue!));
     } else {
       tmpImg = null;
     }
@@ -39,27 +39,27 @@ class ImageFieldState extends State<ImageField> {
 
   void _filePicker() async{
     //File pf = await ImagePicker.pickImage(source: ImageSource.gallery);
-    PickedFile pf = await ip.getImage(source: ImageSource.gallery);
-    if(pf != null && pf.path != null) {
+    XFile? pf = await ip.pickImage(source: ImageSource.gallery);
+    if(pf != null) {
       File img = File(pf.path);
       setState(() {
         image = img;
-        tmpImg = Image.file(image, fit:BoxFit.scaleDown);
+        tmpImg = Image.file(image!, fit:BoxFit.scaleDown);
       });
-      widget.onSaved(image);
+      widget.onSaved(image!);
     }
   }
 
   void _cameraPicker() async{
     //File pf = await ImagePicker.pickVideo(source: ImageSource.camera);
-    PickedFile pf = await ip.getImage(source: ImageSource.camera);
-    if(pf != null && pf.path != null) {
+    XFile? pf = await ip.pickImage(source: ImageSource.camera);
+    if(pf != null) {
       File img = File(pf.path);
       setState(() {
         image = img;
-        tmpImg = Image.file(image, fit:BoxFit.scaleDown);
+        tmpImg = Image.file(image!, fit:BoxFit.scaleDown);
       });
-      widget.onSaved(image);
+      widget.onSaved(image!);
     }
   }
 
@@ -68,7 +68,7 @@ class ImageFieldState extends State<ImageField> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        Container(height: widget.imgHeight,child:tmpImg != null ? tmpImg : (image == null ? Image.asset(widget.noImagePath, fit:BoxFit.scaleDown) : Image.file(image, fit:BoxFit.scaleDown))),
+        Container(height: widget.imgHeight,child:tmpImg != null ? tmpImg : (image == null ? Image.asset(widget.noImagePath, fit:BoxFit.scaleDown) : Image.file(image!, fit:BoxFit.scaleDown))),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[

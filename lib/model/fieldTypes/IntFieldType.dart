@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
 import 'package:sentora_base/widgets/form/field/IntField.dart';
@@ -12,17 +11,17 @@ class IntFieldType extends BaseFieldType {
   final bool signed;
 
   IntFieldType({
-    @required String fieldLabel,
-    @required String fieldHint,
-    @required String name,
-    bool nullable,
-    int defaultValue,
+    required String fieldLabel,
+    required String? fieldHint,
+    required String name,
+    bool? nullable,
+    int? defaultValue,
     bool unique = false,
     this.length = -1,
     this.minLength = -1,
     this.maxLength = -1,
     this.signed = false,
-    bool Function(BaseModel baseModel) nullableFn,
+    bool Function(BaseModel baseModel)? nullableFn,
     bool sortable = true,
     bool filterable = true,
   }) : assert(length == -1 || length > 0),

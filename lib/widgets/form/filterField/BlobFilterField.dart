@@ -6,11 +6,11 @@ import 'package:sentora_base/widgets/form/filterField/BaseFilterField.dart';
 
 class BlobFilterField extends BaseFilterField {
   BlobFilterField({
-    @required BuildContext context,
-    @required BlobFieldType fieldType,
-    @required int filterIndex,
-    @required Map<String, dynamic> filterMap,
-    @required GlobalKey<ScaffoldState> scaffoldKey,
+    required BuildContext context,
+    required BlobFieldType fieldType,
+    required int filterIndex,
+    required Map<String, dynamic> filterMap,
+    required GlobalKey<ScaffoldState> scaffoldKey,
   }) : super(
     fieldType: fieldType,
     filterIndex: filterIndex,

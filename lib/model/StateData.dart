@@ -5,12 +5,12 @@ class StateData {
   GlobalKey<ScaffoldState> scaffoldKey;
   String pageId;
   dynamic tag;
-  TabController tabController;
+  TabController? tabController;
 
   StateData({
-    this.context,
-    this.scaffoldKey,
-    this.pageId,
+    required this.context,
+    required this.scaffoldKey,
+    required this.pageId,
     this.tag,
     this.tabController,
   });

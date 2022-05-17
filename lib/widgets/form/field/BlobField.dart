@@ -5,11 +5,11 @@ import 'package:sentora_base/widgets/form/field/BaseField.dart';
 
 class BlobField extends BaseField {
   BlobField({
-    @required BuildContext context,
-    @required BlobFieldType fieldType,
-    @required BaseModel kayit,
-    @required bool lastField,
-    @required GlobalKey<ScaffoldState> scaffoldKey,
+    required BuildContext context,
+    required BlobFieldType fieldType,
+    required BaseModel kayit,
+    required bool lastField,
+    required GlobalKey<ScaffoldState> scaffoldKey,
   }) : super(
       context: context,
       kayit: kayit,

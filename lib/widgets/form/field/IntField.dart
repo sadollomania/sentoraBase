@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/IntFieldType.dart';
@@ -8,11 +7,11 @@ import 'package:sentora_base/widgets/form/field/BaseField.dart';
 
 class IntField extends BaseField {
   IntField({
-    @required BuildContext context,
-    @required IntFieldType fieldType,
-    @required BaseModel kayit,
-    @required bool lastField,
-    @required GlobalKey<ScaffoldState> scaffoldKey,
+    required BuildContext context,
+    required IntFieldType fieldType,
+    required BaseModel kayit,
+    required bool lastField,
+    required GlobalKey<ScaffoldState> scaffoldKey,
   }) : super(
     context: context,
     fieldType: fieldType,
@@ -24,7 +23,7 @@ class IntField extends BaseField {
     keyboardType : TextInputType.numberWithOptions(signed: fieldType.signed, decimal: false),
     scaffoldKey : scaffoldKey,
     onSaved : (textValue, realValue) {
-      if (textValue.isNotEmpty) {
+      if (textValue != null && textValue.isNotEmpty) {
         kayit.set(fieldType.name, int.parse(textValue));
       } else {
         kayit.set(fieldType.name, null);

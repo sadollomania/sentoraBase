@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 
 class SntIconButton extends StatefulWidget {
-  final IconData icon;
-  final Widget iconWidget;
-  final String caption;
-  final Color foregroundColor;
-  final Future<void> Function() onTap;
+  final IconData? icon;
+  final Widget? iconWidget;
+  final String? caption;
+  final Color? foregroundColor;
+  final Future<void> Function()? onTap;
   final Color color;
   final Color disabledColor;
   final bool disabled;
@@ -14,17 +14,17 @@ class SntIconButton extends StatefulWidget {
   final Duration animateDuration;
 
   SntIconButton({
-    Key key,
+    Key? key,
     this.icon,
     this.iconWidget,
     this.caption,
     this.foregroundColor,
     this.onTap,
-    bool disabled,
-    Color color,
-    Color disabledColor,
-    bool animate,
-    Duration animateDuration,
+    bool? disabled,
+    Color? color,
+    Color? disabledColor,
+    bool? animate,
+    Duration? animateDuration,
   })  : color = color ?? ConstantsBase.defaultButtonColor,
         disabledColor = disabledColor ?? ConstantsBase.defaultDisabledColor,
         disabled = disabled ?? false,
@@ -52,7 +52,7 @@ class _SntIconButtonState extends State<SntIconButton> {
       widgets.add(
         Flexible(
           child: new Icon(
-            widget.icon,
+            widget.icon!,
             color: widget.foregroundColor ?? estimatedColor,
           ),
         ),
@@ -61,7 +61,7 @@ class _SntIconButtonState extends State<SntIconButton> {
 
     if (widget.iconWidget != null) {
       widgets.add(
-        Flexible(child: widget.iconWidget),
+        Flexible(child: widget.iconWidget!),
       );
     }
 
@@ -69,11 +69,11 @@ class _SntIconButtonState extends State<SntIconButton> {
       widgets.add(
         Flexible(
           child: Text(
-            widget.caption,
+            widget.caption!,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context)
                 .primaryTextTheme
-                .caption
+                .caption!
                 .copyWith(color: widget.foregroundColor ?? estimatedColor),
           ),
         ),
@@ -89,7 +89,7 @@ class _SntIconButtonState extends State<SntIconButton> {
               });
             }
             if(widget.onTap != null) {
-              await widget.onTap();
+              await widget.onTap!();
             }
             if(mounted) {
               setState(() {

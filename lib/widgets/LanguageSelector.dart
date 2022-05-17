@@ -7,7 +7,7 @@ class LanguageSelector extends StatefulWidget{
   final String titleStr;
 
   LanguageSelector({
-    @required this.titleStr,
+    required this.titleStr,
   });
 
   @override
@@ -15,7 +15,7 @@ class LanguageSelector extends StatefulWidget{
 }
 
 class _LanguageSelectorState extends State<LanguageSelector> {
-  String selectedLng = ConstantsBase.getKeyValue(ConstantsBase.localeKey);
+  String selectedLng = ConstantsBase.getKeyValue(ConstantsBase.localeKey)!;
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +32,11 @@ class _LanguageSelectorState extends State<LanguageSelector> {
                   child:DropdownButton<String>(
                     isExpanded: true,
                     value: selectedLng,
-                    onChanged: (String newValue) async{
+                    onChanged: (String? newValue) async{
                       setState(() {
-                        selectedLng = newValue;
+                        selectedLng = newValue!;
                       });
-                      await ConstantsBase.setKeyValue(ConstantsBase.localeKey, newValue);
+                      await ConstantsBase.setKeyValue(ConstantsBase.localeKey, newValue!);
                       await ConstantsBase.loadLocalizedValues();
                       ConstantsBase.eventBus.fire(LocaleChangedEvent(Locale(newValue)));
                       return;

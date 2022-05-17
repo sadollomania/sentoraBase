@@ -6,11 +6,11 @@ import 'package:sentora_base/widgets/form/filterField/BaseFilterField.dart';
 
 class IntFilterField extends BaseFilterField {
   IntFilterField({
-    @required BuildContext context,
-    @required IntFieldType fieldType,
-    @required int filterIndex,
-    @required Map<String, dynamic> filterMap,
-    @required GlobalKey<ScaffoldState> scaffoldKey,
+    required BuildContext context,
+    required IntFieldType fieldType,
+    required int filterIndex,
+    required Map<String, dynamic> filterMap,
+    required GlobalKey<ScaffoldState> scaffoldKey,
   }) : super(
       fieldType: fieldType,
       filterIndex: filterIndex,

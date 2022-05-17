@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:sentora_base/ads/UnityAdsSentora.dart';
 
 class AppAds {
-  static String _type;
-  static bool _disabled;
+  static late String _type;
+  static late bool _disabled;
 
   static void init(adsConfig) {
     _type = adsConfig["type"];

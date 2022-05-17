@@ -9,11 +9,11 @@ import 'package:sentora_base/widgets/form/field/BaseField.dart';
 
 class BooleanField extends BaseField {
   BooleanField({
-    @required BuildContext context,
-    @required BooleanFieldType fieldType,
-    @required BaseModel kayit,
-    @required bool lastField,
-    @required GlobalKey<ScaffoldState> scaffoldKey,
+    required BuildContext context,
+    required BooleanFieldType fieldType,
+    required BaseModel kayit,
+    required bool lastField,
+    required GlobalKey<ScaffoldState> scaffoldKey,
   }) : super(
     context: context,
     kayit: kayit,

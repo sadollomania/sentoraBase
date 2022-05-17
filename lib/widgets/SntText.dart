@@ -7,7 +7,7 @@ class SntText extends AutoSizeText {
       if(!_autoSizeGroups.containsKey(groupId)) {
           _autoSizeGroups[groupId] = AutoSizeGroup();
       }
-      return _autoSizeGroups[groupId];
+      return _autoSizeGroups[groupId]!;
    }
    static void clearGroups() {
       _autoSizeGroups.clear();
@@ -15,25 +15,25 @@ class SntText extends AutoSizeText {
 
   const SntText(
       String data, {
-      Key key,
-      Key textKey,
-      TextStyle style,
-      StrutStyle strutStyle,
-      double minFontSize,
-      double maxFontSize,
-      double stepGranularity,
-      List<double> presetFontSizes,
-      AutoSizeGroup group,
-      TextAlign textAlign,
-      TextDirection textDirection,
-      Locale locale,
-      bool softWrap,
-      bool wrapWords,
-      TextOverflow overflow,
-      Widget overflowReplacement,
-      double textScaleFactor,
-      int maxLines,
-      String semanticsLabel,
+      Key? key,
+      Key? textKey,
+      TextStyle? style,
+      StrutStyle? strutStyle,
+      double? minFontSize,
+      double? maxFontSize,
+      double? stepGranularity,
+      List<double>? presetFontSizes,
+      AutoSizeGroup? group,
+      TextAlign? textAlign,
+      TextDirection? textDirection,
+      Locale? locale,
+      bool? softWrap,
+      bool? wrapWords,
+      TextOverflow? overflow,
+      Widget? overflowReplacement,
+      double? textScaleFactor,
+      int? maxLines,
+      String? semanticsLabel,
       })  : super(
         data,
           key : key,
@@ -59,25 +59,25 @@ class SntText extends AutoSizeText {
 
   const SntText.rich(
         TextSpan textSpan, {
-        Key key,
-        Key textKey,
-        TextStyle style,
-        StrutStyle strutStyle,
-        double minFontSize,
-        double maxFontSize,
-        double stepGranularity,
-        List<double> presetFontSizes,
-        AutoSizeGroup group,
-        TextAlign textAlign,
-        TextDirection textDirection,
-        Locale locale,
-        bool softWrap,
-        bool wrapWords,
-        TextOverflow overflow,
-        Widget overflowReplacement,
-        double textScaleFactor,
-        int maxLines,
-        String semanticsLabel,
+        Key? key,
+        Key? textKey,
+        TextStyle? style,
+        StrutStyle? strutStyle,
+        double? minFontSize,
+        double? maxFontSize,
+        double? stepGranularity,
+        List<double>? presetFontSizes,
+        AutoSizeGroup? group,
+        TextAlign? textAlign,
+        TextDirection? textDirection,
+        Locale? locale,
+        bool? softWrap,
+        bool? wrapWords,
+        TextOverflow? overflow,
+        Widget? overflowReplacement,
+        double? textScaleFactor,
+        int? maxLines,
+        String? semanticsLabel,
       }) : super.rich(
         textSpan,
         key : key,

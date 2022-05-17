@@ -1,23 +1,23 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:unity_ads_plugin/unity_ads.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 class UnityAdsSentora {
-  static UnityAdsSentora _instance;
-  static UnityAdsSentora get instance => _instance;
+  static UnityAdsSentora? _instance;
+  static UnityAdsSentora get instance => _instance!;
   static void init(androidId, iosId, testMode, bannerPlacementId, screenPlacementId, videoPlacementId, minInterval) =>
       _instance ??= UnityAdsSentora._init(androidId, iosId, testMode, bannerPlacementId, screenPlacementId, videoPlacementId, minInterval);
-  static DateTime lastShowTime;
+  static DateTime? lastShowTime;
   static int minMinute = 20;
 
   final String androidId;
   final String iosId;
   final bool testMode;
-  final String bannerPlacementId;
-  final String screenPlacementId;
-  final String videoPlacementId;
-  final int minInterval;
+  final String? bannerPlacementId;
+  final String? screenPlacementId;
+  final String? videoPlacementId;
+  final int? minInterval;
 
   UnityAdsSentora._init(this.androidId, this.iosId, this.testMode, this.bannerPlacementId, this.screenPlacementId, this.videoPlacementId, this.minInterval) {
     minMinute = minInterval ?? minMinute;
@@ -30,7 +30,10 @@ class UnityAdsSentora {
     UnityAds.init(
         gameId: gameId,
         testMode: testMode,
-        listener: (state, args) {
+        onComplete: () => print('Initialization Complete'),
+        onFailed: (error, message) => print('Initialization Failed: $error $message'),
+    );
+        /*listener: (state, args) {
           if (state == UnityAdState.started) {
             onUnityAdsStart(instance.screenPlacementId);
           } else if (state == UnityAdState.ready) {
@@ -42,31 +45,31 @@ class UnityAdsSentora {
           } else if (state == UnityAdState.skipped) {
             onUnityAdsSkipped(instance.screenPlacementId);
           }
-        });
+        });*/
   }
   factory UnityAdsSentora() => instance;
 
-  void onUnityAdsError(dynamic args) {
+  static void onUnityAdsError(String placementId, error, message) {
     lastShowTime = DateTime.now();
-    debugPrint('Unity error occurred: $args');
+    debugPrint('Unity Ad $placementId failed: $error $message');
   }
 
-  void onUnityAdsComplete(String placementId) {
-    if(placementId != bannerPlacementId) {
+  static void onUnityAdsComplete(String placementId) {
+    if(placementId != instance.bannerPlacementId) {
       lastShowTime = DateTime.now();
     }
     debugPrint('Unity Finished $placementId completed');
   }
 
-  void onUnityAdsSkipped(String placementId) {
+  static void onUnityAdsSkipped(String placementId) {
     debugPrint('Unity Finished $placementId skipped');
   }
 
-  void onUnityAdsReady(String placementId) {
+  /*void onUnityAdsReady(String placementId) {
     debugPrint('Unity Ad Ready: $placementId');
-  }
-
-  void onUnityAdsStart(String placementId) {
+  }*/
+  
+  static void onUnityAdsStart(String placementId) {
     debugPrint('Unity Start: $placementId');
   }
 
@@ -75,7 +78,7 @@ class UnityAdsSentora {
       return true;
     } else {
       DateTime now = DateTime.now();
-      if (lastShowTime.add(Duration(minutes: minMinute)).isBefore(now)) {
+      if (lastShowTime!.add(Duration(minutes: minMinute)).isBefore(now)) {
         return true;
       } else {
         return false;
@@ -84,10 +87,15 @@ class UnityAdsSentora {
   }
 
   static void showScreen() {
-    if (instance.screenPlacementId != null && instance.screenPlacementId.isNotEmpty) {
+    if (instance.screenPlacementId != null && instance.screenPlacementId!.isNotEmpty) {
       if (minTimePassed()) {
         UnityAds.showVideoAd(
-          placementId: instance.screenPlacementId,
+          placementId: instance.screenPlacementId!,
+          onStart: (placementId) => onUnityAdsStart(placementId),
+          onClick: (placementId) => print('Video Ad $placementId click'),
+          onSkipped: (placementId) => onUnityAdsSkipped(placementId),
+          onComplete: (placementId) => onUnityAdsComplete(placementId),
+          onFailed: (placementId, error, message) => onUnityAdsError(placementId,error,message),
         );
       } else {
         debugPrint("Interstitial Ad not shown. minElapsedTime not passed");
@@ -98,10 +106,15 @@ class UnityAdsSentora {
   }
 
   static void showVideo() {
-    if (instance.videoPlacementId != null && instance.videoPlacementId.isNotEmpty) {
+    if (instance.videoPlacementId != null && instance.videoPlacementId!.isNotEmpty) {
       if (minTimePassed()) {
         UnityAds.showVideoAd(
-          placementId: instance.videoPlacementId,
+          placementId: instance.videoPlacementId!,
+          onStart: (placementId) => onUnityAdsStart(placementId),
+          onClick: (placementId) => print('Video Ad $placementId click'),
+          onSkipped: (placementId) => onUnityAdsSkipped(placementId),
+          onComplete: (placementId) => onUnityAdsComplete(placementId),
+          onFailed: (placementId, error, message) => onUnityAdsError(placementId,error,message),
         );
       } else {
         debugPrint("Rewarded Video Ad not shown. minElapsedTime not passed");

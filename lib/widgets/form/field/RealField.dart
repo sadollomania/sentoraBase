@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/RealFieldType.dart';
@@ -8,11 +7,11 @@ import 'package:sentora_base/widgets/form/field/BaseField.dart';
 
 class RealField extends BaseField {
   RealField({
-    @required BuildContext context,
-    @required RealFieldType fieldType,
-    @required BaseModel kayit,
-    @required bool lastField,
-    @required GlobalKey<ScaffoldState> scaffoldKey,
+    required BuildContext context,
+    required RealFieldType fieldType,
+    required BaseModel kayit,
+    required bool lastField,
+    required GlobalKey<ScaffoldState> scaffoldKey,
   }) : super(
       context: context,
       fieldType: fieldType,
@@ -31,7 +30,7 @@ class RealField extends BaseField {
         }
       },
       onSaved : (textValue, realValue) {
-        if (textValue.isNotEmpty) {
+        if (textValue != null && textValue.isNotEmpty) {
           kayit.set(fieldType.name, ConstantsBase.parseDouble(textValue));
         } else {
           kayit.set(fieldType.name, null);

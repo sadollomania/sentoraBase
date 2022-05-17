@@ -11,27 +11,27 @@ abstract class BasePage extends StatefulWidget {
   final dynamic Function(StateData stateData) pageTitle;
   final Widget Function(StateData stateData) body;
 
-  final dynamic Function(StateData stateData) initialTag;
+  final dynamic Function(StateData stateData)? initialTag;
 
-  final PreferredSizeWidget Function(StateData stateData) topBar;
-  final Widget Function(StateData stateData) bottomBar;
-  final void Function(StateData stateData) updateTag;
-  final String Function(StateData stateData) popText;
-  final String Function(StateData stateData) popTitle;
-  final String Function(StateData stateData) popCancelTitle;
-  final String Function(StateData stateData) popOkTitle;
-  final void Function(StateData stateData) initStateFunction;
-  final void Function(StateData stateData) didChangeDependenciesFunction;
-  final void Function(StateData stateData) disposeFunction;
-  final void Function(StateData stateData) afterRender;
-  final int tabLength;
-  final void Function(StateData stateData) localeChanged;
+  final PreferredSizeWidget Function(StateData stateData)? topBar;
+  final Widget Function(StateData stateData)? bottomBar;
+  final void Function(StateData stateData)? updateTag;
+  final String Function(StateData stateData)? popText;
+  final String Function(StateData stateData)? popTitle;
+  final String Function(StateData stateData)? popCancelTitle;
+  final String Function(StateData stateData)? popOkTitle;
+  final void Function(StateData stateData)? initStateFunction;
+  final void Function(StateData stateData)? didChangeDependenciesFunction;
+  final void Function(StateData stateData)? disposeFunction;
+  final void Function(StateData stateData)? afterRender;
+  final int? tabLength;
+  final void Function(StateData stateData)? localeChanged;
 
   BasePage({
-    @required this.pageTitle,
-    @required this.body,
+    required this.pageTitle,
+    required this.body,
 
-    Color safeAreaColor,
+    Color? safeAreaColor,
     this.topBar,
     this.bottomBar,
     this.initialTag,
@@ -47,39 +47,37 @@ abstract class BasePage extends StatefulWidget {
     this.tabLength,
     this.localeChanged,
   }) :
-    assert(pageTitle != null)
-    , assert(body != null)
-    , assert((((popText == null) == (popCancelTitle == null)) == (popOkTitle == null)) == (popTitle == null));
+    assert((((popText == null) == (popCancelTitle == null)) == (popOkTitle == null)) == (popTitle == null));
 
   @override
   State<StatefulWidget> createState() => _BasePageState();
 }
 
 class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin{
-  TabController _tabController;
+  TabController? _tabController;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final String _pageId = ConstantsBase.getRandomUUID();
-  StateData stateData;
-  StreamSubscription updateStateSubscription;
-  StreamSubscription localeChangedSubscription;
-
+  late StateData stateData;
+  late StreamSubscription updateStateSubscription;
+  StreamSubscription? localeChangedSubscription;
+  
   Future<bool> _willPopCallback(BuildContext context) async {
     return await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(widget.popTitle(stateData)),
-          content: Text(widget.popText(stateData)),
+          title: Text(widget.popTitle!(stateData)),
+          content: Text(widget.popText!(stateData)),
           actions: <Widget>[
             TextButton(
-              child: Text(widget.popCancelTitle(stateData)),
+              child: Text(widget.popCancelTitle!(stateData)),
               onPressed: () async{
                 await NavigatorBase.pop(false);
                 return;
               },
             ),
             TextButton(
-              child: Text(widget.popOkTitle(stateData)),
+              child: Text(widget.popOkTitle!(stateData)),
               onPressed: () async{
                 await NavigatorBase.pop(true);
                 return;
@@ -94,7 +92,7 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     if(widget.tabLength != null) {
-      _tabController = new TabController(length: widget.tabLength, vsync: this);
+      _tabController = new TabController(length: widget.tabLength!, vsync: this);
     }
     stateData = StateData(
       context: context,
@@ -113,7 +111,7 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
     if(widget.localeChanged != null) {
       localeChangedSubscription = ConstantsBase.eventBus.on<LocaleChangedEvent>().listen((event){
         if(mounted) {
-          widget.localeChanged(stateData);
+          widget.localeChanged!(stateData);
         }
       });
     }
@@ -144,7 +142,7 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
       appBar: AppBar(
         title: widget.pageTitle(stateData) is Widget ? widget.pageTitle(stateData) : Text(widget.pageTitle(stateData)),
         centerTitle: true,
-        bottom: widget.topBar == null ? PreferredSize(preferredSize: Size.fromHeight(0), child: Container(height: 0,),) : widget.topBar(stateData)
+        bottom: widget.topBar == null ? PreferredSize(preferredSize: Size.fromHeight(0), child: Container(height: 0,),) : widget.topBar!(stateData)
       ),
       body: SafeArea(child:ConstantsBase.wrapWidgetWithBanner(widget.body(stateData)),),
       bottomNavigationBar: BottomAppBar(
@@ -152,7 +150,7 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
         notchMargin: 4.0,
         child: Container(
           height: widget.bottomBar != null ?  60 : 0,
-          child: widget.bottomBar != null ? widget.bottomBar(stateData) : SizedBox(),
+          child: widget.bottomBar != null ? widget.bottomBar!(stateData) : SizedBox(),
         )
       )
     );

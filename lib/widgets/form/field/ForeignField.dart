@@ -10,11 +10,11 @@ import 'package:sentora_base/widgets/form/field/BaseField.dart';
 
 class ForeignField extends BaseField {
   ForeignField({
-    @required BuildContext context,
-    @required ForeignKeyFieldType fieldType,
-    @required BaseModel kayit,
-    @required bool lastField,
-    @required GlobalKey<ScaffoldState> scaffoldKey,
+    required BuildContext context,
+    required ForeignKeyFieldType fieldType,
+    required BaseModel kayit,
+    required bool lastField,
+    required GlobalKey<ScaffoldState> scaffoldKey,
   }) : super(
     context: context,
     kayit: kayit,

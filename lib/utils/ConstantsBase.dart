@@ -2,9 +2,11 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intro_slider/slide_object.dart';
 import 'package:sentora_base/events/UpdatePageStateEvent.dart';
 import 'package:sentora_base/lang/LangBase.dart';
@@ -16,9 +18,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:device_info/device_info.dart';
 
-enum SNACKBAR_DURATION{
+enum SnackbarDuration{
   SHORT,
   LONG,
   ALWAYS,
@@ -27,16 +28,20 @@ enum SNACKBAR_DURATION{
 
 class ConstantsBase {
   static bool isWeb = false;
+  static bool isWindows = false;
+  static bool isLinux = false;
+  static bool isMacOS = false;
+  static bool isDesktop = false;
 
   static final double datePickerHeight = 210;
   static final DateTime defaultMinTime = DateTime(2000, 1, 1);
   static final DateTime defaultMaxTime = DateTime(2199, 12, 31);
 
   static bool bannerEnabled = false;
-  static Row unityBannerAd;
+  static late Row unityBannerAd;
   static Map<String, dynamic> _localisedValues = Map<String, dynamic>();
   static Future loadLocalizedValues() async{
-    String languageCode = ConstantsBase.getKeyValue(ConstantsBase.localeKey);
+    String languageCode = ConstantsBase.getKeyValue(ConstantsBase.localeKey)!;
     String jsonContentApp = await rootBundle.loadString("lang/$languageCode.json");
     Map<String, dynamic> baseVals = LangBase.getLocaleVals(languageCode);
     Map<String, dynamic> appVals = json.decode(jsonContentApp);
@@ -62,9 +67,9 @@ class ConstantsBase {
     }
   }
 
-  static List<Slide> Function(BuildContext context) introSlides;
+  static List<Slide> Function(BuildContext context)? introSlides;
   static Color transparentColor = Color(0x00ffffff);
-  static List<SentoraLocaleConfig> localeConfig;
+  static late List<SentoraLocaleConfig> localeConfig;
   static const String introShownKey = "intro_shown";
   static const String localeKey = "sentora_selected_locale";
   static int pageSize = 8;
@@ -83,19 +88,19 @@ class ConstantsBase {
   static const double filterButtonFontSize = 14;
   static const EdgeInsetsGeometry filterButtonEdges = EdgeInsets.all(5.0);
   static HashMap<String, String> decimalConversion = HashMap.fromEntries([MapEntry(",","."), MapEntry(".",",")]);
-  static String decimalSeparator;
+  static late String decimalSeparator;
 
   static final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
   static final DateFormat dateTimeFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
   static final DateFormat timeFormat = DateFormat('HH:mm:ss');
   static final _uuid = Uuid();
-  static SharedPreferences _prefs;
-  static EventBus eventBus;
+  static late SharedPreferences _prefs;
+  static late EventBus eventBus;
   static String _notificationPreferenceKey = "__NOTIFICATION_ID_MAP__";
   static bool isAndroid = true;
   static bool isEmulator = true;
 
-  static String getCompFieldName(String name, String filterMode){
+  static String getCompFieldName(String name, String? filterMode){
     return name + (filterMode == null ? "" : ("-" + filterMode));
   }
 
@@ -103,7 +108,7 @@ class ConstantsBase {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     try{
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      isEmulator = androidInfo.isPhysicalDevice;
+      isEmulator = androidInfo.isPhysicalDevice ?? true;
       isAndroid = true;
     } catch(e) {}
 
@@ -141,7 +146,7 @@ class ConstantsBase {
     return _uuid.v1();
   }
 
-  static DateTime tryParse(DateFormat dateFormat, String str) {
+  static DateTime? tryParse(DateFormat dateFormat, String str) {
     try {
       return dateFormat.parse(str);
     } catch(e) {
@@ -154,49 +159,53 @@ class ConstantsBase {
   }
 
   static void showToast(BuildContext context, String text) {
-    Toast.show(text, context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+    Toast.show(text, duration: Toast.lengthShort, gravity:  Toast.bottom);
   }
 
   static void showToastLong(BuildContext context, String text) {
-    Toast.show(text, context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+    Toast.show(text, duration: Toast.lengthLong, gravity:  Toast.bottom);
   }
 
   static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBarShort(GlobalKey<ScaffoldState> _scaffoldKey, String text) {
-    return showSnackBar(_scaffoldKey, text, SNACKBAR_DURATION.SHORT);
+    return showSnackBar(_scaffoldKey, text, SnackbarDuration.SHORT);
   }
 
   static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBarLong(GlobalKey<ScaffoldState> _scaffoldKey, String text) {
-    return showSnackBar(_scaffoldKey, text, SNACKBAR_DURATION.LONG);
+    return showSnackBar(_scaffoldKey, text, SnackbarDuration.LONG);
   }
 
   static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBarAlways(GlobalKey<ScaffoldState> _scaffoldKey, String text) {
-    return showSnackBar(_scaffoldKey, text, SNACKBAR_DURATION.ALWAYS);
+    return showSnackBar(_scaffoldKey, text, SnackbarDuration.ALWAYS);
   }
 
   static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBarWithDuration(GlobalKey<ScaffoldState> _scaffoldKey, String text, Duration duration) {
-    return showSnackBar(_scaffoldKey, text, SNACKBAR_DURATION.NONE, duration : duration);
+    return showSnackBar(_scaffoldKey, text, SnackbarDuration.NONE, duration : duration);
   }
 
-  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBar(GlobalKey<ScaffoldState> _scaffoldKey, String text, SNACKBAR_DURATION snackBarDuration, { Duration duration }) {
-    Duration compDuration;
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBar(GlobalKey<ScaffoldState> _scaffoldKey, String text, SnackbarDuration snackBarDuration, { Duration? duration }) {
+    Duration? compDuration;
     switch(snackBarDuration) {
-      case SNACKBAR_DURATION.SHORT:
+      case SnackbarDuration.SHORT:
         compDuration = Duration(seconds: 3);
         break;
-      case SNACKBAR_DURATION.LONG:
+      case SnackbarDuration.LONG:
         compDuration = Duration(seconds: 10);
         break;
-      case SNACKBAR_DURATION.ALWAYS:
+      case SnackbarDuration.ALWAYS:
         compDuration = null;
         break;
-      case SNACKBAR_DURATION.NONE:
+      case SnackbarDuration.NONE:
         compDuration = duration ?? const Duration(seconds: 3);
         break;
     }
-    return ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(SnackBar(content: Text(text), duration: compDuration,));
+    if(compDuration == null) {
+      return ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(SnackBar(content: Text(text)));
+    } else {
+      return ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(SnackBar(content: Text(text), duration: compDuration,));
+    }
   }
 
-  static SizedBox createSizedBoxWithBgColor({double width, double height, Color color}) {
+  static SizedBox createSizedBoxWithBgColor({double? width, double? height, Color? color}) {
     return SizedBox(
       width: width,
       height: height,
@@ -214,7 +223,7 @@ class ConstantsBase {
   }
 
   static int getNotificationId(String id) {
-    String str = getKeyValue(_notificationPreferenceKey);
+    String str = getKeyValue(_notificationPreferenceKey)!;
     Map mp = json.decode(str);
     if(mp.containsKey(id)) {
       return mp[id];
@@ -226,11 +235,11 @@ class ConstantsBase {
     }
   }
 
-  static String getKeyValue(String key) {
+  static String? getKeyValue(String key) {
     /*if(_prefs == null) {
       throw new Exception("Prefs not loaded. Consider calling ConstantsBase.loadPrefs with await");
     }*/
-    return _prefs.getString(key) ?? (prefDefaultVals != null ? prefDefaultVals[key] : throw new Exception("ConstantsBase PREF_DEFAULT_VALS not initialized for $key"));
+    return _prefs.getString(key) ?? (prefDefaultVals[key] != null ? prefDefaultVals[key] : throw new Exception("ConstantsBase PREF_DEFAULT_VALS not initialized for $key"));
   }
 
   static Future<void> setKeyValue(String key, String value) async{
@@ -242,8 +251,8 @@ class ConstantsBase {
 
   static Future<String> getVisiblePath() async{
     if(Platform.isAndroid) {
-      Directory appDir = await getExternalStorageDirectory();
-      return appDir.path;
+      Directory? appDir = await getExternalStorageDirectory();
+      return appDir!.path;
     } else {
       Directory appDir = await getApplicationDocumentsDirectory();
       return appDir.path;
@@ -293,12 +302,12 @@ class ConstantsBase {
     return retList;
   }
 
-  static double tryParseDouble(String str) {
+  static double? tryParseDouble(String str) {
     str = str.replaceAll(",", ".");
     if (str.endsWith(".")) {
       str = str.substring(0, str.length - 1);
     }
-    return double.parse(str);
+    return double.tryParse(str);
   }
 
   static double parseDouble(String str) {
@@ -309,14 +318,22 @@ class ConstantsBase {
     return double.parse(str);
   }
 
-  static List<TextInputFormatter> getNumberTextInputFormatters({bool signed, bool decimal}) {
-    assert(signed != null && decimal != null);
+  static LocaleType convertLocaleToLocaleType() {
+    switch(ConstantsBase.getKeyValue(ConstantsBase.localeKey)) {
+      case "tr":
+        return LocaleType.tr;
+      default:
+        return LocaleType.en;
+    }
+  }
+
+  static List<TextInputFormatter> getNumberTextInputFormatters({required bool signed, required bool decimal}) {
     List<TextInputFormatter> textInputFormatters = [];
     textInputFormatters.add(FilteringTextInputFormatter.allow(RegExp((signed ? "-?" : "") + "(0|[1-9]\\d*)" + (decimal ? "[\\.\\,]?\\d?" : ""))));
     return textInputFormatters;
   }
 
-  static String convertErrorToStr(dynamic exception, String errorTitle, String uniqueErrDescr, String foreignKeyErrDescr) {
+  static String? convertErrorToStr(dynamic exception, String errorTitle, String uniqueErrDescr, String foreignKeyErrDescr) {
     DatabaseException e;
     if(exception is DatabaseException) {
       e = exception;

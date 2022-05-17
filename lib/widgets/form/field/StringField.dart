@@ -6,14 +6,14 @@ import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/form/field/BaseField.dart';
 
 class StringField extends BaseField {
-  final String Function(String value) extraValidatorFunc;
+  final String? Function(String value)? extraValidatorFunc;
 
   StringField({
-    @required BuildContext context,
-    @required StringFieldType fieldType,
-    @required BaseModel kayit,
-    @required bool lastField,
-    @required GlobalKey<ScaffoldState> scaffoldKey,
+    required BuildContext context,
+    required StringFieldType fieldType,
+    required BaseModel kayit,
+    required bool lastField,
+    required GlobalKey<ScaffoldState> scaffoldKey,
     this.extraValidatorFunc,
   }) : super(
     context: context,

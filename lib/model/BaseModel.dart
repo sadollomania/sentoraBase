@@ -18,13 +18,13 @@ class BaseModel {
   static Map<String, String> _modelTableNames = Map<String, String>();
   static Map<String, List<BaseFieldType>> _modelFieldTypes = Map<String, List<BaseFieldType>>();
   static Map<String, List<String>> _modelTitleFields = Map<String, List<String>>();
-  static Map<String, List<String>> _modelSubTitleFields = Map<String, List<String>>();
-  static Map<String, Widget Function(BaseModel baseModel)> _modelLeadingFunctions = Map<String, Widget Function(BaseModel baseModel)>();
-  static Map<String, Widget Function(BaseModel baseModel)> _modelTrailingFunctions = Map<String, Widget Function(BaseModel baseModel)>();
+  static Map<String, List<String>?> _modelSubTitleFields = Map<String, List<String>>();
+  static Map<String, Widget Function(BaseModel baseModel)?> _modelLeadingFunctions = Map<String, Widget Function(BaseModel baseModel)>();
+  static Map<String, Widget Function(BaseModel baseModel)?> _modelTrailingFunctions = Map<String, Widget Function(BaseModel baseModel)>();
   static Map<String, String> _modelPageTitles = Map<String, String>();
   static Map<String, String> _modelSingleTitles = Map<String, String>();
-  static Map<String, Color Function(BaseModel baseModel)> _modelListBgColors = Map<String, Color Function(BaseModel baseModel)>();
-  static Map<String, List<List<String>>> _modelMultiColumnUniqueConstraints = Map<String, List<List<String>>>();
+  static Map<String, Color Function(BaseModel baseModel)?> _modelListBgColors = Map<String, Color Function(BaseModel baseModel)>();
+  static Map<String, List<List<String>>?> _modelMultiColumnUniqueConstraints = Map<String, List<List<String>>>();
   static Map<String, String> _modelDefaultOrderBys = Map<String, String>();
 
   Future<void> beforeInsert() async{}
@@ -39,16 +39,16 @@ class BaseModel {
   String modelName;
   String tableName;
   List<BaseFieldType> fieldTypes;
-  List<BaseFieldType> allFieldTypes;
+  late List<BaseFieldType> allFieldTypes;
   List<String> titleFields;
-  Widget Function(BaseModel baseModel) getLeadingWidget;
-  Widget Function(BaseModel baseModel) getTrailingWidget;
-  List<String> subTitleFields;
+  Widget Function(BaseModel baseModel)? getLeadingWidget;
+  Widget Function(BaseModel baseModel)? getTrailingWidget;
+  List<String>? subTitleFields;
   String pageTitle;
   String singleTitle;
   String defaultOrderBy;
   List<List<String>> multiColumnUniqueConstraints;
-  Color Function(BaseModel baseModel) listBgColor;
+  Color Function(BaseModel baseModel)? listBgColor;
 
   Map<String, dynamic> _fieldValues = Map<String, dynamic>();
 
@@ -68,18 +68,18 @@ class BaseModel {
   }
 
   BaseModel({
-    @required this.modelName,
-    @required this.tableName,
-    @required this.fieldTypes,
-    @required this.titleFields,
-    @required this.pageTitle,
-    @required this.singleTitle,
-    @required this.multiColumnUniqueConstraints,
+    required this.modelName,
+    required this.tableName,
+    required this.fieldTypes,
+    required this.titleFields,
+    required this.pageTitle,
+    required this.singleTitle,
+    required this.multiColumnUniqueConstraints,
     this.getLeadingWidget,
     this.getTrailingWidget,
     this.listBgColor,
     this.subTitleFields,
-    String defaultOrderBy,
+    String? defaultOrderBy,
   }) : this.defaultOrderBy = defaultOrderBy ?? "INSDATE ASC" {
     if(!_models.contains(modelName)) {
       _modelTableNames[modelName] = tableName;
@@ -109,15 +109,15 @@ class BaseModel {
 
      BaseModel ret = BaseModel(
       modelName: modelName,
-      tableName: _modelTableNames[modelName],
-      fieldTypes: _modelFieldTypes[modelName],
-      titleFields: _modelTitleFields[modelName],
+      tableName: _modelTableNames[modelName]!,
+      fieldTypes: _modelFieldTypes[modelName]!,
+      titleFields: _modelTitleFields[modelName]!,
       getLeadingWidget: _modelLeadingFunctions[modelName],
       getTrailingWidget: _modelTrailingFunctions[modelName],
       subTitleFields: _modelSubTitleFields[modelName],
-      pageTitle: _modelPageTitles[modelName],
-      singleTitle: _modelSingleTitles[modelName],
-      multiColumnUniqueConstraints: _modelMultiColumnUniqueConstraints[modelName],
+      pageTitle: _modelPageTitles[modelName]!,
+      singleTitle: _modelSingleTitles[modelName]!,
+      multiColumnUniqueConstraints: _modelMultiColumnUniqueConstraints[modelName]!,
       listBgColor: _modelListBgColors[modelName],
       defaultOrderBy: _modelDefaultOrderBys[modelName],
     );
@@ -208,7 +208,7 @@ class BaseModel {
       } else if(fieldType.runtimeType == ForeignKeyFieldType) {
         if(map[fieldType.name] != null) {
           ForeignKeyFieldType foreignKeyField = fieldType as ForeignKeyFieldType;
-          BaseModel baseModel = await getById(foreignKeyField.foreignKeyModel.modelName, foreignKeyField.foreignKeyModel.tableName, map[fieldType.name]);
+          BaseModel? baseModel = await getById(foreignKeyField.foreignKeyModel.modelName, foreignKeyField.foreignKeyModel.tableName, map[fieldType.name]);
           set(fieldType.name, baseModel);
         } else {
           set(fieldType.name, null);
@@ -301,7 +301,7 @@ class BaseModel {
     return str;
   }
 
-  Future<int> _insertToDb({Database dbParam}) async {
+  Future<int> _insertToDb({Database? dbParam}) async {
     await beforeInsert();
     final Database db = dbParam ?? await DBHelperBase.instance.getDb();
     _fieldValues["INSDATE"] = DateTime.now();
@@ -324,7 +324,7 @@ class BaseModel {
     return retVal;
   }
 
-  Future<int> _updateInDb({Database dbParam}) async {
+  Future<int> _updateInDb({Database? dbParam}) async {
     await beforeUpdate();
     final Database db = dbParam ?? await DBHelperBase.instance.getDb();
     _fieldValues["UPDDATE"] = DateTime.now();
@@ -339,7 +339,7 @@ class BaseModel {
     return retVal;
   }
 
-  Future<int> _deleteFromDb({Database dbParam}) async {
+  Future<int> _deleteFromDb({Database? dbParam}) async {
     await beforeDelete();
     final Database db = dbParam ?? await DBHelperBase.instance.getDb();
     int retVal = await db.delete(
@@ -351,10 +351,10 @@ class BaseModel {
     return retVal;
   }
 
-  Future<Map<String, dynamic>> _getList(int limit, int offset, String orderBy, String rawQuery, Map<String, dynamic> filterMap, { Database dbParam }) async {
+  Future<Map<String, dynamic>> _getList(int limit, int offset, String? orderBy, String? rawQuery, Map<String, dynamic>? filterMap, { Database? dbParam }) async {
     Map<String, dynamic> retMap = Map<String, dynamic>();
     final Database db = dbParam ?? await DBHelperBase.instance.getDb();
-    String where;
+    String? where;
     List<dynamic> whereArgs = [];
     if(filterMap != null && filterMap.length > 0) {
       String str;
@@ -370,67 +370,67 @@ class BaseModel {
         String fieldName = tmpArr[0];
         String operator = tmpArr[1];
         if(i != 0) {
-          where += " and ";
+          where = where! + " and ";
         }
 
         switch(operator) {
           case "isnotnull":
-            where += fieldName + " is not null ";
+            where = where! + fieldName + " is not null ";
             whereArgVal = null;
             break;
           case "isnull":
-            where += fieldName + " is null ";
+            where = where! + fieldName + " is null ";
             whereArgVal = null;
             break;
           case "like":
-            where += fieldName + " like '%' || ? || '%' ";
+            where = where! + fieldName + " like '%' || ? || '%' ";
             whereArgVal = val;
             break;
           case "dateeq":
-            where += " substr(" + fieldName + ",1,10) = ? ";
+            where = where! + " substr(" + fieldName + ",1,10) = ? ";
             whereArgVal = ConstantsBase.dateFormat.format(val);
             break;
           case "dategt":
-            where += " substr(" + fieldName + ",1,10) > ? ";
+            where = where! + " substr(" + fieldName + ",1,10) > ? ";
             whereArgVal = ConstantsBase.dateFormat.format(val);
             break;
           case "datelt":
-            where += " substr(" + fieldName + ",1,10) < ? ";
+            where = where! + " substr(" + fieldName + ",1,10) < ? ";
             whereArgVal = ConstantsBase.dateFormat.format(val);
             break;
           case "timeeq":
-            where += " substr(" + fieldName + ",1,10) = ? ";
+            where = where! + " substr(" + fieldName + ",1,10) = ? ";
             whereArgVal = ConstantsBase.timeFormat.format(val);
             break;
           case "timegt":
-            where += " substr(" + fieldName + ",1,10) > ? ";
+            where = where! + " substr(" + fieldName + ",1,10) > ? ";
             whereArgVal = ConstantsBase.timeFormat.format(val);
             break;
           case "timelt":
-            where += " substr(" + fieldName + ",1,10) < ? ";
+            where = where! + " substr(" + fieldName + ",1,10) < ? ";
             whereArgVal = ConstantsBase.timeFormat.format(val);
             break;
           case "inteq":
           case "realeq":
-            where += fieldName + " = ? ";
+            where = where! + fieldName + " = ? ";
             whereArgVal = val;
             break;
           case "foreigneq":
-            where += fieldName + " = ? ";
+            where = where! + fieldName + " = ? ";
             whereArgVal = (val as BaseModel).get("ID");
             break;
           case "booleq":
-            where += fieldName + " = ? ";
+            where = where! + fieldName + " = ? ";
             whereArgVal = val ? 1 : 0;
             break;
           case "intgt":
           case "realgt":
-            where += fieldName + " > ? ";
+            where = where! + fieldName + " > ? ";
             whereArgVal = val;
             break;
           case "intlt":
           case "reallt":
-            where += fieldName + " < ? ";
+            where = where! + fieldName + " < ? ";
             whereArgVal = val;
             break;
           default:
@@ -520,7 +520,7 @@ class BaseModel {
     return retMap;
   }
 
-  BaseFieldType _getFieldTypeByName(String name) {
+  BaseFieldType? _getFieldTypeByName(String name) {
     for(int i = 0, len = allFieldTypes.length; i < len; ++i) {
       if(allFieldTypes[i].name == name) {
         return allFieldTypes[i];
@@ -529,7 +529,7 @@ class BaseModel {
     return null;
   }
 
-  String _convertDbErrorToStr(dynamic exception) {
+  String? _convertDbErrorToStr(dynamic exception) {
     DatabaseException e;
     if(exception is DatabaseException) {
       e = exception;
@@ -546,7 +546,7 @@ class BaseModel {
         retStr = defaultRetStr;
       } else {
         String columnName = errorMsg.substring(tableNameIndex + tableName.length + 1).split(" ")[0];
-        BaseFieldType fieldType = _getFieldTypeByName(columnName);
+        BaseFieldType? fieldType = _getFieldTypeByName(columnName);
         if(fieldType == null) {
           retStr = defaultRetStr;
         } else {
@@ -569,7 +569,7 @@ class BaseModel {
     _fieldValues[fieldName] = fieldValue;
   }
 
-  static BaseFieldType findFieldByName(BaseModel baseModel, String fieldName) {
+  static BaseFieldType? findFieldByName(BaseModel baseModel, String fieldName) {
     for(int i = 0, len = baseModel.allFieldTypes.length; i < len; ++i) {
       BaseFieldType fieldType = baseModel.allFieldTypes[i];
       if(fieldType.name == fieldName) {
@@ -599,10 +599,10 @@ class BaseModel {
     String currentFieldName;
     for(int len = path.length - 1; i < len; ++i) {
       currentFieldName = path[i];
-      fieldTitle += " " + findFieldByName(currentModel, currentFieldName).fieldLabel;
+      fieldTitle += " " + findFieldByName(currentModel, currentFieldName)!.fieldLabel;
       currentModel = currentModel.get(currentFieldName) as BaseModel;
     }
-    fieldTitle += " " + findFieldByName(currentModel, path[i]).fieldLabel;
+    fieldTitle += " " + findFieldByName(currentModel, path[i])!.fieldLabel;
     List<String> retStrList = [];
     retStrList.add(fieldTitle.substring(1));
     dynamic objVal = currentModel.get(path[i]);
@@ -611,7 +611,7 @@ class BaseModel {
     return retStrList;
   }
 
-  Widget _getPathListValuesFromObj(List<String> fields) {
+  Widget? _getPathListValuesFromObj(List<String>? fields) {
     if(fields == null || fields.length == 0) {
       return null;
     }
@@ -625,24 +625,24 @@ class BaseModel {
     );
   }
 
-  Widget getListTileTitleWidget() {
+  Widget? getListTileTitleWidget() {
     return _getPathListValuesFromObj(titleFields);
   }
 
-  Widget getListTileSubTitleWidget() {
+  Widget? getListTileSubTitleWidget() {
     return _getPathListValuesFromObj(subTitleFields);
   }
 
-  Widget getTileLeadingWidget() {
+  Widget? getTileLeadingWidget() {
     if(getLeadingWidget != null) {
-      return getLeadingWidget(this);
+      return getLeadingWidget!(this);
     }
     return null;
   }
 
-  Widget getTileTrailingWidget() {
+  Widget? getTileTrailingWidget() {
     if(getTrailingWidget != null) {
-      return getTrailingWidget(this);
+      return getTrailingWidget!(this);
     }
     return null;
   }
@@ -682,19 +682,19 @@ class BaseModel {
     }
   }
 
-  static Future<int> insert(BaseModel baseModel, { Database db }) {
+  static Future<int> insert(BaseModel baseModel, { Database? db }) {
     return baseModel._insertToDb(dbParam: db);
   }
 
-  static Future<int> update(BaseModel baseModel, { Database db }) {
+  static Future<int> update(BaseModel baseModel, { Database? db }) {
     return baseModel._updateInDb(dbParam: db);
   }
 
-  static Future<int> delete(BaseModel baseModel, { Database db }) {
+  static Future<int> delete(BaseModel baseModel, { Database? db }) {
     return baseModel._deleteFromDb(dbParam: db);
   }
 
-  static Future<Map<String, dynamic>> getList(BaseModel baseModel, { int pageSize = -1, int currentPage = 1, String orderBy, String rawQuery, Map<String, dynamic> filterMap, Database db }) async{
+  static Future<Map<String, dynamic>> getList(BaseModel baseModel, { int pageSize = -1, int currentPage = 1, String? orderBy, String? rawQuery, Map<String, dynamic>? filterMap, Database? db }) async{
     assert(pageSize >= -1);
     assert(currentPage > 0);
     int offset = 0;
@@ -704,11 +704,11 @@ class BaseModel {
     return await baseModel._getList(pageSize, offset, orderBy, rawQuery, filterMap, dbParam: db);
   }
 
-  static String convertDbErrorToStr(BaseModel baseModel, DatabaseException e) {
+  static String? convertDbErrorToStr(BaseModel baseModel, DatabaseException e) {
     return baseModel._convertDbErrorToStr(e);
   }
 
-  static Future<BaseModel> getById(String fromModel, String fromTable, String id, { Database dbParam }) async {
+  static Future<BaseModel?> getById(String fromModel, String fromTable, String id, { Database? dbParam }) async {
     final Database db = dbParam ?? await DBHelperBase.instance.getDb();
     final List<Map<String, dynamic>> maps = await db.query(fromTable, where: "ID = ?", whereArgs: List<String>.from([id]));
     if(maps.length > 0) {

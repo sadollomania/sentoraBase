@@ -5,33 +5,31 @@ import 'package:sentora_base/utils/ConstantsBase.dart';
 
 class MenuButton extends StatefulWidget {
   MenuButton({
-    @required this.onPressed,
+    required this.onPressed,
     this.title,
     this.iconData,
     this.image,
     this.disabled = false,
-    double fontSize,
+    double? fontSize,
     this.edgeInsetsGeometry = const EdgeInsets.all(10.0),
     this.buttonColor = ConstantsBase.defaultButtonColor,
-    Color iconColor,
+    Color? iconColor,
     this.circularRadius = 10,
     this.disabledColor = ConstantsBase.defaultDisabledColor,
     this.enabledColor = ConstantsBase.defaultEnabledColor,
     this.iconFlex = ConstantsBase.defaultMenuButtonIconFlex,
     this.textFlex = ConstantsBase.defaultMenuButtonTextFlex,
     this.labelWidth,
-    double height,
+    double? height,
   }) : this.iconColor = iconColor ?? ConstantsBase.defaultIconColor,
         this.fontSize = fontSize ?? 30,
         this.height = height ?? 40,
         assert(title != null || iconData != null || image != null),
-        assert(iconData == null || image == null),
-        assert(iconFlex != null),
-        assert(textFlex != null);
+        assert(iconData == null || image == null);
 
-  final String title;
-  final IconData iconData;
-  final Image image;
+  final String? title;
+  final IconData? iconData;
+  final Image? image;
   final Future<void> Function() onPressed;
   final bool disabled;
   final double fontSize;
@@ -43,7 +41,7 @@ class MenuButton extends StatefulWidget {
   final Color enabledColor;
   final int iconFlex;
   final int textFlex;
-  final double labelWidth;
+  final double? labelWidth;
   final double height;
 
   @override
@@ -81,8 +79,8 @@ class _MenuButtonState extends State<MenuButton> {
           child: LayoutBuilder(
             builder: (context, constraint) {
               return Container(
-                width: widget.image.width ?? 50,
-                height: widget.image.height ?? 50,
+                width: widget.image!.width ?? 50,
+                height: widget.image!.height ?? 50,
                 child: widget.image,
               );
             }
@@ -92,7 +90,7 @@ class _MenuButtonState extends State<MenuButton> {
     }
 
     if(widget.title != null) {
-      Text tmpTextWidget = Text(widget.title, style: TextStyle(fontSize: widget.fontSize), overflow: TextOverflow.ellipsis,);
+      Text tmpTextWidget = Text(widget.title!, style: TextStyle(fontSize: widget.fontSize), overflow: TextOverflow.ellipsis,);
       if(widget.labelWidth != null) {
         textWidget = SizedBox(
           width: widget.labelWidth,

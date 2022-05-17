@@ -20,10 +20,10 @@ import 'package:sqflite/sqflite.dart';
 class BaseModelPage extends BasePage {
   final String modelName;
 
-  final String Function(StateData stateData) addButtonTitle;
-  final String Function(StateData stateData) editButtonTitle;
-  final String Function(StateData stateData) deleteButtonTitle;
-  final List<AppBarActionHolder> Function(StateData) topActions;
+  final String Function(StateData stateData)? addButtonTitle;
+  final String Function(StateData stateData)? editButtonTitle;
+  final String Function(StateData stateData)? deleteButtonTitle;
+  final List<AppBarActionHolder> Function(StateData)? topActions;
 
   static void _showDialog(StateData stateData, BaseModel kayit) {
     showDialog(
@@ -52,7 +52,7 @@ class BaseModelPage extends BasePage {
                   debugPrint(e.toString());
                   await NavigatorBase.pop();
                   if(e is DatabaseException) {
-                    ConstantsBase.showSnackBarLong(stateData.scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e));
+                    ConstantsBase.showSnackBarLong(stateData.scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e) ?? "");
                   } else {
                     ConstantsBase.showSnackBarLong(stateData.scaffoldKey, e.toString());
                   }
@@ -118,31 +118,30 @@ class BaseModelPage extends BasePage {
     return;
   }
 
-  static Future<void> refreshData(StateData stateData, {int currentPagePrm, String orderByPrm, Map<String, dynamic> filterMapPrm}) async{
+  static Future<void> refreshData(StateData stateData, {int? currentPagePrm, String? orderByPrm, Map<String, dynamic>? filterMapPrm}) async{
     int compCurrentPage = currentPagePrm ?? stateData.tag["currentPage"];
     String compOrderBy = orderByPrm ?? stateData.tag["orderBy"];
     Map<String, dynamic> compFilterMap = filterMapPrm ?? stateData.tag["filterMap"];
 
-    var map = await BaseModel.getList(stateData.tag["ornekKayit"], rawQuery: stateData.tag["getLisQuery"], pageSize: stateData.tag["pageSize"], currentPage: compCurrentPage, orderBy: compOrderBy, filterMap: compFilterMap);
+    var map = await BaseModel.getList(stateData.tag["ornekKayit"], rawQuery: stateData.tag["getListQuery"], pageSize: stateData.tag["pageSize"], currentPage: compCurrentPage, orderBy: compOrderBy, filterMap: compFilterMap);
     return dataLoaded(stateData, map, compCurrentPage, compOrderBy, compFilterMap);
   }
 
   BaseModelPage({
-    @required this.modelName,
-    String Function(StateData stateData) pageTitle,
-    String getListQuery,
-    String orderBy,
-    int pageSize,
+    required this.modelName,
+    String Function(StateData stateData)? pageTitle,
+    String? getListQuery,
+    String? orderBy,
+    int? pageSize,
     this.addButtonTitle,
     this.editButtonTitle,
     this.deleteButtonTitle,
     this.topActions,
   })
-  : assert(modelName != null),
-  super(
+  : super(
     pageTitle: pageTitle ?? (stateData){ return BaseModel.createNewObject(modelName).pageTitle; },
     initialTag : (_) => {
-      "getLisQuery" : getListQuery,
+      "getListQuery" : getListQuery,
       "modelName" : modelName,
       "ornekKayit" : BaseModel.createNewObject(modelName),
       "selectedKayit" : null,
@@ -251,9 +250,11 @@ class BaseModelPage extends BasePage {
                 color: stateData.tag["selectedKayit"] != null && stateData.tag["selectedKayit"].get("ID") == entry.value.get("ID") ? Colors.yellow : ( entry.value.listBgColor != null ? entry.value.listBgColor(entry.value) : Colors.white ),
               ),
               child: Slidable(
-                actionPane: SlidableDrawerActionPane(),
-                controller: SlidableController(),
-                actionExtentRatio: 0.25,
+                startActionPane: ActionPane(
+                  motion: const DrawerMotion(),
+                  extentRatio: 0.25,
+                  children: []
+                ),
                 child: Card(
                     color: entry.key % 2 == 0 ? Colors.white : ConstantsBase.greenAccentShade100Color,
                     elevation: 5.0,
@@ -277,29 +278,33 @@ class BaseModelPage extends BasePage {
                       trailing: entry.value.getTileTrailingWidget(),
                     )
                 ),
-                secondaryActions: []
-                  ..addAll(editButtonTitle != null ? [
-                    Card(
-                        child: IconSlideAction(
-                          caption: editButtonTitle(stateData),
-                          color: Colors.black45,
-                          icon: Icons.edit,
-                          onTap: () {
-                            NavigatorBase.push(BaseModelDuzenleme(widgetKayit : entry.value, widgetModelName: modelName,baseModelPageId: stateData.pageId,baseModelPageScaffoldKey: stateData.scaffoldKey));
-                          },
-                        )
-                    )
-                  ] : [])
-                  ..addAll(deleteButtonTitle != null ? [
-                    Card(
-                      child: IconSlideAction(
-                        caption: deleteButtonTitle(stateData),
-                        color: Colors.red,
-                        icon: Icons.delete,
-                        onTap: () => _showDialog(stateData, entry.value),
-                      ),
-                    )
-                  ] : []),
+                endActionPane: ActionPane(
+                  motion: const DrawerMotion(),
+                  extentRatio: 0.25,
+                  children: []
+                    ..addAll(editButtonTitle != null ? [
+                      Card(
+                          child: SlidableAction(
+                            label: editButtonTitle(stateData),
+                            backgroundColor: Colors.black45,
+                            icon: Icons.edit,
+                            onPressed: (context) {
+                              NavigatorBase.push(BaseModelDuzenleme(widgetKayit : entry.value, widgetModelName: modelName,baseModelPageId: stateData.pageId,baseModelPageScaffoldKey: stateData.scaffoldKey));
+                            },
+                          )
+                      )
+                    ] : [])
+                    ..addAll(deleteButtonTitle != null ? [
+                      Card(
+                        child: SlidableAction(
+                          label: deleteButtonTitle(stateData),
+                          backgroundColor: Colors.red,
+                          icon: Icons.delete,
+                          onPressed: (context) => _showDialog(stateData, entry.value),
+                        ),
+                      )
+                    ] : []),
+                )
               ),
             )).toList()
           ),

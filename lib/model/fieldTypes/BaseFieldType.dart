@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/MenuButton.dart';
 
 abstract class BaseFieldType {
   String fieldLabel;
-  String fieldHint;
+  String? fieldHint;
   String name;
-  bool nullable;
+  bool? nullable;
   bool multiple;
   bool unique;
-  bool Function(BaseModel baseModel) nullableFn;
+  bool Function(BaseModel baseModel)? nullableFn;
   bool sortable;
   bool filterable;
   dynamic defaultValue;
@@ -22,18 +21,18 @@ abstract class BaseFieldType {
   Widget constructFilterField(BuildContext context, Map<String, dynamic> filterMap, int filterIndex, GlobalKey<ScaffoldState> scaffoldKey);
 
   BaseFieldType({
-    @required this.fieldLabel,
-    @required this.fieldHint,
-    @required this.name,
-    @required this.multiple,
-    @required this.unique,
-    @required this.defaultValue,
-    @required this.nullable,
-    @required this.nullableFn,
+    required this.fieldLabel,
+    required this.fieldHint,
+    required this.name,
+    required this.multiple,
+    required this.unique,
+    required this.defaultValue,
+    required this.nullable,
+    required this.nullableFn,
     this.sortable = true,
     this.filterable = true,
-  }) : assert(fieldLabel != null && fieldLabel.isNotEmpty),
-        assert(name != null && name.isNotEmpty),
+  }) : assert(fieldLabel.isNotEmpty),
+        assert(name.isNotEmpty),
         assert((nullable == null && nullableFn != null) || (nullable != null && nullableFn == null)) {
     if(name.contains("&") || name.contains(".")) {
       throw new Exception(ConstantsBase.translate("field_adi_bulunduramaz"));
@@ -69,7 +68,7 @@ abstract class BaseFieldType {
           title: filterModeTitle,
           fontSize: ConstantsBase.filterButtonFontSize,
           buttonColor: filterMap[name + "-" + filterMode] != null ? Colors.greenAccent : ConstantsBase.defaultDisabledColor,
-          onPressed: (){return;},
+          onPressed: (){return Future.value(null);},
         ),
       ));
       retList.add(SizedBox(width:2));
@@ -79,9 +78,9 @@ abstract class BaseFieldType {
 
   bool isNullable(BaseModel kayit) {
     if(nullable == null) {
-      return nullableFn(kayit);
+      return nullableFn!(kayit);
     } else {
-      return nullable;
+      return nullable!;
     }
   }
 }

@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/DateFieldType.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
-import 'package:sentora_base/widgets/datepicker/SentoraDatePicker.dart';
-import 'package:sentora_base/widgets/datepicker/SentoraDatePickerTheme.dart';
 import 'package:sentora_base/widgets/form/field/BaseField.dart';
 
 class DateField extends BaseField {
   DateField({
-    @required BuildContext context,
-    @required DateFieldType fieldType,
-    @required BaseModel kayit,
-    @required bool lastField,
-    @required GlobalKey<ScaffoldState> scaffoldKey,
+    required BuildContext context,
+    required DateFieldType fieldType,
+    required BaseModel kayit,
+    required bool lastField,
+    required GlobalKey<ScaffoldState> scaffoldKey,
   }) : super(
     context: context,
     kayit: kayit,
@@ -29,10 +28,10 @@ class DateField extends BaseField {
     },
     scaffoldKey : scaffoldKey,
     onTapReplacementFunc: (String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey,){
-      return SentoraDatePicker.showDatePicker(context,
-          theme: SentoraDatePickerTheme(
+      return DatePicker.showDatePicker(context,
+          theme: DatePickerTheme(
             containerHeight: ConstantsBase.datePickerHeight,
-            title: fieldType.fieldLabel,
+            //title: fieldType.fieldLabel,
           ),
           showTitleActions: true,
           minTime: ConstantsBase.defaultMinTime,
@@ -45,7 +44,7 @@ class DateField extends BaseField {
             }*/
           },
           currentTime: realValue ?? DateTime.now(),
-          locale: SentoraDatePicker.convertLocaleToLocaleType()
+          locale: ConstantsBase.convertLocaleToLocaleType()
       );
     }
   );

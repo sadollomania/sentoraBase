@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sentora_base/notification/ReceivedNotification.dart';
 import 'package:synchronized/synchronized.dart';
+import 'package:timezone/standalone.dart';
 
 class BaseNotification {
   static RepeatInterval intervalEveryMinute = RepeatInterval.everyMinute;
@@ -16,14 +17,15 @@ class BaseNotification {
     return Time(hour, minute, second);
   }
 
-  static FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
-  static StreamController<ReceivedNotification> _didReceiveLocalNotificationController;
-  static StreamController<String> _selectNotificationController;
+  static late FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
+  static late StreamController<ReceivedNotification> _didReceiveLocalNotificationController;
+  static late StreamController<String> _selectNotificationController;
   static bool _initialized = false;
 
 
   static AndroidNotificationDetails andDetails = AndroidNotificationDetails(
-      'TR_COM_SENTORA_NOTIFICATION_ID', 'TR_COM_SENTORA_NOTIFICATION_NAME', 'TR_COM_SENTORA_NOTIFICATION_CHANNEL',
+      'TR_COM_SENTORA_NOTIFICATION_ID', 'TR_COM_SENTORA_NOTIFICATION_NAME',
+      channelDescription: 'TR_COM_SENTORA_NOTIFICATION_CHANNEL',
       importance: Importance.max, priority: Priority.high, ticker: 'ticker');
   static IOSNotificationDetails iosDetails = IOSNotificationDetails();
   static MacOSNotificationDetails macOSDetails = MacOSNotificationDetails();
@@ -47,7 +49,7 @@ class BaseNotification {
   /// Proguard dosyasinda
   ///
   /// -keep class com.dexterous.** { *; }
-  static Future<void> init(Function(ReceivedNotification) receiveFun, Function(String) payloadFun) async {
+  static Future<void> init(Function(ReceivedNotification)? receiveFun, Function(String)? payloadFun) async {
     await lock.synchronized(() async {
       if(!_initialized) {
         _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -56,18 +58,18 @@ class BaseNotification {
 
         var initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
         var initializationSettingsIOS = IOSInitializationSettings(
-            onDidReceiveLocalNotification: (int id, String title, String body, String payload) async {
-              _didReceiveLocalNotificationController.add(ReceivedNotification(id: id, title: title, body: body, payload: payload));
+            onDidReceiveLocalNotification: (int id, String? title, String? body, String? payload) async {
+              _didReceiveLocalNotificationController.add(ReceivedNotification(id: id, title: title ?? "", body: body ?? "", payload: payload ?? ""));
             });
         var initializationSettingsMacOS = MacOSInitializationSettings();
         var initializationSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOS, macOS: initializationSettingsMacOS);
         await _flutterLocalNotificationsPlugin.initialize(
             initializationSettings,
-            onSelectNotification: (String payload) async {
+            onSelectNotification: (String? payload) async {
               if (payload != null) {
                 debugPrint('notification payload: ' + payload);
               }
-              _selectNotificationController.add(payload);
+              _selectNotificationController.add(payload ?? "");
             });
 
         if(receiveFun != null) {
@@ -90,7 +92,7 @@ class BaseNotification {
     return _flutterLocalNotificationsPlugin.pendingNotificationRequests();
   }
 
-  static Future<void> newNotification(int id, String title, String body, {Time time, RepeatInterval interval, String payload}) async {
+  static Future<void> newNotification(int id, String title, String body, {Time? time, RepeatInterval? interval, String? payload}) async {
     if(!_initialized) {
       debugPrint('call init method first!!!');
       return;
@@ -108,7 +110,8 @@ class BaseNotification {
           if(time != null) {
             DateTime now = DateTime.now();
             DateTime dt = DateTime(now.year, now.month, now.day, time.hour, time.minute, time.second);
-            await _flutterLocalNotificationsPlugin.zonedSchedule(id, title, body, dt, nDetails, payload: payload, androidAllowWhileIdle: true, uiLocalNotificationDateInterpretation: null, matchDateTimeComponents: DateTimeComponents.time);
+            TZDateTime tzdt = TZDateTime.from(dt, TZDateTime.local(2022).location);
+            await _flutterLocalNotificationsPlugin.zonedSchedule(id, title, body, tzdt, nDetails, payload: payload, androidAllowWhileIdle: true, uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime, matchDateTimeComponents: DateTimeComponents.time);
           } else {
             await _flutterLocalNotificationsPlugin.periodicallyShow(id, title, body, interval, nDetails, payload: payload);
           }
@@ -121,21 +124,23 @@ class BaseNotification {
         if(dt.isBefore(now)) {
           dt.add(Duration(days: 1));
         }
-        await _flutterLocalNotificationsPlugin.zonedSchedule(id, title, body, dt, nDetails, uiLocalNotificationDateInterpretation: null, androidAllowWhileIdle: true, payload: payload);
+        TZDateTime tzdt = TZDateTime.from(dt, TZDateTime.local(2022).location);
+        await _flutterLocalNotificationsPlugin.zonedSchedule(id, title, body, tzdt, nDetails, uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime, androidAllowWhileIdle: true, payload: payload);
       } else {
         await _flutterLocalNotificationsPlugin.show(id, title, body, nDetails, payload: payload);
       }
     }
   }
 
-  static Future<void> scheduleNotification(int id, String title, String body, DateTime scheduledDate, {String payload}) async {
+  static Future<void> scheduleNotification(int id, String title, String body, DateTime scheduledDate, {String? payload}) async {
     if(!_initialized) {
       debugPrint('call init method first!!!');
       return;
     }
 
     await _flutterLocalNotificationsPlugin.cancel(id);
-    await _flutterLocalNotificationsPlugin.zonedSchedule(id, title, body, scheduledDate, nDetails, uiLocalNotificationDateInterpretation: null, androidAllowWhileIdle: true, payload: payload);
+    TZDateTime tzdt = TZDateTime.from(scheduledDate, TZDateTime.local(2022).location);
+    await _flutterLocalNotificationsPlugin.zonedSchedule(id, title, body, tzdt, nDetails, uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime, androidAllowWhileIdle: true, payload: payload);
   }
 
   static Future<void> cancelNotification(int id) async {

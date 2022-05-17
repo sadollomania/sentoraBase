@@ -8,9 +8,9 @@ class AppBarActionHolder {
   Future<void> Function(StateData stateData) onTap;
 
   AppBarActionHolder({
-    @required this.caption,
-    @required this.color,
-    @required this.icon,
-    @required this.onTap,
+    required this.caption,
+    required this.color,
+    required this.icon,
+    required this.onTap,
   });
 }

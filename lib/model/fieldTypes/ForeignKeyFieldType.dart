@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:sentora_base/model/BaseModel.dart';
 import 'package:sentora_base/model/fieldTypes/BaseFieldType.dart';
 import 'package:sentora_base/widgets/form/field/ForeignField.dart';
@@ -8,19 +7,19 @@ import 'package:sentora_base/widgets/form/filterField/ForeignFilterField.dart';
 class ForeignKeyFieldType extends BaseFieldType {
   final String foreignKeyModelName;
   final String foreignKeyTableName;
-  BaseModel foreignKeyModel;
-  VoidCallback onChange;
+  late BaseModel foreignKeyModel;
+  //VoidCallback onChange;
 
   ForeignKeyFieldType({
-    @required String fieldLabel,
-    @required String fieldHint,
-    @required String name,
-    @required this.foreignKeyModelName,
-    @required this.foreignKeyTableName,
-    bool nullable,
-    BaseModel defaultValue,
+    required String fieldLabel,
+    required String fieldHint,
+    required String name,
+    required this.foreignKeyModelName,
+    required this.foreignKeyTableName,
+    bool? nullable,
+    BaseModel? defaultValue,
     bool unique = false,
-    bool Function(BaseModel baseModel) nullableFn,
+    bool Function(BaseModel baseModel)? nullableFn,
     bool sortable = true,
     bool filterable = true,
   }) : super(fieldLabel:fieldLabel, fieldHint:fieldHint, name:name, nullable:nullable, multiple: false, unique: unique, defaultValue: defaultValue, nullableFn : nullableFn, sortable : sortable, filterable : filterable) {

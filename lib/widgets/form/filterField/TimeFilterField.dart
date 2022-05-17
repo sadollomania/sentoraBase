@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:sentora_base/events/FilterValueChangedEvent.dart';
 import 'package:sentora_base/events/FormFieldValueChangedEvent.dart';
 import 'package:sentora_base/model/fieldTypes/TimeFieldType.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
-import 'package:sentora_base/widgets/datepicker/SentoraDatePicker.dart';
-import 'package:sentora_base/widgets/datepicker/SentoraDatePickerTheme.dart';
 import 'package:sentora_base/widgets/form/filterField/BaseFilterField.dart';
 
 class TimeFilterField extends BaseFilterField {
   TimeFilterField({
-    @required BuildContext context,
-    @required TimeFieldType fieldType,
-    @required int filterIndex,
-    @required Map<String, dynamic> filterMap,
-    @required GlobalKey<ScaffoldState> scaffoldKey,
+    required BuildContext context,
+    required TimeFieldType fieldType,
+    required int filterIndex,
+    required Map<String, dynamic> filterMap,
+    required GlobalKey<ScaffoldState> scaffoldKey,
   }) : super(
     fieldType: fieldType,
     filterIndex: filterIndex,
@@ -25,10 +24,10 @@ class TimeFilterField extends BaseFilterField {
     },
     scaffoldKey : scaffoldKey,
     onTapReplacementFunc: (String textValue, dynamic realValue, String sentoraFieldBaseStateUid, GlobalKey<ScaffoldState> scaffoldKey){
-      return SentoraDatePicker.showTimePicker(context,
-          theme: SentoraDatePickerTheme(
+      return DatePicker.showTimePicker(context,
+          theme: DatePickerTheme(
             containerHeight: ConstantsBase.datePickerHeight,
-            title: fieldType.fieldLabel,
+            //title: fieldType.fieldLabel,
           ),
           showTitleActions: true,
           onConfirm: (date) {
@@ -38,7 +37,7 @@ class TimeFilterField extends BaseFilterField {
             return true;
           },
           currentTime: realValue ?? DateTime.now(),
-          locale: SentoraDatePicker.convertLocaleToLocaleType()
+          locale: ConstantsBase.convertLocaleToLocaleType()
       );
     }
   );

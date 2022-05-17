@@ -7,14 +7,14 @@ import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/MenuButton.dart';
 
 class SortDialog extends StatefulWidget {
-  final String orderBy;
+  final String? orderBy;
   final BaseModel ornekKayit;
   final String baseModelPageId;
 
   SortDialog({
-    @required this.orderBy,
-    @required this.ornekKayit,
-    @required this.baseModelPageId,
+    required this.orderBy,
+    required this.ornekKayit,
+    required this.baseModelPageId,
   });
 
   @override
@@ -30,7 +30,7 @@ class _SortDialogState extends State<SortDialog> {
   String baseModelPageId;
 
   _SortDialogState({
-    String baseModelPageId,
+    required String baseModelPageId,
   }):
         this.baseModelPageId = baseModelPageId;
 
@@ -46,8 +46,8 @@ class _SortDialogState extends State<SortDialog> {
       }
     });
 
-    if(widget.orderBy != null && widget.orderBy.isNotEmpty) {
-      List<String> currList = widget.orderBy.split(",");
+    if(widget.orderBy != null && widget.orderBy!.isNotEmpty) {
+      List<String> currList = widget.orderBy!.split(",");
       for(int i = currList.length - 1; i >= 0; --i) {
         List<String> tmpArr = currList[i].split(" ");
         String currName = tmpArr[0];

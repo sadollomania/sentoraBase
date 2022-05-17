@@ -5,7 +5,7 @@ class SentoraLocaleConfig {
   final Locale locale;
 
   SentoraLocaleConfig({
-    @required this.title,
-    @required this.locale,
+    required this.title,
+    required this.locale,
   });
 }

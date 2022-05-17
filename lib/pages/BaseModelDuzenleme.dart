@@ -13,10 +13,10 @@ class BaseModelDuzenleme extends StatefulWidget {
   final String baseModelPageId;
   final GlobalKey<ScaffoldState> baseModelPageScaffoldKey;
   BaseModelDuzenleme({
-    @required this.widgetKayit,
-    @required this.widgetModelName,
-    @required this.baseModelPageId,
-    @required this.baseModelPageScaffoldKey,
+    required this.widgetKayit,
+    required this.widgetModelName,
+    required this.baseModelPageId,
+    required this.baseModelPageScaffoldKey,
   });
 
   @override
@@ -26,16 +26,16 @@ class BaseModelDuzenleme extends StatefulWidget {
 class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  BaseModel kayit;
+  late BaseModel kayit;
   String modelName;
   String baseModelPageId;
   Map<String, TextEditingController> textControllers = Map<String, TextEditingController>();
   Map<String, dynamic> formVals = Map<String, dynamic>();
 
   BaseModelDuzenlemeState({
-    BaseModel widgetKayit,
-    @required this.modelName,
-    @required this.baseModelPageId,
+    BaseModel? widgetKayit,
+    required this.modelName,
+    required this.baseModelPageId,
   }) {
     if(widgetKayit == null) {
       kayit = BaseModel.createNewObject(modelName);
@@ -86,8 +86,8 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                     color: ConstantsBase.defaultButtonColor,
                     icon: Icons.save,
                     onTap: () async{
-                      _formKey.currentState.save();
-                      if (_formKey.currentState.validate()) {
+                      _formKey.currentState!.save();
+                      if (_formKey.currentState!.validate()) {
                         ConstantsBase.showSnackBarShort(_scaffoldKey, ConstantsBase.translate("bilgiler_kaydediliyor"));
                         if(kayit.get("ID") == null) {
                           kayit.set("ID", ConstantsBase.getRandomUUID());
@@ -100,7 +100,7 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                             debugPrint(e.toString());
                             kayit.set("ID", null);
                             if(e is DatabaseException) {
-                              ConstantsBase.showSnackBarLong(_scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e));
+                              ConstantsBase.showSnackBarLong(_scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e) ?? "");
                             } else {
                               ConstantsBase.showSnackBarLong(_scaffoldKey, e.toString());
                             }
@@ -116,7 +116,7 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
                           }).catchError((e){
                             debugPrint(e.toString());
                             if(e is DatabaseException) {
-                              ConstantsBase.showSnackBarLong(_scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e));
+                              ConstantsBase.showSnackBarLong(_scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e) ?? "");
                             } else {
                               ConstantsBase.showSnackBarLong(_scaffoldKey, e.toString());
                             }

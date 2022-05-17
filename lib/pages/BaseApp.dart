@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:devicelocale/devicelocale.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -16,9 +17,8 @@ import 'package:sentora_base/notification/NotificationTaskConfig.dart';
 import 'package:sentora_base/notification/ReceivedNotification.dart';
 import 'package:sentora_base/utils/ConstantsBase.dart';
 import 'package:sentora_base/widgets/SntText.dart';
-import 'package:share/receive_share_state.dart';
-import 'package:share/share.dart';
-import 'package:unity_ads_plugin/ad/unity_banner_ad.dart';
+import 'package:toast/toast.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 abstract class BaseApp extends StatefulWidget {
   static Future<Null> defaultEmptyFutureNull() {
@@ -27,15 +27,20 @@ abstract class BaseApp extends StatefulWidget {
 
   void runAppBase() async{
     ConstantsBase.isWeb = kIsWeb;
+    ConstantsBase.isWindows = Platform.isWindows;
+    ConstantsBase.isLinux = Platform.isLinux;
+    ConstantsBase.isMacOS = Platform.isMacOS;
+    ConstantsBase.isDesktop = ConstantsBase.isWindows || ConstantsBase.isLinux || ConstantsBase.isMacOS;
+
     await beforeRun();
     await ConstantsBase.loadPrefs();
-    String currLocale = ConstantsBase.getKeyValue(ConstantsBase.localeKey);
+    String? currLocale = ConstantsBase.getKeyValue(ConstantsBase.localeKey);
     if(currLocale == null || currLocale.isEmpty) {
-      if(ConstantsBase.isWeb) {
+      if(ConstantsBase.isWeb || ConstantsBase.isDesktop) {
         await ConstantsBase.setKeyValue(ConstantsBase.localeKey, "tr");
       } else {
-        String baseSystemLocale = await Devicelocale.currentLocale;
-        String loweredSystemLocale = baseSystemLocale.toLowerCase();
+        String? baseSystemLocale = await Devicelocale.currentLocale;
+        String loweredSystemLocale = baseSystemLocale!.toLowerCase();
         String systemLocale = loweredSystemLocale.replaceAll("-", "_");
         if(systemLocale == "tr_tr" || systemLocale == "tr") {
           await ConstantsBase.setKeyValue(ConstantsBase.localeKey, "tr");
@@ -51,18 +56,18 @@ abstract class BaseApp extends StatefulWidget {
 
   final String appTitle;
   final Widget Function() getMainPage;
-  final Map<String, dynamic> notificationConfig;
-  final Map<String, dynamic> adsConfig;
-  final Map<String, dynamic> dbConfig;
-  final Map<String, dynamic> bgTaskConfig;
-  final Map<String, dynamic> shareConfig;
+  final Map<String, dynamic>? notificationConfig;
+  final Map<String, dynamic>? adsConfig;
+  final Map<String, dynamic>? dbConfig;
+  final Map<String, dynamic>? bgTaskConfig;
+  //final Map<String, dynamic> shareConfig;
   final Future<Null> Function() beforeRun;
   final Future<Null> Function() afterLoadPreferencesBeforeRun;
   final List<SentoraLocaleConfig> localeConfig;
   final Map<String, String> prefDefaultVals;
-  final List<Slide> Function(BuildContext context) introSlides;
-  final Color introTopBarColor;
-  final Color introBottomBarColor;
+  final List<Slide> Function(BuildContext context)? introSlides;
+  final Color? introTopBarColor;
+  final Color? introBottomBarColor;
 
 
   void initBaseModelClasses(BuildContext context);
@@ -71,20 +76,20 @@ abstract class BaseApp extends StatefulWidget {
   void beforeDispose(BuildContext context);
   void afterDispose(BuildContext context);
   void afterAppRender(BuildContext context);
-  void receiveShare(BuildContext context, Share shared);
+  //void receiveShare(BuildContext context, Share shared);
 
   BaseApp({
-    @required this.appTitle,
-    @required this.getMainPage,
-    List<SentoraLocaleConfig> localeConfig,
+    required this.appTitle,
+    required this.getMainPage,
+    List<SentoraLocaleConfig>? localeConfig,
     this.dbConfig,
     this.adsConfig,
     this.notificationConfig,
     this.bgTaskConfig,
-    this.shareConfig,
-    Map<String, String> prefDefaultVals,
-    Future<Null> Function() beforeRun,
-    Future<Null> Function() afterLoadPreferencesBeforeRun,
+    //this.shareConfig,
+    Map<String, String>? prefDefaultVals,
+    Future<Null> Function()? beforeRun,
+    Future<Null> Function()? afterLoadPreferencesBeforeRun,
     this.introSlides,
     this.introTopBarColor,
     this.introBottomBarColor,
@@ -140,9 +145,14 @@ abstract class BaseApp extends StatefulWidget {
             )
         ) {
     ConstantsBase.localeConfig = this.localeConfig;
-    ConstantsBase.bannerEnabled = adsConfig != null && adsConfig["adsDisabled"] != true && adsConfig["bannerEnabled"] == true;
+    ConstantsBase.bannerEnabled = adsConfig != null && adsConfig!["adsDisabled"] != true && adsConfig!["bannerEnabled"] == true;
     if(ConstantsBase.bannerEnabled) {
-      ConstantsBase.unityBannerAd = Row(mainAxisAlignment: MainAxisAlignment.center, children:[UnityBannerAd(placementId: "banner",)]);
+      ConstantsBase.unityBannerAd = Row(mainAxisAlignment: MainAxisAlignment.center, children:[
+        UnityBannerAd(placementId: "banner",
+          onLoad: (placementId) => print('Banner loaded: $placementId'),
+          onClick: (placementId) => print('Banner clicked: $placementId'),
+          onFailed: (placementId, error, message) => print('Banner Ad $placementId failed: $error $message'),)
+      ]);
     }
     if(!this.prefDefaultVals.containsKey(ConstantsBase.introShownKey)) {
       this.prefDefaultVals[ConstantsBase.introShownKey] = "0";
@@ -153,42 +163,43 @@ abstract class BaseApp extends StatefulWidget {
   State<StatefulWidget> createState() => new _BaseAppState();
 }
 
-class _BaseAppState extends ReceiveShareState<BaseApp> {
+class _BaseAppState extends State<BaseApp> {
   bool appLoaded = false;
-  StreamSubscription localeChangedSubscription;
+  late StreamSubscription localeChangedSubscription;
 
   @override
   void initState() {
     ConstantsBase.setIsEmulator();
+    ToastContext().init(context);
     widget.beforeInitState(context);
     super.initState();
     widget.initBaseModelClasses(context);
     if(widget.dbConfig != null) {
-      DBHelperBase.init(widget.dbConfig["databaseFileName"], widget.dbConfig["databaseVersion"], widget.dbConfig["versionFunctions"]);
+      DBHelperBase.init(widget.dbConfig!["databaseFileName"], widget.dbConfig!["databaseVersion"], widget.dbConfig!["versionFunctions"]);
     }
 
     if(widget.notificationConfig != null) {
-      BaseNotification.init(widget.notificationConfig["receiveFun"], widget.notificationConfig["payloadFun"]).then((_) async{
-        if(widget.notificationConfig["cancelAll"] == true) {
+      BaseNotification.init(widget.notificationConfig!["receiveFun"], widget.notificationConfig!["payloadFun"]).then((_) async{
+        if(widget.notificationConfig!["cancelAll"] == true) {
           await BaseNotification.cancelAll();
         }
 
-        if(widget.notificationConfig["tasks"] != null) {
-          (widget.notificationConfig["tasks"] as List<NotificationTaskConfig>).forEach((notificationTaskConfig) async {
+        if(widget.notificationConfig!["tasks"] != null) {
+          (widget.notificationConfig!["tasks"] as List<NotificationTaskConfig>).forEach((notificationTaskConfig) async {
             await BaseNotification.newNotification(notificationTaskConfig.id, notificationTaskConfig.title, notificationTaskConfig.body, time : notificationTaskConfig.time, interval: notificationTaskConfig.interval, payload: notificationTaskConfig.payload);
           });
         }
       });
     }
 
-    if(widget.shareConfig != null && widget.shareConfig["enableReceiveShare"] == true && !ConstantsBase.isWeb) {
+    /*if(widget.shareConfig != null && widget.shareConfig["enableReceiveShare"] == true && !ConstantsBase.isWeb) {
       enableShareReceiving();
-    }
+    }*/
 
     ConstantsBase.eventBus = EventBus();
 
-    if(widget.adsConfig != null && widget.adsConfig["adsDisabled"] != true && !ConstantsBase.isWeb) {
-      AppAds.init(widget.adsConfig);
+    if(widget.adsConfig != null && widget.adsConfig!["adsDisabled"] != true && !ConstantsBase.isWeb) {
+      AppAds.init(widget.adsConfig!);
     }
     widget.afterInitState(context);
     localeChangedSubscription  = ConstantsBase.eventBus.on<LocaleChangedEvent>().listen((event){
@@ -221,7 +232,7 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
     }
     localeChangedSubscription.cancel();
     ConstantsBase.eventBus.destroy();
-    if(widget.adsConfig != null && widget.adsConfig["adsDisabled"] != true) {
+    if(widget.adsConfig != null && widget.adsConfig!["adsDisabled"] != true) {
       AppAds.dispose();
     }
     widget.beforeDispose(context);
@@ -240,7 +251,7 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
         primarySwatch: Colors.blue,
       ),
       home: ConstantsBase.getKeyValue(ConstantsBase.introShownKey) == "0" && widget.introSlides != null ? IntroPage(
-        slides: widget.introSlides,
+        slides: widget.introSlides!,
         mainPage: widget.getMainPage(),
         topBarColor : widget.introTopBarColor,
         bottomBarColor: widget.introBottomBarColor,
@@ -248,8 +259,8 @@ class _BaseAppState extends ReceiveShareState<BaseApp> {
     );
   }
 
-  @override
+  /*@override
   void receiveShare(Share shared) {
     widget.receiveShare(context, shared);
-  }
+  }*/
 }
