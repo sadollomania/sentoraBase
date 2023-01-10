@@ -7,7 +7,7 @@ import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:intro_slider/slide_object.dart';
+import 'package:intro_slider/intro_slider.dart';
 import 'package:sentora_base/events/UpdatePageStateEvent.dart';
 import 'package:sentora_base/lang/LangBase.dart';
 import 'package:sentora_base/lang/SentoraLocaleConfig.dart';
@@ -19,7 +19,7 @@ import 'package:toast/toast.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
-enum SnackbarDuration{
+enum SnackbarDuration {
   SHORT,
   LONG,
   ALWAYS,
@@ -40,34 +40,41 @@ class ConstantsBase {
   static bool bannerEnabled = false;
   static late Row unityBannerAd;
   static Map<String, dynamic> _localisedValues = Map<String, dynamic>();
-  static Future loadLocalizedValues() async{
+  static Future loadLocalizedValues() async {
     String languageCode = ConstantsBase.getKeyValue(ConstantsBase.localeKey)!;
-    String jsonContentApp = await rootBundle.loadString("lang/$languageCode.json");
+    String jsonContentApp =
+        await rootBundle.loadString("lang/$languageCode.json");
     Map<String, dynamic> baseVals = LangBase.getLocaleVals(languageCode);
     Map<String, dynamic> appVals = json.decode(jsonContentApp);
 
     Iterable<String> baseKeys = baseVals.keys;
     Iterable<String> appKeys = appVals.keys;
-    appKeys.forEach((appKey){
-      if(baseKeys.contains(appKey)) {
+    appKeys.forEach((appKey) {
+      if (baseKeys.contains(appKey)) {
         debugPrint("appKey overrides baseKey : " + appKey);
         debugPrint("baseKeyValue : " + baseVals[appKey].toString());
         debugPrint("appKeyValue : " + appVals[appKey].toString());
       }
     });
     _localisedValues.clear();
-    _localisedValues..addAll(baseVals)..addAll(appVals);
+    _localisedValues
+      ..addAll(baseVals)
+      ..addAll(appVals);
   }
 
   static Widget wrapWidgetWithBanner(Widget body) {
-    if(ConstantsBase.bannerEnabled) {
-      return Container(child:Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [Expanded(flex:1,child:body), ConstantsBase.unityBannerAd],));
+    if (ConstantsBase.bannerEnabled) {
+      return Container(
+          child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [Expanded(flex: 1, child: body), ConstantsBase.unityBannerAd],
+      ));
     } else {
       return body;
     }
   }
 
-  static List<Slide> Function(BuildContext context)? introSlides;
+  static List<ContentConfig> Function(BuildContext context)? introSlides;
   static Color transparentColor = Color(0x00ffffff);
   static late List<SentoraLocaleConfig> localeConfig;
   static const String introShownKey = "intro_shown";
@@ -87,7 +94,8 @@ class ConstantsBase {
   static const double filterDetailButtonLabelWidth = 130;
   static const double filterButtonFontSize = 14;
   static const EdgeInsetsGeometry filterButtonEdges = EdgeInsets.all(5.0);
-  static HashMap<String, String> decimalConversion = HashMap.fromEntries([MapEntry(",","."), MapEntry(".",",")]);
+  static HashMap<String, String> decimalConversion =
+      HashMap.fromEntries([MapEntry(",", "."), MapEntry(".", ",")]);
   static late String decimalSeparator;
 
   static final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
@@ -100,27 +108,26 @@ class ConstantsBase {
   static bool isAndroid = true;
   static bool isEmulator = true;
 
-  static String getCompFieldName(String name, String? filterMode){
+  static String getCompFieldName(String name, String? filterMode) {
     return name + (filterMode == null ? "" : ("-" + filterMode));
   }
 
-  static Future setIsEmulator() async{
+  static Future setIsEmulator() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    try{
+    try {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      isEmulator = androidInfo.isPhysicalDevice ?? true;
+      isEmulator = androidInfo.isPhysicalDevice;
       isAndroid = true;
-    } catch(e) {}
+    } catch (e) {}
 
-    try{
+    try {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       isEmulator = iosInfo.isPhysicalDevice;
       isAndroid = false;
-    } catch(e) {}
+    } catch (e) {}
   }
 
-  static Map<String, String> prefDefaultVals = {
-  };
+  static Map<String, String> prefDefaultVals = {};
 
   static void fireUpdateStateEvent(String pageId) {
     eventBus.fire(UpdatePageStateEvent(pageId));
@@ -149,7 +156,7 @@ class ConstantsBase {
   static DateTime? tryParse(DateFormat dateFormat, String str) {
     try {
       return dateFormat.parse(str);
-    } catch(e) {
+    } catch (e) {
       return null;
     }
   }
@@ -159,32 +166,42 @@ class ConstantsBase {
   }
 
   static void showToast(BuildContext context, String text) {
-    Toast.show(text, duration: Toast.lengthShort, gravity:  Toast.bottom);
+    Toast.show(text, duration: Toast.lengthShort, gravity: Toast.bottom);
   }
 
   static void showToastLong(BuildContext context, String text) {
-    Toast.show(text, duration: Toast.lengthLong, gravity:  Toast.bottom);
+    Toast.show(text, duration: Toast.lengthLong, gravity: Toast.bottom);
   }
 
-  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBarShort(GlobalKey<ScaffoldState> _scaffoldKey, String text) {
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason>
+      showSnackBarShort(GlobalKey<ScaffoldState> _scaffoldKey, String text) {
     return showSnackBar(_scaffoldKey, text, SnackbarDuration.SHORT);
   }
 
-  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBarLong(GlobalKey<ScaffoldState> _scaffoldKey, String text) {
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason>
+      showSnackBarLong(GlobalKey<ScaffoldState> _scaffoldKey, String text) {
     return showSnackBar(_scaffoldKey, text, SnackbarDuration.LONG);
   }
 
-  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBarAlways(GlobalKey<ScaffoldState> _scaffoldKey, String text) {
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason>
+      showSnackBarAlways(GlobalKey<ScaffoldState> _scaffoldKey, String text) {
     return showSnackBar(_scaffoldKey, text, SnackbarDuration.ALWAYS);
   }
 
-  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBarWithDuration(GlobalKey<ScaffoldState> _scaffoldKey, String text, Duration duration) {
-    return showSnackBar(_scaffoldKey, text, SnackbarDuration.NONE, duration : duration);
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason>
+      showSnackBarWithDuration(GlobalKey<ScaffoldState> _scaffoldKey,
+          String text, Duration duration) {
+    return showSnackBar(_scaffoldKey, text, SnackbarDuration.NONE,
+        duration: duration);
   }
 
-  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBar(GlobalKey<ScaffoldState> _scaffoldKey, String text, SnackbarDuration snackBarDuration, { Duration? duration }) {
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBar(
+      GlobalKey<ScaffoldState> _scaffoldKey,
+      String text,
+      SnackbarDuration snackBarDuration,
+      {Duration? duration}) {
     Duration? compDuration;
-    switch(snackBarDuration) {
+    switch (snackBarDuration) {
       case SnackbarDuration.SHORT:
         compDuration = Duration(seconds: 3);
         break;
@@ -198,34 +215,41 @@ class ConstantsBase {
         compDuration = duration ?? const Duration(seconds: 3);
         break;
     }
-    if(compDuration == null) {
-      return ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(SnackBar(content: Text(text)));
+    if (compDuration == null) {
+      return ScaffoldMessenger.of(_scaffoldKey.currentContext!)
+          .showSnackBar(SnackBar(content: Text(text)));
     } else {
-      return ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(SnackBar(content: Text(text), duration: compDuration,));
+      return ScaffoldMessenger.of(_scaffoldKey.currentContext!)
+          .showSnackBar(SnackBar(
+        content: Text(text),
+        duration: compDuration,
+      ));
     }
   }
 
-  static SizedBox createSizedBoxWithBgColor({double? width, double? height, Color? color}) {
+  static SizedBox createSizedBoxWithBgColor(
+      {double? width, double? height, Color? color}) {
     return SizedBox(
       width: width,
       height: height,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: color ?? Colors.white
-        ),
+        decoration: BoxDecoration(color: color ?? Colors.white),
       ),
     );
   }
 
   static Future<void> loadPrefs() async {
     _prefs = await SharedPreferences.getInstance();
+    if (!prefDefaultVals.containsKey(ConstantsBase.localeKey)) {
+      prefDefaultVals[ConstantsBase.localeKey] = "tr";
+    }
     return;
   }
 
   static int getNotificationId(String id) {
     String str = getKeyValue(_notificationPreferenceKey)!;
     Map mp = json.decode(str);
-    if(mp.containsKey(id)) {
+    if (mp.containsKey(id)) {
       return mp[id];
     } else {
       int newId = mp.length + 1;
@@ -239,18 +263,22 @@ class ConstantsBase {
     /*if(_prefs == null) {
       throw new Exception("Prefs not loaded. Consider calling ConstantsBase.loadPrefs with await");
     }*/
-    return _prefs.getString(key) ?? (prefDefaultVals[key] != null ? prefDefaultVals[key] : throw new Exception("ConstantsBase PREF_DEFAULT_VALS not initialized for $key"));
+    return _prefs.getString(key) ??
+        (prefDefaultVals[key] != null
+            ? prefDefaultVals[key]
+            : throw new Exception(
+                "ConstantsBase PREF_DEFAULT_VALS not initialized for $key"));
   }
 
-  static Future<void> setKeyValue(String key, String value) async{
+  static Future<void> setKeyValue(String key, String value) async {
     /*if(_prefs == null) {
       throw new Exception("Prefs not loaded. Consider calling ConstantsBase.loadPrefs with await");
     }*/
     await _prefs.setString(key, value);
   }
 
-  static Future<String> getVisiblePath() async{
-    if(Platform.isAndroid) {
+  static Future<String> getVisiblePath() async {
+    if (Platform.isAndroid) {
       Directory? appDir = await getExternalStorageDirectory();
       return appDir!.path;
     } else {
@@ -260,7 +288,8 @@ class ConstantsBase {
   }
 
   static String convertTurkishCharacters(String str) {
-    return str.replaceAll("ı", "@@s01@@")
+    return str
+        .replaceAll("ı", "@@s01@@")
         .replaceAll("İ", "@@s02@@")
         .replaceAll("ş", "@@s03@@")
         .replaceAll("Ş", "@@s04@@")
@@ -276,7 +305,8 @@ class ConstantsBase {
   }
 
   static String convertBackTurkishCharacters(String str) {
-    return str.replaceAll("@@s01@@", "ı")
+    return str
+        .replaceAll("@@s01@@", "ı")
         .replaceAll("@@s02@@", "İ")
         .replaceAll("@@s03@@", "ş")
         .replaceAll("@@s04@@", "Ş")
@@ -291,9 +321,10 @@ class ConstantsBase {
         .replaceAll("@@s13@@", " ");
   }
 
-  static Map<String, String> convertParamsToNameValueMap(List<String> paramList) {
+  static Map<String, String> convertParamsToNameValueMap(
+      List<String> paramList) {
     Map<String, String> retList = HashMap<String, String>();
-    for(var i = 0, len = paramList.length; i < len; ++i) {
+    for (var i = 0, len = paramList.length; i < len; ++i) {
       List<String> nameValuePair = paramList[i].split("=");
       String key = convertBackTurkishCharacters(nameValuePair[0]);
       String val = convertBackTurkishCharacters(nameValuePair[1]);
@@ -319,7 +350,7 @@ class ConstantsBase {
   }
 
   static LocaleType convertLocaleToLocaleType() {
-    switch(ConstantsBase.getKeyValue(ConstantsBase.localeKey)) {
+    switch (ConstantsBase.getKeyValue(ConstantsBase.localeKey)) {
       case "tr":
         return LocaleType.tr;
       default:
@@ -327,15 +358,20 @@ class ConstantsBase {
     }
   }
 
-  static List<TextInputFormatter> getNumberTextInputFormatters({required bool signed, required bool decimal}) {
+  static List<TextInputFormatter> getNumberTextInputFormatters(
+      {required bool signed, required bool decimal}) {
     List<TextInputFormatter> textInputFormatters = [];
-    textInputFormatters.add(FilteringTextInputFormatter.allow(RegExp((signed ? "-?" : "") + "(0|[1-9]\\d*)" + (decimal ? "[\\.\\,]?\\d?" : ""))));
+    textInputFormatters.add(FilteringTextInputFormatter.allow(RegExp(
+        (signed ? "-?" : "") +
+            "(0|[1-9]\\d*)" +
+            (decimal ? "[\\.\\,]?\\d?" : ""))));
     return textInputFormatters;
   }
 
-  static String? convertErrorToStr(dynamic exception, String errorTitle, String uniqueErrDescr, String foreignKeyErrDescr) {
+  static String? convertErrorToStr(dynamic exception, String errorTitle,
+      String uniqueErrDescr, String foreignKeyErrDescr) {
     DatabaseException e;
-    if(exception is DatabaseException) {
+    if (exception is DatabaseException) {
       e = exception;
     } else {
       return null;
@@ -344,9 +380,11 @@ class ConstantsBase {
     String errorMsg = e.toString();
     String defaultRetStr = errorTitle + " : " + errorMsg;
     String retStr = "";
-    if(errorMsg.contains("UNIQUE") || errorMsg.contains("unique")) { //TODO eğer burda çoklu kolon varsa ne olur bak
+    if (errorMsg.contains("UNIQUE") || errorMsg.contains("unique")) {
+      //TODO eğer burda çoklu kolon varsa ne olur bak
       retStr = uniqueErrDescr;
-    } else if(errorMsg.contains("FOREIGN KEY") || errorMsg.contains("foreign key")) {
+    } else if (errorMsg.contains("FOREIGN KEY") ||
+        errorMsg.contains("foreign key")) {
       retStr = foreignKeyErrDescr;
     } else {
       retStr = defaultRetStr;
@@ -355,7 +393,7 @@ class ConstantsBase {
   }
 
   static String convertLanguageCodeToTitle(String languageCode) {
-    switch(languageCode) {
+    switch (languageCode) {
       case "tr":
         return "Türkçe";
       case "en":
@@ -366,7 +404,7 @@ class ConstantsBase {
   }
 
   static Image convertLanguageCodeToImage(String languageCode) {
-    switch(languageCode) {
+    switch (languageCode) {
       case "tr":
         return Image.asset('assets/images/lang/tr.png', fit: BoxFit.fill);
       case "en":

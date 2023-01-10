@@ -21,7 +21,7 @@ class MenuButton extends StatefulWidget {
     this.textFlex = ConstantsBase.defaultMenuButtonTextFlex,
     this.labelWidth,
     double? height,
-  }) : this.iconColor = iconColor ?? ConstantsBase.defaultIconColor,
+  })  : this.iconColor = iconColor ?? ConstantsBase.defaultIconColor,
         this.fontSize = fontSize ?? 30,
         this.height = height ?? 40,
         assert(title != null || iconData != null || image != null),
@@ -53,45 +53,39 @@ class _MenuButtonState extends State<MenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    Widget  textWidget;
+    Widget textWidget;
     List<Widget> rowWidgetList = [];
-    if(widget.iconData != null) {
-      rowWidgetList.add(
-        Expanded(
+    if (widget.iconData != null) {
+      rowWidgetList.add(Expanded(
           flex: widget.iconFlex,
-          child: LayoutBuilder(
-              builder: (context, constraint){
-              return Icon(
-                widget.iconData,
-                size: min(constraint.biggest.width, constraint.biggest.height),
-                color: widget.iconColor,
-              );
-            }
-          )
-        )
-      );
+          child: LayoutBuilder(builder: (context, constraint) {
+            return Icon(
+              widget.iconData,
+              size: min(constraint.biggest.width, constraint.biggest.height),
+              color: widget.iconColor,
+            );
+          })));
     }
 
-    if(widget.image != null) {
-      rowWidgetList.add(
-        Expanded(
+    if (widget.image != null) {
+      rowWidgetList.add(Expanded(
           flex: widget.iconFlex,
-          child: LayoutBuilder(
-            builder: (context, constraint) {
-              return Container(
-                width: widget.image!.width ?? 50,
-                height: widget.image!.height ?? 50,
-                child: widget.image,
-              );
-            }
-          )
-        )
-      );
+          child: LayoutBuilder(builder: (context, constraint) {
+            return Container(
+              width: widget.image!.width ?? 50,
+              height: widget.image!.height ?? 50,
+              child: widget.image,
+            );
+          })));
     }
 
-    if(widget.title != null) {
-      Text tmpTextWidget = Text(widget.title!, style: TextStyle(fontSize: widget.fontSize), overflow: TextOverflow.ellipsis,);
-      if(widget.labelWidth != null) {
+    if (widget.title != null) {
+      Text tmpTextWidget = Text(
+        widget.title!,
+        style: TextStyle(fontSize: widget.fontSize),
+        overflow: TextOverflow.ellipsis,
+      );
+      if (widget.labelWidth != null) {
         textWidget = SizedBox(
           width: widget.labelWidth,
           child: tmpTextWidget,
@@ -100,54 +94,61 @@ class _MenuButtonState extends State<MenuButton> {
         textWidget = tmpTextWidget;
       }
 
-      rowWidgetList.add(
-        Expanded(
-          flex: widget.textFlex,
-          child: Center(
-            child: textWidget,
-          ),
-        )
-      );
+      rowWidgetList.add(Expanded(
+        flex: widget.textFlex,
+        child: Center(
+          child: textWidget,
+        ),
+      ));
     }
 
     return ElevatedButton(
         style: ElevatedButton.styleFrom(
-          padding: widget.edgeInsetsGeometry,
-          primary: widget.buttonColor,
-          textStyle: TextStyle(
-            color: widget.disabled || running ? widget.disabledColor : widget.enabledColor,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(widget.circularRadius))
-        ),
+            padding: widget.edgeInsetsGeometry,
+            backgroundColor: widget.buttonColor,
+            textStyle: TextStyle(
+              color: widget.disabled || running
+                  ? widget.disabledColor
+                  : widget.enabledColor,
+            ),
+            shape: RoundedRectangleBorder(
+                borderRadius:
+                    new BorderRadius.circular(widget.circularRadius))),
         child: Container(
           height: widget.height,
           child: Stack(
             children: <Widget>[
               Container(
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: rowWidgetList
-                ),
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: rowWidgetList),
               )
-            ]
-            ..addAll(running ? [Container(child: Center(child: CircularProgressIndicator(),),)] : []),
+            ]..addAll(running
+                ? [
+                    Container(
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  ]
+                : []),
           ),
         ), // Text(title, style: TextStyle(fontSize: fontSize)),
-        onPressed: widget.disabled || running ? null : () async{
-          if(mounted) {
-            setState(() {
-              running = true;
-            });
-          }
-          await widget.onPressed();
-          if(mounted) {
-            setState(() {
-              running = false;
-            });
-          }
-          return;
-        });
+        onPressed: widget.disabled || running
+            ? null
+            : () async {
+                if (mounted) {
+                  setState(() {
+                    running = true;
+                  });
+                }
+                await widget.onPressed();
+                if (mounted) {
+                  setState(() {
+                    running = false;
+                  });
+                }
+                return;
+              });
   }
-
 }

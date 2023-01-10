@@ -18,23 +18,23 @@ class BaseModel {
   static Map<String, String> _modelTableNames = Map<String, String>();
   static Map<String, List<BaseFieldType>> _modelFieldTypes = Map<String, List<BaseFieldType>>();
   static Map<String, List<String>> _modelTitleFields = Map<String, List<String>>();
-  static Map<String, List<String>?> _modelSubTitleFields = Map<String, List<String>>();
-  static Map<String, Widget Function(BaseModel baseModel)?> _modelLeadingFunctions = Map<String, Widget Function(BaseModel baseModel)>();
-  static Map<String, Widget Function(BaseModel baseModel)?> _modelTrailingFunctions = Map<String, Widget Function(BaseModel baseModel)>();
+  static Map<String, List<String>?> _modelSubTitleFields = Map<String, List<String>?>();
+  static Map<String, Widget Function(BaseModel baseModel)?> _modelLeadingFunctions = Map<String, Widget Function(BaseModel baseModel)?>();
+  static Map<String, Widget Function(BaseModel baseModel)?> _modelTrailingFunctions = Map<String, Widget Function(BaseModel baseModel)?>();
   static Map<String, String> _modelPageTitles = Map<String, String>();
   static Map<String, String> _modelSingleTitles = Map<String, String>();
-  static Map<String, Color Function(BaseModel baseModel)?> _modelListBgColors = Map<String, Color Function(BaseModel baseModel)>();
-  static Map<String, List<List<String>>?> _modelMultiColumnUniqueConstraints = Map<String, List<List<String>>>();
+  static Map<String, Color Function(BaseModel baseModel)?> _modelListBgColors = Map<String, Color Function(BaseModel baseModel)?>();
+  static Map<String, List<List<String>>?> _modelMultiColumnUniqueConstraints = Map<String, List<List<String>>?>();
   static Map<String, String> _modelDefaultOrderBys = Map<String, String>();
 
-  Future<void> beforeInsert() async{}
-  Future<void> afterInsert() async{}
+  Future<void> beforeInsert() async {}
+  Future<void> afterInsert() async {}
 
-  Future<void> beforeUpdate() async{}
-  Future<void> afterUpdate() async{}
+  Future<void> beforeUpdate() async {}
+  Future<void> afterUpdate() async {}
 
-  Future<void> beforeDelete() async{}
-  Future<void> afterDelete() async{}
+  Future<void> beforeDelete() async {}
+  Future<void> afterDelete() async {}
 
   String modelName;
   String tableName;
@@ -81,7 +81,7 @@ class BaseModel {
     this.subTitleFields,
     String? defaultOrderBy,
   }) : this.defaultOrderBy = defaultOrderBy ?? "INSDATE ASC" {
-    if(!_models.contains(modelName)) {
+    if (!_models.contains(modelName)) {
       _modelTableNames[modelName] = tableName;
       _modelFieldTypes[modelName] = fieldTypes;
       _modelTitleFields[modelName] = titleFields;
@@ -97,17 +97,17 @@ class BaseModel {
     }
 
     allFieldTypes = _constructFields();
-    allFieldTypes.forEach((fieldType){
+    allFieldTypes.forEach((fieldType) {
       _fieldValues[fieldType.name] = null;
     });
   }
 
   static BaseModel createNewObject(String modelName) {
-    if(!_models.contains(modelName)) {
+    if (!_models.contains(modelName)) {
       throw new Exception("Tanımsız Model Adı : " + modelName);
     }
 
-     BaseModel ret = BaseModel(
+    BaseModel ret = BaseModel(
       modelName: modelName,
       tableName: _modelTableNames[modelName]!,
       fieldTypes: _modelFieldTypes[modelName]!,
@@ -122,7 +122,7 @@ class BaseModel {
       defaultOrderBy: _modelDefaultOrderBys[modelName],
     );
 
-    ret.allFieldTypes.forEach((fieldType){
+    ret.allFieldTypes.forEach((fieldType) {
       ret._fieldValues[fieldType.name] = fieldType.defaultValue;
     });
 
@@ -130,7 +130,12 @@ class BaseModel {
   }
 
   BaseModelPage createBaseModelPage() {
-    return BaseModelPage(modelName: modelName,addButtonTitle: (_) => ConstantsBase.translate("ekle"),editButtonTitle: (_) => ConstantsBase.translate("duzenle"),deleteButtonTitle: (_) => ConstantsBase.translate("sil"),);
+    return BaseModelPage(
+      modelName: modelName,
+      addButtonTitle: (_) => ConstantsBase.translate("ekle"),
+      editButtonTitle: (_) => ConstantsBase.translate("duzenle"),
+      deleteButtonTitle: (_) => ConstantsBase.translate("sil"),
+    );
   }
 
   /*BaseModelPage createBaseModelQueryPage(String pageTitle, String getListQuery, Row Function(BaseModel selectedKayit) constructButtonsRow) {
@@ -139,45 +144,62 @@ class BaseModel {
 
   List<BaseFieldType> _constructFields() {
     List<BaseFieldType> allFieldTypes = [];
-    allFieldTypes.add(StringFieldType(fieldLabel:"ID", fieldHint:ConstantsBase.translate("kayit_no"), name:"ID", nullable: false, filterable: false));
-    allFieldTypes.add(DateFieldType(fieldLabel:ConstantsBase.translate("kayit_tarihi"), fieldHint:ConstantsBase.translate("kayit_tarihi_hint"), name:"INSDATE", nullable: false));
-    allFieldTypes.add(StringFieldType(fieldLabel:ConstantsBase.translate("kayit_eden"), fieldHint:ConstantsBase.translate("kayit_eden_hint"), name:"INSBY", nullable: false, sortable: false, filterable: false));
-    allFieldTypes.add(DateFieldType(fieldLabel:ConstantsBase.translate("guncelleme_tarihi"), fieldHint:ConstantsBase.translate("guncelleme_tarihi_hint"), name:"UPDDATE", nullable: false));
-    allFieldTypes.add(StringFieldType(fieldLabel:ConstantsBase.translate("guncelleme_yapan"), fieldHint:ConstantsBase.translate("guncelleme_yapan_hint"), name:"UPDBY", nullable: false, sortable: false, filterable: false));
+    allFieldTypes.add(StringFieldType(fieldLabel: "ID", fieldHint: ConstantsBase.translate("kayit_no"), name: "ID", nullable: false, filterable: false));
+    allFieldTypes.add(DateFieldType(
+        fieldLabel: ConstantsBase.translate("kayit_tarihi"), fieldHint: ConstantsBase.translate("kayit_tarihi_hint"), name: "INSDATE", nullable: false));
+    allFieldTypes.add(StringFieldType(
+        fieldLabel: ConstantsBase.translate("kayit_eden"),
+        fieldHint: ConstantsBase.translate("kayit_eden_hint"),
+        name: "INSBY",
+        nullable: false,
+        sortable: false,
+        filterable: false));
+    allFieldTypes.add(DateFieldType(
+        fieldLabel: ConstantsBase.translate("guncelleme_tarihi"),
+        fieldHint: ConstantsBase.translate("guncelleme_tarihi_hint"),
+        name: "UPDDATE",
+        nullable: false));
+    allFieldTypes.add(StringFieldType(
+        fieldLabel: ConstantsBase.translate("guncelleme_yapan"),
+        fieldHint: ConstantsBase.translate("guncelleme_yapan_hint"),
+        name: "UPDBY",
+        nullable: false,
+        sortable: false,
+        filterable: false));
     allFieldTypes.addAll(fieldTypes);
     return allFieldTypes;
   }
 
   Map<String, dynamic> _toMap() {
     Map<String, dynamic> retVals = Map<String, dynamic>();
-    allFieldTypes.forEach((fieldType){
-      if(fieldType.runtimeType == BlobFieldType) {
+    allFieldTypes.forEach((fieldType) {
+      if (fieldType.runtimeType == BlobFieldType) {
         retVals[fieldType.name] = _fieldValues[fieldType.name];
-      } else if(fieldType.runtimeType == BooleanFieldType) {
+      } else if (fieldType.runtimeType == BooleanFieldType) {
         retVals[fieldType.name] = _fieldValues[fieldType.name] == true ? 1 : 0;
-      } else if(fieldType.runtimeType == DateFieldType) {
-        if(_fieldValues[fieldType.name] != null) {
+      } else if (fieldType.runtimeType == DateFieldType) {
+        if (_fieldValues[fieldType.name] != null) {
           retVals[fieldType.name] = ConstantsBase.dateTimeFormat.format(_fieldValues[fieldType.name]);
         } else {
           retVals[fieldType.name] = null;
         }
-      } else if(fieldType.runtimeType == TimeFieldType) {
-        if(_fieldValues[fieldType.name] != null) {
+      } else if (fieldType.runtimeType == TimeFieldType) {
+        if (_fieldValues[fieldType.name] != null) {
           retVals[fieldType.name] = ConstantsBase.timeFormat.format(_fieldValues[fieldType.name]);
         } else {
           retVals[fieldType.name] = null;
         }
-      } else if(fieldType.runtimeType == ForeignKeyFieldType) {
-        if(_fieldValues[fieldType.name] != null) {
+      } else if (fieldType.runtimeType == ForeignKeyFieldType) {
+        if (_fieldValues[fieldType.name] != null) {
           retVals[fieldType.name] = (_fieldValues[fieldType.name] as BaseModel).get("ID");
         } else {
           retVals[fieldType.name] = null;
         }
-      } else if(fieldType.runtimeType == IntFieldType) {
+      } else if (fieldType.runtimeType == IntFieldType) {
         retVals[fieldType.name] = _fieldValues[fieldType.name];
-      } else if(fieldType.runtimeType == RealFieldType) {
+      } else if (fieldType.runtimeType == RealFieldType) {
         retVals[fieldType.name] = _fieldValues[fieldType.name];
-      } else if(fieldType.runtimeType == StringFieldType) {
+      } else if (fieldType.runtimeType == StringFieldType) {
         retVals[fieldType.name] = _fieldValues[fieldType.name];
       } else {
         throw new Exception("Unknown FieldType : " + fieldType.runtimeType.toString());
@@ -187,37 +209,37 @@ class BaseModel {
   }
 
   Future<void> _fromMap(Map<String, dynamic> map) async {
-    for(int i = 0, len = allFieldTypes.length; i < len; ++i) {
+    for (int i = 0, len = allFieldTypes.length; i < len; ++i) {
       BaseFieldType fieldType = allFieldTypes[i];
-      if(fieldType.runtimeType == BlobFieldType) {
+      if (fieldType.runtimeType == BlobFieldType) {
         set(fieldType.name, map[fieldType.name]);
-      } else if(fieldType.runtimeType == BooleanFieldType) {
+      } else if (fieldType.runtimeType == BooleanFieldType) {
         set(fieldType.name, map[fieldType.name] == 1);
-      } else if(fieldType.runtimeType == DateFieldType) {
-        if(map[fieldType.name] != null) {
+      } else if (fieldType.runtimeType == DateFieldType) {
+        if (map[fieldType.name] != null) {
           set(fieldType.name, ConstantsBase.dateTimeFormat.parse(map[fieldType.name]));
         } else {
           set(fieldType.name, null);
         }
-      } else if(fieldType.runtimeType == TimeFieldType) {
-        if(map[fieldType.name] != null) {
+      } else if (fieldType.runtimeType == TimeFieldType) {
+        if (map[fieldType.name] != null) {
           set(fieldType.name, ConstantsBase.timeFormat.parse(map[fieldType.name]));
         } else {
           set(fieldType.name, null);
         }
-      } else if(fieldType.runtimeType == ForeignKeyFieldType) {
-        if(map[fieldType.name] != null) {
+      } else if (fieldType.runtimeType == ForeignKeyFieldType) {
+        if (map[fieldType.name] != null) {
           ForeignKeyFieldType foreignKeyField = fieldType as ForeignKeyFieldType;
           BaseModel? baseModel = await getById(foreignKeyField.foreignKeyModel.modelName, foreignKeyField.foreignKeyModel.tableName, map[fieldType.name]);
           set(fieldType.name, baseModel);
         } else {
           set(fieldType.name, null);
         }
-      } else if(fieldType.runtimeType == IntFieldType) {
+      } else if (fieldType.runtimeType == IntFieldType) {
         set(fieldType.name, map[fieldType.name]);
-      } else if(fieldType.runtimeType == RealFieldType) {
+      } else if (fieldType.runtimeType == RealFieldType) {
         set(fieldType.name, map[fieldType.name]);
-      } else if(fieldType.runtimeType == StringFieldType) {
+      } else if (fieldType.runtimeType == StringFieldType) {
         set(fieldType.name, map[fieldType.name]);
       } else {
         throw new Exception("Unknown FieldType : " + fieldType.runtimeType.toString());
@@ -227,8 +249,8 @@ class BaseModel {
 
   List<String> _createDbFkIndexes() {
     List<String> statements = [];
-    allFieldTypes.forEach((fieldType){
-      if(fieldType.runtimeType == ForeignKeyFieldType) {
+    allFieldTypes.forEach((fieldType) {
+      if (fieldType.runtimeType == ForeignKeyFieldType) {
         String indexScript = "CREATE INDEX FK_IND_" + tableName + "_" + fieldType.name + " ON " + tableName + "(" + fieldType.name + ");";
         statements.add(indexScript);
       }
@@ -239,57 +261,60 @@ class BaseModel {
   String _createDbTableScript() {
     String str = " CREATE TABLE " + tableName + " ( ";
     int index = 0, len = allFieldTypes.length;
-    allFieldTypes.forEach((fieldType){
+    allFieldTypes.forEach((fieldType) {
       ++index;
       str += fieldType.name;
-      if(fieldType.runtimeType == StringFieldType || fieldType.runtimeType == DateFieldType || fieldType.runtimeType == TimeFieldType || fieldType.runtimeType == ForeignKeyFieldType) {
+      if (fieldType.runtimeType == StringFieldType ||
+          fieldType.runtimeType == DateFieldType ||
+          fieldType.runtimeType == TimeFieldType ||
+          fieldType.runtimeType == ForeignKeyFieldType) {
         str += " TEXT";
-      } else if(fieldType.runtimeType == IntFieldType || fieldType.runtimeType == BooleanFieldType) {
+      } else if (fieldType.runtimeType == IntFieldType || fieldType.runtimeType == BooleanFieldType) {
         str += " INTEGER";
-      } else if(fieldType.runtimeType == RealFieldType) {
+      } else if (fieldType.runtimeType == RealFieldType) {
         str += " REAL";
-      } else if(fieldType.runtimeType == BlobFieldType) {
+      } else if (fieldType.runtimeType == BlobFieldType) {
         str += " BLOB";
       } else {
         throw new Exception("Unknown type : " + fieldType.runtimeType.toString());
       }
 
-      if(fieldType.name == "ID") {
+      if (fieldType.name == "ID") {
         str += " PRIMARY KEY";
       } else {
         /*if(fieldType.defaultValue != null) {
           str += " DEFAULT " + fieldType.defaultValue;
         }*/
 
-        if(fieldType.nullable == false) {
+        if (fieldType.nullable == false) {
           str += " NOT NULL";
         } else {
           str += " NULL";
         }
       }
 
-      if(fieldType.unique) {
+      if (fieldType.unique) {
         str += " UNIQUE";
       }
 
-      if(index != len) {
+      if (index != len) {
         str += ",";
       }
     });
 
-    allFieldTypes.forEach((fieldType){
-      if(fieldType.runtimeType == ForeignKeyFieldType) {
+    allFieldTypes.forEach((fieldType) {
+      if (fieldType.runtimeType == ForeignKeyFieldType) {
         ForeignKeyFieldType foreignFieldType = fieldType as ForeignKeyFieldType;
         str += ",FOREIGN KEY(" + foreignFieldType.name + ") REFERENCES " + foreignFieldType.foreignKeyTableName + "(ID) ON DELETE RESTRICT";
       }
     });
 
-    multiColumnUniqueConstraints.forEach((List<String> uniqueConstraint){
+    multiColumnUniqueConstraints.forEach((List<String> uniqueConstraint) {
       String uniqueStr = ",UNIQUE(";
       for (int i = 0, len = uniqueConstraint.length; i < len; ++i) {
         String columnName = uniqueConstraint[i];
         uniqueStr += columnName;
-        if(i != len - 1) {
+        if (i != len - 1) {
           uniqueStr += ",";
         }
       }
@@ -315,7 +340,7 @@ class BaseModel {
         _toMap(),
         conflictAlgorithm: ConflictAlgorithm.fail,
       );
-    } catch(e) {
+    } catch (e) {
       debugPrint(e.toString());
       throw e;
     }
@@ -351,29 +376,29 @@ class BaseModel {
     return retVal;
   }
 
-  Future<Map<String, dynamic>> _getList(int limit, int offset, String? orderBy, String? rawQuery, Map<String, dynamic>? filterMap, { Database? dbParam }) async {
+  Future<Map<String, dynamic>> _getList(int limit, int offset, String? orderBy, String? rawQuery, Map<String, dynamic>? filterMap, {Database? dbParam}) async {
     Map<String, dynamic> retMap = Map<String, dynamic>();
     final Database db = dbParam ?? await DBHelperBase.instance.getDb();
     String? where;
     List<dynamic> whereArgs = [];
-    if(filterMap != null && filterMap.length > 0) {
+    if (filterMap != null && filterMap.length > 0) {
       String str;
       dynamic val;
       dynamic whereArgVal;
       where = "";
-      List<String> filterKeys =  filterMap.keys.toList();
-      for(int i = 0, len = filterKeys.length; i < len; ++i) {
+      List<String> filterKeys = filterMap.keys.toList();
+      for (int i = 0, len = filterKeys.length; i < len; ++i) {
         str = filterKeys[i];
         val = filterMap[str];
 
         List<String> tmpArr = str.split("-");
         String fieldName = tmpArr[0];
         String operator = tmpArr[1];
-        if(i != 0) {
+        if (i != 0) {
           where = where! + " and ";
         }
 
-        switch(operator) {
+        switch (operator) {
           case "isnotnull":
             where = where! + fieldName + " is not null ";
             whereArgVal = null;
@@ -436,7 +461,7 @@ class BaseModel {
           default:
             throw Exception("unknown filter mode : " + operator);
         }
-        if(whereArgVal != null) {
+        if (whereArgVal != null) {
           whereArgs.add(whereArgVal);
         }
       }
@@ -444,71 +469,72 @@ class BaseModel {
 
     List<Map<String, dynamic>> maps;
     String compOrderBy = "";
-    if(orderBy != null && orderBy.isNotEmpty) {
+    if (orderBy != null && orderBy.isNotEmpty) {
       List<String> orderByElements = orderBy.split(",");
-      orderByElements.forEach((orderByElement){
+      orderByElements.forEach((orderByElement) {
         List<String> orderByElementDetail = orderByElement.split(" ");
         String orderByFieldName = orderByElementDetail[0];
         String orderByDirection = orderByElementDetail[1];
         String orderByNullsOrder = orderByElementDetail.length == 3 ? orderByElementDetail[2] : "";
-        if(orderByNullsOrder == DBHelperBase.nullsFirst) {
+        if (orderByNullsOrder == DBHelperBase.nullsFirst) {
           compOrderBy += "," + orderByFieldName + " IS NULL DESC";
-        } else if(orderByNullsOrder == DBHelperBase.nullsLast) {
+        } else if (orderByNullsOrder == DBHelperBase.nullsLast) {
           compOrderBy += "," + orderByFieldName + " IS NULL ASC";
         }
         compOrderBy += "," + orderByFieldName + " " + orderByDirection;
       });
       orderBy = compOrderBy.substring(1);
     }
-    if(rawQuery == null) {
-      if(limit == -1) {
-        if(where == null) {
+    if (rawQuery == null) {
+      if (limit == -1) {
+        if (where == null) {
           maps = await db.query(tableName);
         } else {
           maps = await db.query(tableName, where: where, whereArgs: whereArgs);
         }
       } else {
-        if(where == null) {
+        if (where == null) {
           maps = await db.query(tableName, limit: limit, offset: offset, orderBy: orderBy != null && orderBy.isNotEmpty ? orderBy : null);
         } else {
-          maps = await db.query(tableName, limit: limit, offset: offset, orderBy: orderBy != null && orderBy.isNotEmpty ? orderBy : null, where: where, whereArgs: whereArgs);
+          maps = await db.query(tableName,
+              limit: limit, offset: offset, orderBy: orderBy != null && orderBy.isNotEmpty ? orderBy : null, where: where, whereArgs: whereArgs);
         }
       }
     } else {
       String pagedQuery = rawQuery;
-      if(where != null) {
+      if (where != null) {
         pagedQuery += " WHERE " + where;
       }
-      if(orderBy != null && orderBy.isNotEmpty) {
+      if (orderBy != null && orderBy.isNotEmpty) {
         pagedQuery += " ORDER BY " + orderBy;
       }
-      if(limit != -1) {
+      if (limit != -1) {
         pagedQuery += " LIMIT " + limit.toString() + " OFFSET " + offset.toString();
       }
-      if(where == null) {
+      if (where == null) {
         maps = await db.rawQuery(pagedQuery);
       } else {
         maps = await db.rawQuery(pagedQuery, whereArgs);
       }
     }
     List<BaseModel> retList = [];
-    for(int i = 0, len = maps.length; i < len; ++i) {
+    for (int i = 0, len = maps.length; i < len; ++i) {
       BaseModel newObj = BaseModel.createNewObject(modelName);
       await newObj._fromMap(maps[i]);
       retList.add(newObj);
     }
     int totalCount;
-    if(limit == -1) {
+    if (limit == -1) {
       totalCount = maps.length;
     } else {
-      if(rawQuery == null) {
-        if(where == null) {
+      if (rawQuery == null) {
+        if (where == null) {
           totalCount = (await db.query(tableName)).length;
         } else {
           totalCount = (await db.query(tableName, where: where, whereArgs: whereArgs)).length;
         }
       } else {
-        if(where == null) {
+        if (where == null) {
           totalCount = (await db.rawQuery(rawQuery)).length;
         } else {
           totalCount = (await db.rawQuery(rawQuery + " WHERE " + where)).length;
@@ -521,8 +547,8 @@ class BaseModel {
   }
 
   BaseFieldType? _getFieldTypeByName(String name) {
-    for(int i = 0, len = allFieldTypes.length; i < len; ++i) {
-      if(allFieldTypes[i].name == name) {
+    for (int i = 0, len = allFieldTypes.length; i < len; ++i) {
+      if (allFieldTypes[i].name == name) {
         return allFieldTypes[i];
       }
     }
@@ -531,7 +557,7 @@ class BaseModel {
 
   String? _convertDbErrorToStr(dynamic exception) {
     DatabaseException e;
-    if(exception is DatabaseException) {
+    if (exception is DatabaseException) {
       e = exception;
     } else {
       return null;
@@ -540,20 +566,31 @@ class BaseModel {
     String errorMsg = e.toString();
     String defaultRetStr = ConstantsBase.translate("detaylandirilmamis_hata") + errorMsg;
     String retStr = "";
-    if(errorMsg.contains("UNIQUE") || errorMsg.contains("unique")) { //TODO eğer burda çoklu kolon varsa ne olur bak
+    if (errorMsg.contains("UNIQUE") || errorMsg.contains("unique")) {
+      //TODO eğer burda çoklu kolon varsa ne olur bak
       int tableNameIndex = errorMsg.indexOf(tableName);
-      if(tableNameIndex == -1) {
+      if (tableNameIndex == -1) {
         retStr = defaultRetStr;
       } else {
         String columnName = errorMsg.substring(tableNameIndex + tableName.length + 1).split(" ")[0];
         BaseFieldType? fieldType = _getFieldTypeByName(columnName);
-        if(fieldType == null) {
+        if (fieldType == null) {
           retStr = defaultRetStr;
         } else {
-          retStr = singleTitle + " " + ConstantsBase.translate("tablosunda") + " " + fieldType.fieldLabel + " " + ConstantsBase.translate("kolonunda") + " -> \"" + getValueByPath(fieldType.name, convertToStr: true) + "\" " + ConstantsBase.translate("degerinde_kayit_zaten_mevcut");
+          retStr = singleTitle +
+              " " +
+              ConstantsBase.translate("tablosunda") +
+              " " +
+              fieldType.fieldLabel +
+              " " +
+              ConstantsBase.translate("kolonunda") +
+              " -> \"" +
+              getValueByPath(fieldType.name, convertToStr: true) +
+              "\" " +
+              ConstantsBase.translate("degerinde_kayit_zaten_mevcut");
         }
       }
-    } else if(errorMsg.contains("FOREIGN KEY")) {
+    } else if (errorMsg.contains("FOREIGN KEY")) {
       retStr = ConstantsBase.translate("kullanimda_olan_kaydi_silemezsiniz");
     } else {
       retStr = defaultRetStr;
@@ -570,9 +607,9 @@ class BaseModel {
   }
 
   static BaseFieldType? findFieldByName(BaseModel baseModel, String fieldName) {
-    for(int i = 0, len = baseModel.allFieldTypes.length; i < len; ++i) {
+    for (int i = 0, len = baseModel.allFieldTypes.length; i < len; ++i) {
       BaseFieldType fieldType = baseModel.allFieldTypes[i];
-      if(fieldType.name == fieldName) {
+      if (fieldType.name == fieldName) {
         return fieldType;
       }
     }
@@ -581,11 +618,11 @@ class BaseModel {
 
   String getCombinedTitleValue() {
     String retStr = "";
-    titleFields.forEach((titleFieldName){
+    titleFields.forEach((titleFieldName) {
       List<String> fieldVals = _getPathValueFromObj(titleFieldName);
       retStr += " / " + fieldVals[1];
     });
-    if(retStr.length > 3) {
+    if (retStr.length > 3) {
       retStr = retStr.substring(3);
     }
     return retStr;
@@ -597,7 +634,7 @@ class BaseModel {
     int i = 0;
     String fieldTitle = "";
     String currentFieldName;
-    for(int len = path.length - 1; i < len; ++i) {
+    for (int len = path.length - 1; i < len; ++i) {
       currentFieldName = path[i];
       fieldTitle += " " + findFieldByName(currentModel, currentFieldName)!.fieldLabel;
       currentModel = currentModel.get(currentFieldName) as BaseModel;
@@ -612,13 +649,13 @@ class BaseModel {
   }
 
   Widget? _getPathListValuesFromObj(List<String>? fields) {
-    if(fields == null || fields.length == 0) {
+    if (fields == null || fields.length == 0) {
       return null;
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: fields.map((fieldName){
+      children: fields.map((fieldName) {
         List<String> fieldVals = _getPathValueFromObj(fieldName);
         return Text(fieldVals[0] + " : " + fieldVals[1]);
       }).toList(),
@@ -634,30 +671,30 @@ class BaseModel {
   }
 
   Widget? getTileLeadingWidget() {
-    if(getLeadingWidget != null) {
+    if (getLeadingWidget != null) {
       return getLeadingWidget!(this);
     }
     return null;
   }
 
   Widget? getTileTrailingWidget() {
-    if(getTrailingWidget != null) {
+    if (getTrailingWidget != null) {
       return getTrailingWidget!(this);
     }
     return null;
   }
 
   static String _convertObjValToStr(dynamic objVal) {
-    if(objVal.runtimeType == DateTime) {
+    if (objVal.runtimeType == DateTime) {
       DateTime objDateTimeVal = objVal as DateTime;
-      if(objDateTimeVal.hour != 0 || objDateTimeVal.minute != 0 || objDateTimeVal.second != 0) {
+      if (objDateTimeVal.hour != 0 || objDateTimeVal.minute != 0 || objDateTimeVal.second != 0) {
         return ConstantsBase.dateTimeFormat.format(objDateTimeVal);
       } else {
         return ConstantsBase.dateFormat.format(objDateTimeVal);
       }
-    } else if(objVal.runtimeType == bool) {
+    } else if (objVal.runtimeType == bool) {
       bool objBoolVal = objVal as bool;
-      if(objBoolVal) {
+      if (objBoolVal) {
         return ConstantsBase.translate("evet");
       } else {
         return ConstantsBase.translate("hayir");
@@ -671,34 +708,35 @@ class BaseModel {
     List<String> path = pathStr.split(".");
     BaseModel currentModel = this;
     int i = 0;
-    for(int len = path.length - 1; i < len; ++i) {
+    for (int len = path.length - 1; i < len; ++i) {
       currentModel = currentModel.get(path[i]) as BaseModel;
     }
     dynamic objVal = currentModel.get(path[i]);
-    if(!convertToStr) {
+    if (!convertToStr) {
       return objVal;
     } else {
       return _convertObjValToStr(objVal);
     }
   }
 
-  static Future<int> insert(BaseModel baseModel, { Database? db }) {
+  static Future<int> insert(BaseModel baseModel, {Database? db}) {
     return baseModel._insertToDb(dbParam: db);
   }
 
-  static Future<int> update(BaseModel baseModel, { Database? db }) {
+  static Future<int> update(BaseModel baseModel, {Database? db}) {
     return baseModel._updateInDb(dbParam: db);
   }
 
-  static Future<int> delete(BaseModel baseModel, { Database? db }) {
+  static Future<int> delete(BaseModel baseModel, {Database? db}) {
     return baseModel._deleteFromDb(dbParam: db);
   }
 
-  static Future<Map<String, dynamic>> getList(BaseModel baseModel, { int pageSize = -1, int currentPage = 1, String? orderBy, String? rawQuery, Map<String, dynamic>? filterMap, Database? db }) async{
+  static Future<Map<String, dynamic>> getList(BaseModel baseModel,
+      {int pageSize = -1, int currentPage = 1, String? orderBy, String? rawQuery, Map<String, dynamic>? filterMap, Database? db}) async {
     assert(pageSize >= -1);
     assert(currentPage > 0);
     int offset = 0;
-    if(pageSize != -1) {
+    if (pageSize != -1) {
       offset = (currentPage - 1) * pageSize;
     }
     return await baseModel._getList(pageSize, offset, orderBy, rawQuery, filterMap, dbParam: db);
@@ -708,10 +746,10 @@ class BaseModel {
     return baseModel._convertDbErrorToStr(e);
   }
 
-  static Future<BaseModel?> getById(String fromModel, String fromTable, String id, { Database? dbParam }) async {
+  static Future<BaseModel?> getById(String fromModel, String fromTable, String id, {Database? dbParam}) async {
     final Database db = dbParam ?? await DBHelperBase.instance.getDb();
     final List<Map<String, dynamic>> maps = await db.query(fromTable, where: "ID = ?", whereArgs: List<String>.from([id]));
-    if(maps.length > 0) {
+    if (maps.length > 0) {
       BaseModel newObj = BaseModel.createNewObject(fromModel);
       await newObj._fromMap(maps[0]);
       return newObj;
@@ -733,7 +771,7 @@ class BaseModel {
 
   BaseModel clone() {
     BaseModel clonedData = BaseModel.createNewObject(modelName);
-    this.allFieldTypes.forEach((fieldType){
+    this.allFieldTypes.forEach((fieldType) {
       clonedData.set(fieldType.name, this.get(fieldType.name));
     });
     return clonedData;

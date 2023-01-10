@@ -8,7 +8,7 @@ import 'package:sentora_base/widgets/SntIconButton.dart';
 import 'package:sqflite/sqflite.dart';
 
 class BaseModelDuzenleme extends StatefulWidget {
-  final BaseModel widgetKayit;
+  final BaseModel? widgetKayit;
   final String widgetModelName;
   final String baseModelPageId;
   final GlobalKey<ScaffoldState> baseModelPageScaffoldKey;
@@ -20,7 +20,8 @@ class BaseModelDuzenleme extends StatefulWidget {
   });
 
   @override
-  BaseModelDuzenlemeState createState() => new BaseModelDuzenlemeState(widgetKayit:this.widgetKayit, modelName: this.widgetModelName, baseModelPageId : baseModelPageId);
+  BaseModelDuzenlemeState createState() =>
+      new BaseModelDuzenlemeState(widgetKayit: this.widgetKayit, modelName: this.widgetModelName, baseModelPageId: baseModelPageId);
 }
 
 class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
@@ -37,7 +38,7 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
     required this.modelName,
     required this.baseModelPageId,
   }) {
-    if(widgetKayit == null) {
+    if (widgetKayit == null) {
       kayit = BaseModel.createNewObject(modelName);
     } else {
       kayit = widgetKayit.clone();
@@ -54,10 +55,12 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
 
   List<Widget> getFormItems() {
     List<Widget> retWidgets = [];
-    for(int i = 0, len = kayit.fieldTypes.length; i < len; ++i) {
+    for (int i = 0, len = kayit.fieldTypes.length; i < len; ++i) {
       BaseFieldType fieldType = kayit.fieldTypes[i];
       retWidgets.add(fieldType.constructFormField(context, kayit, i == len - 1, _scaffoldKey));
-      retWidgets.add(SizedBox(height: 20,));
+      retWidgets.add(SizedBox(
+        height: 20,
+      ));
     }
     return retWidgets;
   }
@@ -65,82 +68,77 @@ class BaseModelDuzenlemeState extends State<BaseModelDuzenleme> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(kayit.singleTitle + (kayit.get("ID") == null ? " " + ConstantsBase.translate("ekleme") : " " + ConstantsBase.translate("duzenleme") )),
-        centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(50.0),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(width: 1.0, color: Colors.blue.shade300),
-              ),
-            ),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: SntIconButton(
-                    caption: ConstantsBase.translate("kaydet"),
-                    color: ConstantsBase.defaultButtonColor,
-                    icon: Icons.save,
-                    onTap: () async{
-                      _formKey.currentState!.save();
-                      if (_formKey.currentState!.validate()) {
-                        ConstantsBase.showSnackBarShort(_scaffoldKey, ConstantsBase.translate("bilgiler_kaydediliyor"));
-                        if(kayit.get("ID") == null) {
-                          kayit.set("ID", ConstantsBase.getRandomUUID());
-                          await BaseModel.insert(kayit).then((_) async{
-                            ConstantsBase.showSnackBarShort(widget.baseModelPageScaffoldKey, kayit.singleTitle + " " + ConstantsBase.translate("eklendi"));
-                            await NavigatorBase.pop();
-                            ConstantsBase.eventBus.fire(ModelDuzenlemeEvent(baseModelPageId));
-                            return;
-                          }).catchError((e){
-                            debugPrint(e.toString());
-                            kayit.set("ID", null);
-                            if(e is DatabaseException) {
-                              ConstantsBase.showSnackBarLong(_scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e) ?? "");
-                            } else {
-                              ConstantsBase.showSnackBarLong(_scaffoldKey, e.toString());
-                            }
-                            return;
-                          });
-                          return;
-                        } else {
-                          await BaseModel.update(kayit).then((_) async{
-                            ConstantsBase.showSnackBarShort(widget.baseModelPageScaffoldKey, kayit.singleTitle + " " + ConstantsBase.translate("guncellendi"));
-                            await NavigatorBase.pop();
-                            ConstantsBase.eventBus.fire(ModelDuzenlemeEvent(baseModelPageId));
-                            return;
-                          }).catchError((e){
-                            debugPrint(e.toString());
-                            if(e is DatabaseException) {
-                              ConstantsBase.showSnackBarLong(_scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e) ?? "");
-                            } else {
-                              ConstantsBase.showSnackBarLong(_scaffoldKey, e.toString());
-                            }
-                            return;
-                          });
-                        }
-                      }
-                      return;
-                    })
-                )
-              ])
-          )
-        )
-      ),
-      body: ConstantsBase.wrapWidgetWithBanner(SingleChildScrollView(
-        padding: EdgeInsets.all(8.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: getFormItems(),
-          )
-        ),
-      ))
-    );
+        key: _scaffoldKey,
+        appBar: AppBar(
+            title: Text(kayit.singleTitle + (kayit.get("ID") == null ? " " + ConstantsBase.translate("ekleme") : " " + ConstantsBase.translate("duzenleme"))),
+            centerTitle: true,
+            bottom: PreferredSize(
+                preferredSize: Size.fromHeight(50.0),
+                child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(width: 1.0, color: Colors.blue.shade300),
+                      ),
+                    ),
+                    child: Row(children: <Widget>[
+                      Expanded(
+                          child: SntIconButton(
+                              caption: ConstantsBase.translate("kaydet"),
+                              color: ConstantsBase.defaultButtonColor,
+                              icon: Icons.save,
+                              onTap: () async {
+                                _formKey.currentState!.save();
+                                if (_formKey.currentState!.validate()) {
+                                  ConstantsBase.showSnackBarShort(_scaffoldKey, ConstantsBase.translate("bilgiler_kaydediliyor"));
+                                  if (kayit.get("ID") == null) {
+                                    kayit.set("ID", ConstantsBase.getRandomUUID());
+                                    await BaseModel.insert(kayit).then((_) async {
+                                      ConstantsBase.showSnackBarShort(
+                                          widget.baseModelPageScaffoldKey, kayit.singleTitle + " " + ConstantsBase.translate("eklendi"));
+                                      await NavigatorBase.pop();
+                                      ConstantsBase.eventBus.fire(ModelDuzenlemeEvent(baseModelPageId));
+                                      return;
+                                    }).catchError((e) {
+                                      debugPrint(e.toString());
+                                      kayit.set("ID", null);
+                                      if (e is DatabaseException) {
+                                        ConstantsBase.showSnackBarLong(_scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e) ?? "");
+                                      } else {
+                                        ConstantsBase.showSnackBarLong(_scaffoldKey, e.toString());
+                                      }
+                                      return;
+                                    });
+                                    return;
+                                  } else {
+                                    await BaseModel.update(kayit).then((_) async {
+                                      ConstantsBase.showSnackBarShort(
+                                          widget.baseModelPageScaffoldKey, kayit.singleTitle + " " + ConstantsBase.translate("guncellendi"));
+                                      await NavigatorBase.pop();
+                                      ConstantsBase.eventBus.fire(ModelDuzenlemeEvent(baseModelPageId));
+                                      return;
+                                    }).catchError((e) {
+                                      debugPrint(e.toString());
+                                      if (e is DatabaseException) {
+                                        ConstantsBase.showSnackBarLong(_scaffoldKey, BaseModel.convertDbErrorToStr(kayit, e) ?? "");
+                                      } else {
+                                        ConstantsBase.showSnackBarLong(_scaffoldKey, e.toString());
+                                      }
+                                      return;
+                                    });
+                                  }
+                                }
+                                return;
+                              }))
+                    ])))),
+        body: ConstantsBase.wrapWidgetWithBanner(SingleChildScrollView(
+          padding: EdgeInsets.all(8.0),
+          child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: getFormItems(),
+              )),
+        )));
   }
 }

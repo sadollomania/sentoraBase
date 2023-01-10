@@ -29,7 +29,7 @@ class NavigatorBase {
     }
   }
 
-  static Future<bool> pop([bool? result]) {
+  static Future<bool?> pop([bool? result]) {
     if (navigatorKey.currentState == null) {
       return Future.delayed(Duration(milliseconds: 500), () {
         return pop(result);

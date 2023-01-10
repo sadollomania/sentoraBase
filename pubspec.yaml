@@ -4,38 +4,38 @@ version: 0.0.38
 homepage:
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.18.6 <3.0.0"
   flutter: ">=1.20.0"
 
 publish_to: none
 
 dependencies:
-  charts_flutter: ^0.12.0
-  awesome_select: ^5.2.0
-  http: ^0.13.4
+  syncfusion_flutter_charts: ^20.4.41   #syncfusion_flutter_charts: ^20.4.38   #charts_flutter: ^0.12.0
+  awesome_select: ^6.0.0
+  http: ^0.13.5
   auto_size_text: ^3.0.0
-  devicelocale: ^0.5.0
+  devicelocale: ^0.5.5
   event_bus: ^2.0.0
-  intro_slider: ^3.0.4
-  file_picker: ^4.5.1
+  intro_slider: ^4.2.0
+  file_picker: ^5.2.4
   flutter_reorderable_list: ^1.2.0
-  flutter_slidable: ^1.2.0
+  flutter_slidable: ^2.0.0
   expandable: ^5.0.1
   flutter_datetime_picker: ^1.5.1
-  flutter_local_notifications: ^9.5.1
-  timezone: ^0.8.0
-  synchronized: ^3.0.0+2
-  device_info_plus: ^3.2.3
-  unity_ads_plugin: ^0.3.3
-  tuple: ^2.0.0
-  uuid: 3.0.6
-  intl: 0.17.0
-  image_picker: 0.8.5
-  toast: 0.3.0
-  sqflite: 2.0.2+1
-  path_provider: ^2.0.9
-  shared_preferences: 2.0.13
-  share_plus: 4.0.4
+  flutter_local_notifications: ^13.0.0
+  timezone: ^0.9.1
+  synchronized: ^3.0.0+3
+  device_info_plus: ^8.0.0
+  unity_ads_plugin: ^0.3.7
+  tuple: ^2.0.1
+  uuid: ^3.0.7
+  intl: ^0.17.0   #intl: ^0.18.0
+  image_picker: ^0.8.6
+  toast: ^0.3.0
+  sqflite: ^2.2.2
+  path_provider: ^2.0.11
+  shared_preferences: ^2.0.15
+  share_plus: ^6.3.0
   platform: ^3.1.0
   flutter:
     sdk: flutter
